@@ -3,6 +3,7 @@ go 1.25.4
 use (
 	./apps/dashboard
 	./apps/migrate
+	./libs/go/authx
 	./libs/go/cryptox
 	./libs/go/dbx
 	./libs/go/envx
