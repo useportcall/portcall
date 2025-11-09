@@ -1,8 +1,8 @@
 package app
 
 import (
-	"github.com/useportcall/portcall/apps/dashboard/internal/routerx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
+	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
 func GetApp(c *routerx.Context) {
