@@ -29,11 +29,8 @@ func New() IAuthClient {
 	switch authModule { // TODO: explore build tags to exclude unused auth modules
 	case "clerk":
 		return newClerkAuthClient()
-	case "local":
-		return newLocalAuthClient()
 	default:
-		log.Fatal("AUTH_MODULE_NOT_FOUND")
-		return nil
+		return newLocalAuthClient()
 	}
 }
 
