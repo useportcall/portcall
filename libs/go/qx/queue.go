@@ -21,6 +21,7 @@ func New() IQueue {
 
 type IQueue interface {
 	Enqueue(name string, payload any, queue string) error
+	Close() error
 }
 
 type queue_client struct {
@@ -41,4 +42,8 @@ func (c *queue_client) Enqueue(name string, payload any, queue string) error {
 	}
 
 	return nil
+}
+
+func (c *queue_client) Close() error {
+	return c.client.Close()
 }
