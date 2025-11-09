@@ -7,12 +7,13 @@ import (
 	"github.com/useportcall/portcall/libs/go/authx"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
+	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
-func Auth(db dbx.IORM) gin.HandlerFunc {
+func Auth(db dbx.IORM) routerx.HandlerFunc {
 	client := authx.New()
 
-	return func(c *gin.Context) {
+	return func(c *routerx.Context) {
 		email, err := client.Validate(c.Request.Context(), c.Request.Header)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"access": "unauthorized"})
