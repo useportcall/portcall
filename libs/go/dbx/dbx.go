@@ -25,6 +25,10 @@ func New() IORM {
 	return &orm{db: db}
 }
 
+func IsRecordNotFoundError(err error) bool {
+	return err == gorm.ErrRecordNotFound
+}
+
 type IORM interface {
 	List(dest any, conds ...any) error
 	ListWithOrder(dest any, order string, conds ...any) error
