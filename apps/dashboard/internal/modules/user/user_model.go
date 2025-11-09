@@ -1,0 +1,43 @@
+package user
+
+import (
+	"time"
+
+	"github.com/useportcall/portcall/apps/dashboard/internal/modules/address"
+	"github.com/useportcall/portcall/libs/go/dbx/models"
+)
+
+type User struct {
+	ID                 string           `json:"id" binding:"required"`
+	Name               string           `json:"name" binding:"required,min=3"`
+	Email              string           `json:"email,omitempty"`
+	CreatedAt          time.Time        `json:"created_at"`
+	UpdatedAt          time.Time        `json:"updated_at"`
+	Subscribed         bool             `json:"subscribed"`
+	PaymentMethodAdded bool             `json:"payment_method_added"`
+	BillingAddress     *address.Address `json:"billing_address"`
+}
+
+func (u *User) Set(user *models.User) *User {
+	u.ID = user.PublicID
+	u.Name = user.Name
+	u.Email = user.Email
+	u.CreatedAt = user.CreatedAt
+	u.UpdatedAt = user.UpdatedAt
+	u.Subscribed = false
+
+	if user.BillingAddress != nil {
+		u.BillingAddress = (&address.Address{}).Set(user.BillingAddress)
+	}
+
+	return u
+}
+
+type UpdateUserRequest struct {
+	Name string `json:"name" binding:"required"`
+}
+
+type CreateUserRequest struct {
+	Email string `json:"email" binding:"required,email"`
+	Name  string `json:"name"`
+}
