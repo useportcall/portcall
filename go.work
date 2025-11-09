@@ -8,5 +8,6 @@ use (
 	./libs/go/dbx
 	./libs/go/envx
 	./libs/go/qx
+	./libs/go/paymentx
 	./libs/go/routerx
 )
