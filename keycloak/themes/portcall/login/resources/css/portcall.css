@@ -1,0 +1,18 @@
+/* Center card and add brand colors */
+body {
+  background: red;
+}
+
+.login-pf-page .card-pf {
+  border-radius: 14px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.08);
+}
+#kc-header-wrapper {
+  display: flex; align-items: center; gap: .75rem;
+}
+#kc-logo-wrapper img {
+  height: 28px;
+}
+#kc-content .btn-primary {
+  border-radius: 10px;
+}
