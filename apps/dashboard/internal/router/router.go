@@ -43,13 +43,13 @@ func Init(db dbx.IORM, crypto cryptox.ICrypto, q qx.IQueue) routerx.IRouter {
 
 	r.Use(middleware.Auth(db))
 
-	// Account routes
-	r.GET("/api/account", account.GetAccount)
-
-	// // App routes
+	// App routes
 	r.GET("/api/apps", app.ListApps)
 	r.POST("/api/apps", app.CreateApp)
 	r.GET("/api/apps/:app_id", app.GetApp)
+
+	// Account routes
+	r.GET("/api/apps/:app_id/account", account.GetAccount)
 
 	// // Company routes
 	r.GET("/api/apps/:app_id/company", company.GetCompany)
@@ -83,6 +83,7 @@ func Init(db dbx.IORM, crypto cryptox.ICrypto, q qx.IQueue) routerx.IRouter {
 
 	// // Subscription routes
 	r.GET("/api/apps/:app_id/subscriptions", subscription.ListSubscriptions)
+	r.GET("/api/apps/:app_id/users/:id/subscription", subscription.GetUserSubscription)
 
 	// // Invoice routes
 	r.GET("/api/apps/:app_id/invoices", invoice.ListInvoices)
