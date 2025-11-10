@@ -65,6 +65,14 @@ services:
       REDIS_ADDR: redis:6379
       ASYNQMON_SERVER_PORT: 8080
 
+  mailpit:
+    image: axllent/mailpit
+    container_name: mailpit
+    restart: unless-stopped
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+
 volumes:
   postgres_data:
   redis_data:
