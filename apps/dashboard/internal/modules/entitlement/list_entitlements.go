@@ -7,7 +7,7 @@ import (
 
 func ListEntitlements(c *routerx.Context) {
 	userID := c.Query("user_id")
-	filter := c.Query("filter")
+	isMetered := c.QueryBool("is_metered", false)
 
 	var user models.User
 	if err := c.DB().GetForPublicID(c.AppID(), userID, &user); err != nil {
@@ -16,13 +16,11 @@ func ListEntitlements(c *routerx.Context) {
 	}
 
 	var query []any
-	switch filter {
-	case "exclude_metered":
-		query = []any{"app_id = ? AND user_id = ? AND is_metered = ?", c.AppID, user.ID, false}
-	case "include_metered":
-		query = []any{"app_id = ? AND user_id = ? AND is_metered = ?", c.AppID, user.ID, true}
-	default:
-		query = []any{"app_id = ? AND user_id = ?", c.AppID, user.ID}
+	switch isMetered {
+	case false:
+		query = []any{"app_id = ? AND user_id = ? AND is_metered = ?", c.AppID(), user.ID, false}
+	case true:
+		query = []any{"app_id = ? AND user_id = ? AND is_metered = ?", c.AppID(), user.ID, true}
 	}
 
 	var entitlements []models.Entitlement
