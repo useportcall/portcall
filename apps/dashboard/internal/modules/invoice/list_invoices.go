@@ -6,8 +6,8 @@ import (
 )
 
 func ListInvoices(c *routerx.Context) {
-	subscriptionID := c.Param("subscription_id")
-	userID := c.Param("user_id")
+	subscriptionID := c.Query("subscription_id")
+	userID := c.Query("user_id")
 
 	var conds []any
 	if subscriptionID != "" {
@@ -23,13 +23,14 @@ func ListInvoices(c *routerx.Context) {
 			c.NotFound("User not found")
 			return
 		}
+
 		conds = []any{"app_id = ? AND user_id = ?", c.AppID(), user.ID}
 	} else {
 		conds = []any{"app_id = ?", c.AppID()}
 	}
 
 	var invoices []models.Invoice
-	if err := c.DB().List(&invoices, conds...); err != nil {
+	if err := c.DB().ListWithOrder(&invoices, "created_at DESC", conds...); err != nil {
 		c.ServerError("Failed to list invoices")
 		return
 	}
@@ -37,7 +38,6 @@ func ListInvoices(c *routerx.Context) {
 	response := make([]Invoice, len(invoices))
 	for i, inv := range invoices {
 		response[i].Set(&inv)
-		// TODO: set additional fields
 	}
 
 	c.OK(response)
