@@ -1,10 +1,12 @@
 go 1.25.4
 
 use (
+	./apps/api
 	./apps/billing
 	./apps/checkout
 	./apps/dashboard
 	./apps/migrate
+	./libs/go/apix
 	./libs/go/authx
 	./libs/go/cryptox
 	./libs/go/dbx
