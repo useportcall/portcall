@@ -2,6 +2,7 @@ go 1.25.4
 
 use (
 	./apps/billing
+	./apps/checkout
 	./apps/dashboard
 	./apps/migrate
 	./libs/go/authx
