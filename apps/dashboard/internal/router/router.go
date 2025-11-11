@@ -31,7 +31,7 @@ func Init(db dbx.IORM, crypto cryptox.ICrypto, q qx.IQueue) routerx.IRouter {
 	r := routerx.New(db, crypto, q)
 
 	// --- Serve static files ---
-	r.Use(middleware.StaticFile("./frontend/dist"))
+	r.Use(routerx.StaticFileMiddleware("./frontend/dist"))
 
 	// --- Fallback to index.html for SPA routing ---
 	r.NoRoute(func(c *routerx.Context) {
