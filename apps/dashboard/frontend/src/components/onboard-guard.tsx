@@ -1,8 +1,10 @@
+import { useCreateApp, useListApps } from "@/hooks";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ReactNode } from "react";
-import { Form, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { useCreateApp, useGetAccount } from "@/hooks";
+import FloatingLogoutButton from "./floating-logout-button";
+import { Button } from "./ui/button";
 import {
   Card,
   CardContent,
@@ -10,9 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from "./ui/card";
-import { Button } from "./ui/button";
-import FloatingLogoutButton from "./floating-logout-button";
-import { FormControl, FormField, FormItem, FormLabel } from "./ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel } from "./ui/form";
 import { Input } from "./ui/input";
 
 const FormSchema = z.object({
@@ -20,24 +20,27 @@ const FormSchema = z.object({
 });
 
 export default function OnboardGuard({ children }: { children: ReactNode }) {
-  const { data } = useGetAccount();
+  const { data: apps } = useListApps();
 
   const { mutate } = useCreateApp();
 
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
-    defaultValues: { name: "" },
+    defaultValues: {
+      name: "",
+    },
   });
 
   function onSubmit(data: z.infer<typeof FormSchema>) {
+    console.log("Creating app with data:", data);
     return mutate(data);
   }
 
-  if (!data) {
+  if (!apps) {
     return <></>;
   }
 
-  if (data.data) {
+  if (apps.data.length) {
     return children;
   }
 
