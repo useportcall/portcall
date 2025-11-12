@@ -23,6 +23,13 @@ func CreateFeature(c *routerx.Context) {
 	}
 
 	feature.IsMetered = body.IsMetered
+	feature.AppID = c.AppID()
+
+	if err := c.DB().Create(&feature); err != nil {
+		c.ServerError("Failed to create feature")
+		return
+	}
+
 	if body.PlanID != "" {
 		plan := &models.Plan{}
 		if err := c.DB().GetForPublicID(c.AppID(), body.PlanID, plan); err != nil {
