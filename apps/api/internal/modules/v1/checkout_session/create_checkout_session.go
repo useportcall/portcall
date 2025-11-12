@@ -2,6 +2,7 @@ package checkout_session
 
 import (
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/useportcall/portcall/libs/go/apix"
@@ -25,8 +26,10 @@ func CreateCheckoutSession(c *routerx.Context) {
 		return
 	}
 
+	log.Println("request:", body)
+
 	var company models.Company
-	if err := c.DB().FindFirst(&company, "app_id = ?", c.AppID); err != nil {
+	if err := c.DB().FindFirst(&company, "app_id = ?", c.AppID()); err != nil {
 		c.ServerError("error retrieving company for app")
 		return
 	}
