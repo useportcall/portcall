@@ -56,8 +56,8 @@ type Company struct {
 
 type Feature struct {
 	gorm.Model
-	PublicID  string `gorm:"not null;uniqueIndex:idx_public_app"`
-	AppID     uint   `gorm:"not null;uniqueIndex:idx_public_app"`
+	PublicID  string `gorm:"not null;uniqueIndex:idx_feature_public_app"`
+	AppID     uint   `gorm:"not null;uniqueIndex:idx_feature_public_app"`
 	App       App    `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	IsMetered bool   `gorm:"not null;default:false"` // true if the feature is metered
 }
@@ -76,14 +76,12 @@ type User struct {
 
 type Entitlement struct {
 	gorm.Model
-	PublicID string `gorm:"not null;uniqueIndex:idx_public_app" json:"id"`
-	AppID    uint   `gorm:"not null;uniqueIndex:idx_public_app" json:"-"`
-	App      App    `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
-
-	UserID    uint    `gorm:"not null;uniqueIndex:idx_user_feature"`
-	User      User    `gorm:"foreignKey:UserID;"`
-	FeatureID uint    `gorm:"not null;uniqueIndex:idx_user_feature"`
-	Feature   Feature `gorm:"foreignKey:FeatureID"` // should be unique for each user
+	AppID           uint    `gorm:"not null;uniqueIndex:idx_app_user_feature"`
+	App             App     `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserID          uint    `gorm:"not null;uniqueIndex:idx_app_user_feature"`
+	User            User    `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	FeaturePublicID string  `gorm:"not null;uniqueIndex:idx_app_user_feature"`
+	Feature         Feature `gorm:"foreignKey:FeaturePublicID,AppID;references:PublicID,AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 
 	//
 	Interval  string         `gorm:"column:interval;not null;default:month"`
@@ -144,17 +142,17 @@ type Quote struct {
 
 type PlanGroup struct {
 	gorm.Model
-	PublicID string `gorm:"not null;uniqueIndex:idx_public_app" json:"id"`
-	AppID    uint   `gorm:"not null;uniqueIndex:idx_public_app" json:"-"`
-	App      App    `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
+	PublicID string `gorm:"not null;uniqueIndex:idx_public_app"`
+	AppID    uint   `gorm:"not null;uniqueIndex:idx_public_app"`
+	App      App    `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Name     string `gorm:"not null" json:"name"`
 }
 
 type Plan struct {
 	gorm.Model
-	PublicID         string     `gorm:"not null;uniqueIndex:idx_public_app" json:"id"`
-	AppID            uint       `gorm:"not null;uniqueIndex:idx_public_app" json:"-"`
-	App              App        `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
+	PublicID         string     `gorm:"not null;uniqueIndex:idx_public_app"`
+	AppID            uint       `gorm:"not null;uniqueIndex:idx_public_app"`
+	App              App        `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	PlanGroupID      *uint      `gorm:"default:null"`
 	PlanGroup        *PlanGroup `gorm:"foreignKey:PlanGroupID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Name             string     `gorm:"not null"`
@@ -193,9 +191,9 @@ type PlanFeature struct {
 	App        App      `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	PlanID     uint     `gorm:"not null;"`
 	Plan       Plan     `gorm:"foreignKey:PlanID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	PlanItemID uint     `gorm:"default:null"`
+	PlanItemID uint     `gorm:"default:null;uniqueIndex:idx_plan_item_feature"`
 	PlanItem   PlanItem `gorm:"default:null;foreignKey:PlanItemID;constraint:OnDelete:CASCADE"`
-	FeatureID  uint     `gorm:"default:null"`
+	FeatureID  uint     `gorm:"default:null;uniqueIndex:idx_plan_item_feature"`
 	Feature    Feature  `gorm:"default:null;foreignKey:FeatureID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Interval   string   `gorm:"not null;default:month"` // month, year, etc.
 	Quota      int      `gorm:"not null;default:-1"`    // -1 means unlimited, 0 means no quota
