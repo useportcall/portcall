@@ -1,5 +1,5 @@
 import { useAuth } from "@/lib/keycloak/auth";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import axios, { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import { useApp } from "../use-app";
@@ -29,13 +29,24 @@ export function useAppMutation<T, V = unknown>(props: {
   onError?: () => void;
 }) {
   const client = useAxiosClient();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: async (dto: T) => {
       const result = await client![props.method]<{ data: V }>(props.path, dto);
       return result.data;
     },
-    onSuccess: props.onSuccess,
+    onSuccess: (arg0: { data: V }) => {
+      if (Array.isArray(props.invalidate)) {
+        props.invalidate.forEach((path) => {
+          queryClient.invalidateQueries({ queryKey: [path] });
+        });
+      } else {
+        queryClient.invalidateQueries({ queryKey: [props.invalidate] });
+      }
+
+      props.onSuccess?.(arg0);
+    },
     onError: props.onError,
   });
 }
