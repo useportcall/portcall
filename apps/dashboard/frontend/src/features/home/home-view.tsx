@@ -25,7 +25,7 @@ export default function HomeView() {
         <Separator />
         <div className="w-full flex flex-col gap-4 justify-center items-center h-full">
           <p className="text-lg font-medium">Quick start panel</p>
-          <div className="h-fit w-full lg:max-w-2/5 justify-center items-center my-auto mx-auto grid grid-cols-2 gap-4 bg-slate-50 p-4 md:p-10 rounded-md">
+          <div className="h-fit w-full lg:max-w-lg justify-center items-center my-auto mx-auto grid grid-cols-2 gap-4 bg-slate-50 p-4 md:p-10 rounded-md">
             <Link to={"/plans"} className="w-full">
               <Button
                 variant={"outline"}
