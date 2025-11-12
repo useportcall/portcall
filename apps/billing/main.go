@@ -29,6 +29,8 @@ func main() {
 	server.H("find_subscriptions_to_reset", handlers.FindSubscriptionsToReset)
 	server.H("start_subscription_reset", handlers.StartSubscriptionReset)
 	server.H("end_subscription_reset", handlers.EndSubscriptionReset)
+	server.H("process_meter_event", handlers.ProcessMeterEvent)
+	server.H("create_entitlements", handlers.CreateEntitlements)
 
 	server.R()
 }
