@@ -9,6 +9,8 @@ import { CountryInput } from "./country-input";
 import { FormInput } from "./form-input";
 import { Totals } from "./totals";
 import { Input } from "./ui/input";
+import { useState } from "react";
+import ExpiryInput from "./expiry-input";
 
 type Props = {
   form: UseFormReturn<CheckoutFormSchema>;
@@ -21,13 +23,14 @@ export function MockCheckout({ form, session }: Props) {
       <div className="w-full flex flex-col gap-4 mb-2 md:max-w-sm mx-auto">
         <p className="text-sm font-medium">Card details</p>
         <div className="flex flex-col gap-2">
-          <Input
-            placeholder="1234 1234 1234 1234"
-            className="bg-white text-sm"
-          />
+          <CreditCardInput />
           <span className="flex w-full justify-between gap-2">
-            <Input placeholder="MM / YY" className="bg-white text-sm" />
-            <Input placeholder="CVC" className="bg-white text-sm" />
+            <ExpiryInput />
+            <Input
+              placeholder="CVC"
+              className="bg-white text-sm"
+              maxLength={4}
+            />
           </span>
         </div>
       </div>
@@ -59,6 +62,42 @@ export function MockCheckout({ form, session }: Props) {
         </MockCheckoutForm>
       </div>
     </>
+  );
+}
+
+function CreditCardInput() {
+  const [cardNumber, setCardNumber] = useState("");
+
+  const isAmex =
+    cardNumber.replace(/\s+/g, "").startsWith("34") ||
+    cardNumber.replace(/\s+/g, "").startsWith("37");
+
+  const formatCardNumber = (value: string) => {
+    const digitsOnly = value.replace(/\D/g, "").slice(0, 16);
+
+    if (isAmex) {
+      const truncated = digitsOnly.slice(0, 15);
+      return truncated.replace(/^(\d{4})(\d{6})(\d{5})$/, "$1 $2 $3");
+    }
+
+    const truncated = digitsOnly.slice(0, 16);
+    return truncated.match(/.{1,4}/g)?.join(" ") || truncated;
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatCardNumber(e.target.value);
+    setCardNumber(formattedValue);
+  };
+
+  return (
+    <Input
+      type="text"
+      value={cardNumber}
+      onChange={handleChange}
+      placeholder="1234 5678 9012 3456"
+      maxLength={isAmex ? 17 : 19} // 16 digits + 3 spaces
+      className="bg-white text-sm"
+    />
   );
 }
 
