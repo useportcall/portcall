@@ -13,6 +13,7 @@ import {
 import { useUpdatePlan } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { Plan } from "@/models/plan";
+import { PopoverPortal } from "@radix-ui/react-popover";
 import { ChevronDown, Heart } from "lucide-react";
 import { useState } from "react";
 
@@ -39,31 +40,33 @@ export function FreeTrialComboBox({ plan }: { plan: Plan }) {
           <ChevronDown />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-[200px]" align="start" side="left">
-        <Command>
-          <CommandInput
-            placeholder="Search..."
-            onBlur={(e) => {
-              if (e.target.value === "") return;
-              setValue(Number(e.target.value));
-              updatePlan({ trial_period_days: Number(e.target.value) });
-            }}
-          />
-          <CommandList>
-            {values.map((val) => (
-              <CommandItem
-                key={val}
-                onSelect={() => {
-                  setValue(val);
-                  updatePlan({ trial_period_days: val });
-                }}
-              >
-                {val} days
-              </CommandItem>
-            ))}
-          </CommandList>
-        </Command>
-      </PopoverContent>
+      <PopoverPortal>
+        <PopoverContent className="w-[200px]" align="start" side="left">
+          <Command>
+            <CommandInput
+              placeholder="Search..."
+              onBlur={(e) => {
+                if (e.target.value === "") return;
+                setValue(Number(e.target.value));
+                updatePlan({ trial_period_days: Number(e.target.value) });
+              }}
+            />
+            <CommandList>
+              {values.map((val) => (
+                <CommandItem
+                  key={val}
+                  onSelect={() => {
+                    setValue(val);
+                    updatePlan({ trial_period_days: val });
+                  }}
+                >
+                  {val} days
+                </CommandItem>
+              ))}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </PopoverPortal>
     </Popover>
   );
 }
