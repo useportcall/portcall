@@ -10,7 +10,7 @@ const nextConfig: NextConfig = {
     return [
       {
         source: "/api/:path*", // Incoming request path
-        destination: "http://localhost:8010/api/:path*", // Destination URL (e.g., your backend API)
+        destination: "http://localhost:8700/api/:path*", // Destination URL (e.g., your backend API)
       },
     ];
   },
