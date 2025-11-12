@@ -30,6 +30,8 @@
       "enabled": true,
       "emailVerified": true,
       "email": "demo@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
       "credentials": [
         { "type": "password", "value": "demo1234", "temporary": false }
       ]

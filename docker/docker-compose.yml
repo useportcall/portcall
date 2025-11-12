@@ -48,8 +48,8 @@ services:
     ports:
       - "127.0.0.1:8080:8080"
     volumes:
-      - ../keycloak/themes:/opt/keycloak/themes
-      - ../keycloak/realms:/opt/keycloak/data/import
+      - ./keycloak/themes:/opt/keycloak/themes
+      - ./keycloak/realms:/opt/keycloak/data/import
 
   asynqmon:
     image: hibiken/asynqmon
@@ -72,6 +72,17 @@ services:
     ports:
       - "1025:1025"
       - "8025:8025"
+
+  prisma_studio:
+    build:
+      context: ./prisma-studio
+    container_name: prisma_studio
+    depends_on:
+      - postgres
+    environment:
+      - DATABASE_URL=postgresql://admin:adminpassword@postgres:5432/main_portcall_db
+    ports:
+      - "5555:5555"
 
 volumes:
   postgres_data:
