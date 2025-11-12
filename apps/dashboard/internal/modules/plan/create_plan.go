@@ -25,7 +25,7 @@ func CreatePlan(c *routerx.Context) {
 
 	planItem := &models.PlanItem{
 		AppID:             c.AppID(),
-		PublicID:          utils.GenPublicID("plan_item"),
+		PublicID:          utils.GenPublicID("pi"),
 		PlanID:            plan.ID,
 		PublicTitle:       "New Plan Item",
 		PublicDescription: "",

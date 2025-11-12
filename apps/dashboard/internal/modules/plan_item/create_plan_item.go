@@ -53,20 +53,5 @@ func CreatePlanItem(c *routerx.Context) {
 		interval = i
 	}
 
-	planFeature := models.PlanFeature{
-		PublicID:   utils.GenPublicID("pf"),
-		PlanID:     plan.ID,
-		AppID:      plan.AppID,
-		FeatureID:  feature.ID,
-		PlanItemID: planItem.ID,
-		Interval:   interval,
-		Quota:      body.Quota,
-		Rollover:   body.Rollover,
-	}
-	if err := c.DB().Create(&planFeature); err != nil {
-		c.ServerError("Failed to create plan feature")
-		return
-	}
-
 	c.OK(new(PlanItem).Set(planItem))
 }

@@ -18,7 +18,7 @@ func DeletePlan(c *routerx.Context) {
 		return
 	}
 
-	if err := c.DB().RemoveForPublicID(c.AppID(), id, plan); err != nil {
+	if err := c.DB().DeleteForID(plan); err != nil {
 		c.ServerError("Failed to delete plan")
 		return
 	}

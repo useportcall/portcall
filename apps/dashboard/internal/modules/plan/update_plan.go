@@ -37,12 +37,9 @@ func UpdatePlan(c *routerx.Context) {
 		plan.Interval = body.Interval
 	}
 
-	if body.IntervalCount < 1 {
-		c.BadRequest("Billing cycle count must be at least 1")
-		return
+	if body.IntervalCount != nil && *body.IntervalCount > 1 {
+		plan.IntervalCount = *body.IntervalCount
 	}
-
-	plan.IntervalCount = body.IntervalCount
 
 	if body.PlanGroupID != "" {
 		var planGroup models.PlanGroup

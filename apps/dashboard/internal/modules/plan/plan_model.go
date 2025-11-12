@@ -3,6 +3,7 @@ package plan
 import (
 	"time"
 
+	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_group"
 	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_item"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 )
@@ -33,6 +34,11 @@ func (p *Plan) Set(plan *models.Plan) *Plan {
 	p.UpdatedAt = plan.UpdatedAt
 	p.Interval = plan.Interval
 	p.IntervalCount = plan.IntervalCount
+
+	if plan.PlanGroup != nil {
+		p.PlanGroup = new(plan_group.PlanGroup).Set(plan.PlanGroup)
+	}
+
 	return p
 }
 
@@ -41,6 +47,6 @@ type UpdatePlanRequest struct {
 	Currency        string `json:"currency"`
 	TrialPeriodDays int    `json:"trial_period_days"`
 	Interval        string `json:"interval"`
-	IntervalCount   int    `json:"interval_count"`
+	IntervalCount   *int   `json:"interval_count"`
 	PlanGroupID     string `json:"plan_group_id"`
 }
