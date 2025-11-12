@@ -5,6 +5,9 @@ import (
 	"os"
 
 	"github.com/useportcall/portcall/apps/api/internal/modules/v1/checkout_session"
+	"github.com/useportcall/portcall/apps/api/internal/modules/v1/entitlement"
+	"github.com/useportcall/portcall/apps/api/internal/modules/v1/meter_event"
+	"github.com/useportcall/portcall/apps/api/internal/modules/v1/subscription"
 	"github.com/useportcall/portcall/apps/api/internal/modules/v1/user"
 	"github.com/useportcall/portcall/libs/go/cryptox"
 	"github.com/useportcall/portcall/libs/go/dbx"
@@ -27,7 +30,18 @@ func main() {
 
 	r := routerx.New(db, crypto, q)
 
+	r.Use(func(c *routerx.Context) {
+		c.Set("app_id", uint(1))
+	})
+
 	r.GET("/v1/users/", user.ListUsers)
+
+	r.GET("/v1/users/:user_id/entitlements/:id", entitlement.GetEntitlement)
+
+	r.GET("/v1/subscriptions", subscription.ListSubscriptions)
+	r.POST("/v1/subscriptions/:subscription_id/cancel", subscription.CancelSubscription)
+
+	r.POST("/v1/meter_events", meter_event.CreateMeterEvent)
 
 	r.POST("/v1/checkout-sessions", checkout_session.CreateCheckoutSession)
 
