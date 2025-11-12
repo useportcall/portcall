@@ -49,7 +49,7 @@ export function InvoiceListTable() {
                 </div>
               </TableCell>
               <TableCell className="truncate whitespace-nowrap overflow-ellipsis">
-                {(invoice.total / 100).toLocaleString("en-US", {
+                {((invoice.total ?? 0) / 100).toLocaleString("en-US", {
                   currency: invoice.currency,
                   style: "currency",
                 })}
