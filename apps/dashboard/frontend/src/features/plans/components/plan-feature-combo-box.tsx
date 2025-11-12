@@ -20,10 +20,13 @@ import {
   useUpdatePlanFeature,
 } from "@/hooks";
 import { useParams } from "react-router-dom";
-import { PlanItem } from "@/models/plan-item";
 import { PlanFeature } from "@/models/plan-feature";
 
-export function PlanFeatureComboBox({ planItem }: { planItem: PlanItem }) {
+export function PlanFeatureComboBox({
+  planFeature,
+}: {
+  planFeature?: PlanFeature;
+}) {
   const [open, setOpen] = React.useState(false);
 
   const { data: features } = useListFeatures({ isMetered: true });
@@ -39,9 +42,8 @@ export function PlanFeatureComboBox({ planItem }: { planItem: PlanItem }) {
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="cursor-pointer font-medium text-sm self-center hover:bg-accent w-16 overflow-hidden text-ellipsis whitespace-nowrap rounded px-1 py-0.5 flex items-center justify-between">
-          {planItem.features[0].feature.id}
-
+        <button className="cursor-pointer font-medium text-sm self-center hover:bg-accent w-20 text-ellipsis whitespace-nowrap rounded px-1 py-0.5 flex items-center justify-between">
+          {planFeature?.feature.id || "Select feature"}
           <ChevronDown className="size-3" />
         </button>
       </PopoverTrigger>
@@ -51,7 +53,6 @@ export function PlanFeatureComboBox({ planItem }: { planItem: PlanItem }) {
             placeholder="Search features..."
             onKeyDown={async (e) => {
               if (e.key === "Enter") {
-                // Handle search
                 if (
                   !features.data.find((f) => f.id === e.currentTarget.value)
                 ) {
@@ -59,7 +60,7 @@ export function PlanFeatureComboBox({ planItem }: { planItem: PlanItem }) {
                     plan_id: id,
                     feature_id: e.currentTarget.value,
                     is_metered: true,
-                    plan_feature_id: planItem.features[0].id,
+                    plan_feature_id: planFeature?.id,
                   });
 
                   setOpen(false);
@@ -73,7 +74,7 @@ export function PlanFeatureComboBox({ planItem }: { planItem: PlanItem }) {
               {features.data.map((f) => (
                 <PlanFeatureCommandItem
                   key={f.id}
-                  planFeature={planItem.features[0]}
+                  planFeature={planFeature}
                   feature={f}
                 />
               ))}
@@ -89,10 +90,10 @@ function PlanFeatureCommandItem({
   planFeature,
   feature,
 }: {
-  planFeature: PlanFeature;
+  planFeature?: PlanFeature;
   feature: Feature;
 }) {
-  const { mutate } = useUpdatePlanFeature(planFeature);
+  const { mutate } = useUpdatePlanFeature(planFeature?.id);
 
   return (
     <CommandItem

@@ -2,6 +2,7 @@ import { Feature } from "@/models/feature";
 import { useParams } from "react-router-dom";
 import { useAppQuery, useAppMutation } from "./api";
 import { toast } from "sonner";
+import { PLAN_ITEMS_PATH } from "./plan-items";
 
 export function useListFeatures(props: { isMetered: boolean }) {
   return useAppQuery<Feature[]>({
@@ -16,7 +17,7 @@ export function useCreateFeature(props: { isMetered: boolean }) {
     method: "post",
     path: "/features",
     invalidate: [
-      `/plan-items?plan_id=${id}`,
+      `${PLAN_ITEMS_PATH}?plan_id=${id}&is_metered=true`,
       `/features?is_metered=${props.isMetered}`,
     ],
     onError: () => toast("Failed to add feature"),

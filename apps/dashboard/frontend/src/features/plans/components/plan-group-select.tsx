@@ -63,7 +63,7 @@ export function PlanGroupSelect({ plan }: { plan: Plan }) {
                   <CommandItem
                     key={group.id}
                     onSelect={async () => {
-                      await updatePlan.mutateAsync({ plan_group: group.id });
+                      await updatePlan.mutateAsync({ plan_group_id: group.id });
                     }}
                   >
                     {group.name}

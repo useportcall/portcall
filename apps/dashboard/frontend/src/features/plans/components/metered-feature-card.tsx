@@ -24,15 +24,15 @@ export function PlanItemCard({ planItem }: { planItem: PlanItem }) {
 
   return (
     <Card>
-      <CardHeader className="flex flex-row justify-between items-center gap-4">
-        <div className="flex-col justify-evenly gap-4 max-w-[200px]">
+      <CardHeader className="flex flex-col lg:flex-row justify-between items-center gap-4">
+        <div className="self-start flex-col justify-evenly gap-4 max-w-[200px]">
           <p className="text-xs self-start  text-slate-600">Name</p>
           <input
             type="text"
             className="font-semibold w-full outline-none"
             placeholder="API Calls"
             defaultValue={planItem.public_title}
-            onChange={(e) => {
+            onBlur={(e) => {
               if (e.target.value === planItem.public_title) return;
               return updatePlanItem.mutateAsync({
                 public_title: e.target.value,
@@ -48,7 +48,7 @@ export function PlanItemCard({ planItem }: { planItem: PlanItem }) {
             }}
           />
         </div>
-        <div className="flex justify-evenly gap-6">
+        <div className="flex flex-wrap lg:flex-nowrap gap-6">
           <div className="flex flex-col gap-1">
             <p className="text-xs self-center text-slate-600">Resets</p>
             <MutableMeteredFeatureInterval planItem={planItem} />
@@ -57,7 +57,7 @@ export function PlanItemCard({ planItem }: { planItem: PlanItem }) {
             <p className="text-xs self-center text-slate-600">
               Metered feature
             </p>
-            <PlanFeatureComboBox planItem={planItem} />
+            <PlanFeatureComboBox planFeature={planItem.features?.[0]} />
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs self-center  text-slate-600">Model</p>
@@ -70,7 +70,7 @@ export function PlanItemCard({ planItem }: { planItem: PlanItem }) {
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs self-center  text-slate-600">Rollover</p>
-            <MutableMeteredRollover planFeature={planItem.features[0]} />
+            <MutableMeteredRollover planItem={planItem} />
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs self-center text-slate-600">Limit</p>

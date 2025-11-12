@@ -49,7 +49,7 @@ export function useCreatePlanItem(planId: string) {
   return useAppMutation<any, any>({
     method: "post",
     path: PLAN_ITEMS_PATH,
-    invalidate: `${PLAN_ITEMS_PATH}?plan_id=${planId}`,
+    invalidate: `${PLAN_ITEMS_PATH}?plan_id=${planId}&is_metered=true`,
   });
 }
 
@@ -58,10 +58,7 @@ export function useUpdatePlanItem(planItemId: string) {
   return useAppMutation<any, any>({
     method: "post",
     path: `${PLAN_ITEMS_PATH}/${planItemId}`,
-    invalidate: [
-      `${PLAN_ITEMS_PATH}/${planItemId}`,
-      `${PLAN_ITEMS_PATH}?plan_id=${id}&is_metered=true`,
-    ],
+    invalidate: `${PLAN_ITEMS_PATH}?plan_id=${id}&is_metered=true`,
     onError: () => toast("Failed to update metered feature"),
     onSuccess: () => {
       window.dispatchEvent(new Event("saved"));

@@ -19,7 +19,6 @@ import { useState } from "react";
 
 export function PlanCurrencySelect({ plan }: { plan: Plan }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState(plan.currency);
   const currencies = ["USD", "EUR", "GBP", "AUD", "CAD", "JPY"];
 
   const { mutate: updatePlan } = useUpdatePlan(plan.id);
@@ -34,7 +33,7 @@ export function PlanCurrencySelect({ plan }: { plan: Plan }) {
             className="w-full text-left flex justify-start"
           >
             <Coins className="h-4 w-4" />
-            {value}
+            {plan.currency}
           </Button>
         </div>
       </PopoverTrigger>
@@ -50,7 +49,6 @@ export function PlanCurrencySelect({ plan }: { plan: Plan }) {
                 <CommandItem
                   key={currency}
                   onSelect={() => {
-                    setValue(currency);
                     setOpen(false);
                     updatePlan({ currency });
                   }}

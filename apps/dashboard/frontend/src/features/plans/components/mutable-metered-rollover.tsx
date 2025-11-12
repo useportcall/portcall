@@ -1,24 +1,24 @@
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
-import { useUpdatePlanFeature } from "@/hooks";
-import { PlanFeature } from "@/models/plan-feature";
+import { useUpdatePlanFeatureForPlanItem } from "@/hooks";
+import { PlanItem } from "@/models/plan-item";
 import { SelectTrigger } from "@radix-ui/react-select";
 import { ChevronDown } from "lucide-react";
 import { useMemo } from "react";
 
-export default function MutableMeteredRollover(props: {
-  planFeature: PlanFeature;
-}) {
-  const { mutate: updatePlanFeature } = useUpdatePlanFeature(props.planFeature);
+export default function MutableMeteredRollover(props: { planItem: PlanItem }) {
+  const planFeature = props.planItem.features[0];
+
+  const { mutate } = useUpdatePlanFeatureForPlanItem(planFeature.id);
 
   const title = useMemo(() => {
-    return toRolloverTitle(props.planFeature.rollover);
-  }, [props.planFeature.rollover]);
+    return toRolloverTitle(planFeature.rollover);
+  }, [planFeature.rollover]);
 
   return (
     <Select
-      value={props.planFeature.rollover?.toString() || "0"}
+      value={planFeature.rollover?.toString() || "0"}
       onValueChange={(val) => {
-        updatePlanFeature({ rollover: parseInt(val) });
+        mutate({ rollover: parseInt(val) });
       }}
     >
       <SelectTrigger asChild>

@@ -4,39 +4,29 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 
-import { useListPlanFeatures, useUpdatePlanFeature } from "@/hooks";
+import { useUpdatePlanFeatureForPlanItem } from "@/hooks";
 import { PlanFeature } from "@/models/plan-feature";
 import { PlanItem } from "@/models/plan-item";
 import { useState } from "react";
 
-export default function MutableMeteredLimit({
-  planItem,
-}: {
-  planItem: PlanItem;
-}) {
-  const { data: planFeatures } = useListPlanFeatures({
-    planItemId: planItem.id,
-  });
-
-  if (!planFeatures?.data?.length) return null;
+export default function MutableMeteredLimit(props: { planItem: PlanItem }) {
+  const planFeature = props.planItem.features[0];
 
   return (
     <Popover>
       <PopoverTrigger asChild>
         <button className="cursor-pointer text-sm font-medium w-16">
-          {planFeatures.data[0].quota === -1 && "no limit"}
-          {!planFeatures.data[0].quota && "no limit"}
-          {planFeatures.data[0].quota &&
-            planFeatures.data[0].quota > 0 &&
-            planFeatures.data[0].quota.toLocaleString("en-US", {
+          {planFeature.quota === -1 && "no limit"}
+          {!planFeature.quota && "no limit"}
+          {planFeature.quota &&
+            planFeature.quota > 0 &&
+            planFeature.quota.toLocaleString("en-US", {
               style: "decimal",
             })}
         </button>
       </PopoverTrigger>
       <PopoverContent>
-        {planFeatures.data.map((pf) => (
-          <PlanFeatureInput key={pf.id} planFeature={pf} />
-        ))}
+        <PlanFeatureInput planFeature={planFeature} />
       </PopoverContent>
     </Popover>
   );
@@ -45,7 +35,9 @@ export default function MutableMeteredLimit({
 function PlanFeatureInput(props: { planFeature: PlanFeature }) {
   const [value, setValue] = useState<string>("");
 
-  const { mutate: updatePlanFeature } = useUpdatePlanFeature(props.planFeature);
+  const { mutate: updatePlanFeature } = useUpdatePlanFeatureForPlanItem(
+    props.planFeature.id
+  );
 
   return (
     <input

@@ -18,20 +18,20 @@ import {
   useCreateFeature,
   useCreatePlanFeature,
   useDeletePlanFeature,
+  useListBasicPlanFeatures,
   useListFeatures,
-  useListPlanFeatures,
 } from "@/hooks";
 import { cn } from "@/lib/utils";
 import { PlanFeature } from "@/models/plan-feature";
+import { PopoverPortal } from "@radix-ui/react-popover";
 import { Plus, X } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toSnakeCase } from "../utils";
-import { PopoverPortal } from "@radix-ui/react-popover";
 
 export default function MutableEntitlements() {
   const { id } = useParams();
-  const { data: planFeatures } = useListPlanFeatures({ planId: id! });
+  const { data: planFeatures } = useListBasicPlanFeatures(id!);
 
   if (!planFeatures?.data) return null;
 
@@ -125,8 +125,6 @@ function AddNewFeature({ planFeatures }: { planFeatures: PlanFeature[] }) {
                     featureId={pf.feature.id}
                   />
                 ))}
-              </CommandGroup>
-              <CommandGroup>
                 {filteredFeatures.map((f) => (
                   <PlanFeatureToggle key={f.id} featureId={f.id} />
                 ))}
@@ -176,7 +174,7 @@ function DeletePlanFeatureCommandItem(props: {
 
 function AddPlanFeatureCommandItem(props: { featureId: string }) {
   const { id } = useParams();
-  const { mutate } = useCreatePlanFeature(id!);
+  const { mutate } = useCreatePlanFeature();
 
   return (
     <CommandItem

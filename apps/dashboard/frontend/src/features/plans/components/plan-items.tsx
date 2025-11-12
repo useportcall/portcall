@@ -18,8 +18,8 @@ export function PlanItems() {
         </div>
       </div>
       <div className="py-2 md:px-2 space-y-2 overflow-y-auto">
-        {items.data.map((item) => (
-          <PlanItemCard key={item.id} planItem={item} />
+        {items.data.map((planItem) => (
+          <PlanItemCard key={planItem.id} planItem={planItem} />
         ))}
         {items.data.length === 0 && (
           <span className="flex justify-center w-full text-sm text-muted-foreground">
