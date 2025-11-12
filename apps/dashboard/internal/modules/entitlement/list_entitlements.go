@@ -1,6 +1,7 @@
 package entitlement
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -29,17 +30,15 @@ func ListEntitlements(c *routerx.Context) {
 		return
 	}
 
-	response := make([]Entitlement, len(entitlements))
+	response := make([]apix.Entitlement, len(entitlements))
 	for i, entitlement := range entitlements {
 		response[i].Set(&entitlement)
 
 		var feature models.Feature
-		if err := c.DB().FindForID(entitlement.FeatureID, &feature); err != nil {
+		if err := c.DB().GetForPublicID(c.AppID(), entitlement.FeaturePublicID, &feature); err != nil {
 			c.ServerError("Failed to find feature for entitlement")
 			return
 		}
-
-		response[i].Feature = feature.PublicID
 	}
 
 	c.OK(response)
