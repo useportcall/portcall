@@ -21,8 +21,11 @@ func ListUsers(c *routerx.Context) {
 
 	query := strings.Join(where, " AND ")
 
+	conds := []any{query}
+	conds = append(conds, args...)
+
 	var users []models.User
-	if err := c.DB().List(&users, query, args); err != nil {
+	if err := c.DB().List(&users, conds...); err != nil {
 		c.ServerError("internal server error")
 		return
 	}
