@@ -98,10 +98,10 @@ export default function OrderSummary({
           <div className="flex flex-col gap-2 w-full text-sm">
             <p className="font-medium">Metered features</p>
             <div className="flex flex-col gap-4">
-              {session.plan?.metered_features.length === 0 && (
+              {!session.plan?.metered_features?.length && (
                 <p>No metered features included</p>
               )}
-              {session.plan?.metered_features.map((feature) => (
+              {session.plan?.metered_features?.map((feature) => (
                 <div key={feature.id} className="flex flex-col gap-1">
                   <span className="flex flex-wrap w-full justify-between">
                     <span className="flex gap-1 justify-start items-center">
