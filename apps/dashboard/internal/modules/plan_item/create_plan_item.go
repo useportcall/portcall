@@ -2,6 +2,7 @@ package plan_item
 
 import (
 	"github.com/useportcall/portcall/apps/dashboard/internal/utils"
+	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -25,9 +26,21 @@ func CreatePlanItem(c *routerx.Context) {
 	}
 
 	var feature models.Feature
-	if err := c.DB().FindFirst(&feature, "app_id = ?", c.AppID()); err != nil {
-		c.NotFound("Feature not found")
-		return
+	if err := c.DB().FindFirst(&feature, "app_id = ? AND is_metered = ?", c.AppID(), true); err != nil {
+		if !dbx.IsRecordNotFoundError(err) {
+			c.ServerError("Failed to fetch feature")
+			return
+		}
+
+		feature = models.Feature{
+			PublicID:  "tokens",
+			AppID:     c.AppID(),
+			IsMetered: true,
+		}
+		if err := c.DB().Create(&feature); err != nil {
+			c.ServerError("Failed to create feature")
+			return
+		}
 	}
 
 	planItem := &models.PlanItem{
@@ -51,6 +64,21 @@ func CreatePlanItem(c *routerx.Context) {
 	interval := plan.Interval
 	if i := body.Interval; interval != "" {
 		interval = i
+	}
+
+	planFeature := models.PlanFeature{
+		PublicID:   utils.GenPublicID("pf"),
+		PlanID:     plan.ID,
+		AppID:      plan.AppID,
+		FeatureID:  feature.ID,
+		PlanItemID: planItem.ID,
+		Interval:   interval,
+		Quota:      body.Quota,
+		Rollover:   body.Rollover,
+	}
+	if err := c.DB().Create(&planFeature); err != nil {
+		c.ServerError("Failed to create plan feature")
+		return
 	}
 
 	c.OK(new(PlanItem).Set(planItem))
