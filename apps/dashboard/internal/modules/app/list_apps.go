@@ -1,6 +1,7 @@
 package app
 
 import (
+	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -8,6 +9,11 @@ import (
 func ListApps(c *routerx.Context) {
 	var account models.Account
 	if err := c.DB().FindFirst(&account, "email = ?", c.AuthEmail()); err != nil {
+		if dbx.IsRecordNotFoundError(err) {
+			c.OK([]App{})
+			return
+		}
+
 		c.ServerError("Failed to list apps")
 		return
 	}
