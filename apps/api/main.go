@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"strings"
 
 	"github.com/useportcall/portcall/apps/api/internal/modules/v1/checkout_session"
 	"github.com/useportcall/portcall/apps/api/internal/modules/v1/entitlement"
@@ -11,6 +12,7 @@ import (
 	"github.com/useportcall/portcall/apps/api/internal/modules/v1/user"
 	"github.com/useportcall/portcall/libs/go/cryptox"
 	"github.com/useportcall/portcall/libs/go/dbx"
+	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/envx"
 	"github.com/useportcall/portcall/libs/go/qx"
 	"github.com/useportcall/portcall/libs/go/routerx"
@@ -31,7 +33,41 @@ func main() {
 	r := routerx.New(db, crypto, q)
 
 	r.Use(func(c *routerx.Context) {
-		c.Set("app_id", uint(1))
+		apiKey := c.Request.Header.Get("x-api-key")
+		if apiKey == "" {
+			c.Unauthorized("Missing API key")
+			c.Abort()
+			return
+		}
+
+		parts := strings.Split(apiKey, "_")
+		publicID := strings.Join(parts[0:2], "_")
+		sk := parts[2]
+
+		var secret models.Secret
+		if err := c.DB().FindFirst(&secret, "public_id = ?", publicID); err != nil {
+			c.Unauthorized("Invalid API key")
+			c.Abort()
+			return
+		}
+
+		if secret.DisabledAt != nil {
+			c.Unauthorized("Invalid API key")
+			c.Abort()
+			return
+		}
+
+		ok, err := c.Crypto().CompareHash(secret.KeyHash, sk)
+		if err != nil || !ok {
+			log.Println("API Key comparison failed:", err)
+			c.Unauthorized("Invalid API key")
+			c.Abort()
+			return
+		}
+
+		c.Set("app_id", secret.AppID)
+
+		c.Next()
 	})
 
 	r.GET("/v1/users/", user.ListUsers)

@@ -14,6 +14,7 @@ import (
 type ICrypto interface {
 	Encrypt(data string) (string, error)
 	Decrypt(data string) (string, error)
+	CompareHash(hashed string, plain string) (bool, error)
 }
 
 type crypto struct {
@@ -83,4 +84,13 @@ func (c *crypto) Decrypt(encrypted string) (string, error) {
 	plaintext, err := aesGCM.Open(nil, nonce, ciphertext, nil)
 
 	return string(plaintext), err
+}
+
+func (c *crypto) CompareHash(hashed string, plain string) (bool, error) {
+	decrypted, err := c.Decrypt(hashed)
+	if err != nil {
+		return false, err
+	}
+
+	return decrypted == plain, nil
 }
