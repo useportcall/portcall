@@ -7,6 +7,7 @@ import (
 	"github.com/useportcall/portcall/libs/go/authx"
 	"github.com/useportcall/portcall/libs/go/cryptox"
 	"github.com/useportcall/portcall/libs/go/dbx"
+	"github.com/useportcall/portcall/libs/go/logx"
 	"github.com/useportcall/portcall/libs/go/qx"
 )
 
@@ -87,7 +88,11 @@ type router struct {
 }
 
 func New(db dbx.IORM, crypto cryptox.ICrypto, q qx.IQueue) IRouter {
+	logx.Init()
+
 	r := gin.Default()
+
+	r.Use(gin.Logger(), gin.Recovery())
 
 	r.SetTrustedProxies([]string{"127.0.0.1", "172.17.0.0/16"}) // TODO: review for production
 
