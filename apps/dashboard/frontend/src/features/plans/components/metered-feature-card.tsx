@@ -6,7 +6,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useDeletePlanItem, useUpdatePlanItem } from "@/hooks";
-import { PlanItem } from "@/models/plan-item";
+import { MeteredPlanItem } from "@/models/plan-item";
 import { MoreVertical } from "lucide-react";
 import { useState } from "react";
 import MutableMeteredLimit from "./mutable-metered-limit";
@@ -16,7 +16,7 @@ import { MutableMeteredFeatureInterval } from "./mutable-reset";
 import { PlanFeatureComboBox } from "./plan-feature-combo-box";
 import { MutablePlanItemPrice } from "./plan-item-price-table";
 
-export function PlanItemCard({ planItem }: { planItem: PlanItem }) {
+export function PlanItemCard({ planItem }: { planItem: MeteredPlanItem }) {
   const updatePlanItem = useUpdatePlanItem(planItem.id);
   const deletePlanItem = useDeletePlanItem(planItem.id);
 
@@ -51,13 +51,13 @@ export function PlanItemCard({ planItem }: { planItem: PlanItem }) {
         <div className="flex flex-wrap lg:flex-nowrap gap-6">
           <div className="flex flex-col gap-1">
             <p className="text-xs self-center text-slate-600">Resets</p>
-            <MutableMeteredFeatureInterval planItem={planItem} />
+            <MutableMeteredFeatureInterval planFeature={planItem.feature} />
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs self-center text-slate-600">
               Metered feature
             </p>
-            <PlanFeatureComboBox planFeature={planItem.features?.[0]} />
+            <PlanFeatureComboBox planFeature={planItem.feature} />
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs self-center  text-slate-600">Model</p>
@@ -70,11 +70,11 @@ export function PlanItemCard({ planItem }: { planItem: PlanItem }) {
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs self-center  text-slate-600">Rollover</p>
-            <MutableMeteredRollover planItem={planItem} />
+            <MutableMeteredRollover planFeature={planItem.feature} />
           </div>
           <div className="flex flex-col gap-1">
             <p className="text-xs self-center text-slate-600">Limit</p>
-            <MutableMeteredLimit planItem={planItem} />
+            <MutableMeteredLimit planFeature={planItem.feature} />
           </div>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>

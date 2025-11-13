@@ -1,3 +1,5 @@
+import { PlanFeature } from "./plan-feature";
+
 export interface PlanItem {
   id: string;
   quantity: number;
@@ -11,7 +13,11 @@ export interface PlanItem {
   public_unit_label: string;
   created_at: string; // ISO date string
   updated_at: string; // ISO date string
-  features: any[];
+  features: PlanFeature[];
+}
+
+export interface MeteredPlanItem extends PlanItem {
+  feature: PlanFeature;
 }
 
 export interface Tier {

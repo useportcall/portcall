@@ -7,8 +7,6 @@ import { PlanItemCard } from "./metered-feature-card";
 export function PlanItems() {
   const { data: items } = useListMeteredPlanItems();
 
-  if (!items) return null;
-
   return (
     <div className="h-full space-y-2 px-4 animate-fade-in">
       <div className="flex justify-between">
@@ -18,10 +16,10 @@ export function PlanItems() {
         </div>
       </div>
       <div className="py-2 md:px-2 space-y-2 overflow-y-auto">
-        {items.data.map((planItem) => (
+        {items.map((planItem) => (
           <PlanItemCard key={planItem.id} planItem={planItem} />
         ))}
-        {items.data.length === 0 && (
+        {items.length === 0 && (
           <span className="flex justify-center w-full text-sm text-muted-foreground">
             No metered features added yet.
           </span>

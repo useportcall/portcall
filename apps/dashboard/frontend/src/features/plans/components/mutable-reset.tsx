@@ -14,21 +14,20 @@ import {
 } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem } from "@/components/ui/select";
 import { useUpdatePlanFeature } from "@/hooks";
-import { PlanItem } from "@/models/plan-item";
+import { PlanFeature } from "@/models/plan-feature";
 import { SelectTrigger } from "@radix-ui/react-select";
 import { Calendar, ChevronDown } from "lucide-react";
 import { useState } from "react";
 
 export function MutableMeteredFeatureInterval({
-  planItem,
+  planFeature,
 }: {
-  planItem: PlanItem;
+  planFeature: PlanFeature;
 }) {
-  // const [open, setOpen] = useState(false);
-  const [value, setValue] = useState<string>(planItem.features[0].interval);
+  const [value, setValue] = useState<string>(planFeature.interval);
   const intervals = ["per_use", "week", "month", "year", "no_reset"];
 
-  const { mutate: update } = useUpdatePlanFeature(planItem.features[0]);
+  const { mutate: update } = useUpdatePlanFeature(planFeature.id);
 
   return (
     <Select

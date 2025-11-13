@@ -1,4 +1,4 @@
-import { PlanItem } from "@/models/plan-item";
+import { MeteredPlanItem, PlanItem } from "@/models/plan-item";
 import { useMemo } from "react";
 import { useParams } from "react-router-dom";
 import { useAppQuery, useAppMutation } from "./api";
@@ -9,7 +9,17 @@ export const PLAN_ITEMS_PATH = "/plan-items";
 export function useListMeteredPlanItems() {
   const { id } = useParams();
   const path = `${PLAN_ITEMS_PATH}?plan_id=${id}&is_metered=true`;
-  return useAppQuery<PlanItem[]>({ path, queryKey: [path] });
+  const query = useAppQuery<PlanItem[]>({ path, queryKey: [path] });
+
+  const data: MeteredPlanItem[] = useMemo(() => {
+    if (!query.data || !Array.isArray(query.data.data)) return [];
+
+    return query.data.data.map((item) => {
+      return { ...item, feature: item.features[0] };
+    });
+  }, [query.data]);
+
+  return { ...query, data };
 }
 
 export function useListPlanItems(
@@ -49,7 +59,7 @@ export function useCreatePlanItem(planId: string) {
   return useAppMutation<any, any>({
     method: "post",
     path: PLAN_ITEMS_PATH,
-    invalidate: `${PLAN_ITEMS_PATH}?plan_id=${planId}&is_metered=true`,
+    invalidate: [`${PLAN_ITEMS_PATH}?plan_id=${planId}&is_metered=true`],
   });
 }
 
@@ -71,7 +81,7 @@ export function useDeletePlanItem(planItemId: string) {
   return useAppMutation<any, any>({
     method: "delete",
     path: `${PLAN_ITEMS_PATH}/${planItemId}`,
-    invalidate: `${PLAN_ITEMS_PATH}?plan_id=${id}&is_metered=true`,
+    invalidate: [`${PLAN_ITEMS_PATH}?plan_id=${id}&is_metered=true`],
     onError: () => toast("Failed to delete metered feature"),
     onSuccess: () => toast("Metered feature deleted"),
   });

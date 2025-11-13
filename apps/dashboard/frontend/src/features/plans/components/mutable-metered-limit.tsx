@@ -6,12 +6,13 @@ import {
 
 import { useUpdatePlanFeatureForPlanItem } from "@/hooks";
 import { PlanFeature } from "@/models/plan-feature";
-import { PlanItem } from "@/models/plan-item";
 import { useState } from "react";
 
-export default function MutableMeteredLimit(props: { planItem: PlanItem }) {
-  const planFeature = props.planItem.features[0];
-
+export default function MutableMeteredLimit({
+  planFeature,
+}: {
+  planFeature: PlanFeature;
+}) {
   return (
     <Popover>
       <PopoverTrigger asChild>
