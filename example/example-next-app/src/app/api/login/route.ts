@@ -8,7 +8,10 @@ export async function POST(req: Request) {
     const userRes = await fetch(
       `${PUBLIC_API}/v1/users?email=${encodeURIComponent(email)}`,
       {
-        headers: { "X-API-KEY": API_KEY, "Content-Type": "application/json" },
+        headers: {
+          "X-API-KEY": process.env.PC_API_TOKEN!,
+          "Content-Type": "application/json",
+        },
       }
     );
     const result = await userRes.json();

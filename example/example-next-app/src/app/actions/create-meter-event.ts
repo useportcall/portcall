@@ -16,7 +16,7 @@ export default async function createMeterEvent(props: { featureId: string }) {
   const url = new URL(`/v1/meter-events`, process.env.PC_API_BASE_URL);
 
   const headers = new Headers();
-  headers.set("Authorization", `Bearer ${process.env.PC_API_TOKEN}`);
+  headers.set("X-API-Key", `${process.env.PC_API_TOKEN}`);
   headers.set("Content-Type", "application/json");
 
   const res = await fetch(url.toString(), {

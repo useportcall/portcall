@@ -51,7 +51,7 @@ export async function getUserSubscription() {
   url.searchParams.set("limit", "1");
 
   const headers = new Headers();
-  headers.set("Authorization", `Bearer ${process.env.PC_API_TOKEN}`);
+  headers.set("X-API-Key", `${process.env.PC_API_TOKEN}`);
   headers.set("Content-Type", "application/json");
 
   const res = await fetch(url.toString(), {
@@ -87,7 +87,7 @@ export async function getUserEntitlement(featureId: string) {
   );
 
   const headers = new Headers();
-  headers.set("Authorization", `Bearer ${process.env.PC_API_TOKEN}`);
+  headers.set("X-API-Key", `${process.env.PC_API_TOKEN}`);
   headers.set("Content-Type", "application/json");
 
   const res = await fetch(url.toString(), {

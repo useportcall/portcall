@@ -18,7 +18,7 @@ export default async function cancelSubscription(subscriptionId: string) {
   );
 
   const headers = new Headers();
-  headers.set("Authorization", `Bearer ${process.env.PC_API_TOKEN}`);
+  headers.set("X-API-Key", `${process.env.PC_API_TOKEN}`);
   headers.set("Content-Type", "application/json");
 
   const res = await fetch(url.toString(), {
