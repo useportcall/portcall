@@ -22,8 +22,13 @@ func ProcessMeterEvent(c server.IContext) error {
 		return err
 	}
 
+	var feature models.Feature
+	if err := c.DB().FindForID(meterEvent.FeatureID, &feature); err != nil {
+		return err
+	}
+
 	var entitlement models.Entitlement
-	if err := c.DB().FindFirst(&entitlement, "user_id = ? AND feature_id = ?", meterEvent.UserID, meterEvent.FeatureID); err != nil {
+	if err := c.DB().FindFirst(&entitlement, "user_id = ? AND feature_public_id = ?", meterEvent.UserID, feature.PublicID); err != nil {
 		return err
 	}
 
