@@ -60,7 +60,12 @@ func UpdateSubscription(c *routerx.Context) {
 		return
 	}
 
-	payload := map[string]any{"subscription_id": subscription.ID, "plan_id": plan.ID}
+	if err := c.DB().Save(&subscription); err != nil {
+		c.ServerError("Internal server error")
+		return
+	}
+
+	payload := map[string]any{"user_id": subscription.UserID, "plan_id": plan.ID}
 	if err := c.Queue().Enqueue("create_entitlements", payload, "billing_queue"); err != nil {
 		c.ServerError("Internal server error")
 		return

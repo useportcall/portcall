@@ -47,6 +47,18 @@ func ListSubscriptions(c *routerx.Context) {
 	response := make([]apix.Subscription, len(subscriptions))
 	for i, subscription := range subscriptions {
 		response[i] = *new(apix.Subscription).Set(&subscription)
+
+		if subscription.PlanID == nil {
+			continue
+		}
+
+		var plan models.Plan
+		if err := c.DB().FindForID(*subscription.PlanID, &plan); err != nil {
+			c.ServerError("Internal server error")
+			return
+		}
+
+		response[i].Plan = new(apix.Plan).Set(&plan)
 	}
 
 	c.OK(response)

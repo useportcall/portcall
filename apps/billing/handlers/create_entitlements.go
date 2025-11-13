@@ -48,8 +48,13 @@ func CreateEntitlements(c server.IContext) error {
 	}
 
 	for _, pf := range planFeatures {
+		var feature models.Feature
+		if err := c.DB().FindForID(pf.FeatureID, &feature); err != nil {
+			return err
+		}
+
 		entitlement := new(models.Entitlement)
-		if err := c.DB().FindFirst(entitlement, "user_id = ? AND feature_id = ?", p.UserID, pf.FeatureID); err != nil {
+		if err := c.DB().FindFirst(entitlement, "user_id = ? AND feature_public_id = ?", p.UserID, feature.PublicID); err != nil {
 			if !dbx.IsRecordNotFoundError(err) {
 				return err
 			}
