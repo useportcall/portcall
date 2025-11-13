@@ -30,7 +30,19 @@ func CreateFeature(c *routerx.Context) {
 		return
 	}
 
-	if body.PlanID != "" {
+	if body.PlanFeatureID != "" {
+		var planFeature models.PlanFeature
+		if err := c.DB().GetForPublicID(c.AppID(), body.PlanFeatureID, &planFeature); err != nil {
+			c.ServerError("Failed to get plan feature")
+			return
+		}
+
+		planFeature.FeatureID = feature.ID
+		if err := c.DB().Save(planFeature); err != nil {
+			c.ServerError("Failed to update plan feature")
+			return
+		}
+	} else if body.PlanID != "" {
 		plan := &models.Plan{}
 		if err := c.DB().GetForPublicID(c.AppID(), body.PlanID, plan); err != nil {
 			c.ServerError("Failed to get plan")
@@ -54,20 +66,6 @@ func CreateFeature(c *routerx.Context) {
 		}
 		if err := c.DB().Create(planFeature); err != nil {
 			c.ServerError("Failed to create plan feature")
-			return
-		}
-	}
-
-	if body.PlanFeatureID != "" {
-		var planFeature models.PlanFeature
-		if err := c.DB().GetForPublicID(c.AppID(), body.PlanFeatureID, &planFeature); err != nil {
-			c.ServerError("Failed to get plan feature")
-			return
-		}
-
-		planFeature.FeatureID = feature.ID
-		if err := c.DB().Save(planFeature); err != nil {
-			c.ServerError("Failed to update plan feature")
 			return
 		}
 	}
