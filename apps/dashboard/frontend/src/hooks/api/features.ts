@@ -23,3 +23,17 @@ export function useCreateFeature(props: { isMetered: boolean }) {
     onError: () => toast("Failed to add feature"),
   });
 }
+
+export function useCreateBasicFeature() {
+  const { id } = useParams();
+  return useAppMutation<any, any>({
+    method: "post",
+    path: "/features",
+    invalidate: [
+      `${PLAN_ITEMS_PATH}?plan_id=${id}&is_metered=true`,
+      `/plan-features?plan_id=${id}`,
+      `/features?is_metered=false`,
+    ],
+    onError: () => toast("Failed to add feature"),
+  });
+}

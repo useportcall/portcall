@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import {
-  useCreateFeature,
+  useCreateBasicFeature,
   useCreatePlanFeature,
   useDeletePlanFeature,
   useListBasicPlanFeatures,
@@ -71,7 +71,7 @@ function AddNewFeature({ planFeatures }: { planFeatures: PlanFeature[] }) {
   const [value, setValue] = useState("");
   const { id } = useParams();
 
-  const { mutateAsync: addFeature } = useCreateFeature({ isMetered: true });
+  const { mutateAsync: addFeature } = useCreateBasicFeature();
 
   const { data: features } = useListFeatures({ isMetered: false });
 

@@ -42,7 +42,7 @@ export function PlanFeatureComboBox({
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="cursor-pointer font-medium text-sm self-center hover:bg-accent w-20 text-ellipsis whitespace-nowrap rounded px-1 py-0.5 flex items-center justify-between">
+        <button className="cursor-pointer font-medium text-sm self-center hover:bg-accent w-20 overflow-hidden text-ellipsis whitespace-nowrap rounded px-1 py-0.5 flex items-center justify-between">
           {planFeature?.feature.id || "Select feature"}
           <ChevronDown className="size-3" />
         </button>

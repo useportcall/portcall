@@ -60,7 +60,7 @@ export function PlanItemCard({ planItem }: { planItem: MeteredPlanItem }) {
             <PlanFeatureComboBox planFeature={planItem.feature} />
           </div>
           <div className="flex flex-col gap-1">
-            <p className="text-xs self-center  text-slate-600">Model</p>
+            <p className="text-xs self-center  text-slate-600">Pricing</p>
             <PricingModelSelect
               value={planItem.pricing_model}
               onChange={(pricing_model) => {

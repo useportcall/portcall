@@ -14,7 +14,7 @@ import { useCreatePlanGroup, useListPlanGroups, useUpdatePlan } from "@/hooks";
 import { Plan } from "@/models/plan";
 import { PopoverPortal } from "@radix-ui/react-popover";
 import { Tag } from "lucide-react";
-import { useState } from "react";
+import React, { useState } from "react";
 
 export function PlanGroupSelect({ plan }: { plan: Plan }) {
   const [open, setOpen] = useState(false);
@@ -24,6 +24,18 @@ export function PlanGroupSelect({ plan }: { plan: Plan }) {
   const updatePlan = useUpdatePlan(plan.id);
 
   const createPlanGroup = useCreatePlanGroup();
+
+  const [searchValue, setSearchValue] = React.useState("");
+
+  // Filter commands based on search
+  const filtered = React.useMemo(() => {
+    if (!planGroups) return [];
+
+    if (!searchValue) return planGroups.data;
+    return planGroups.data.filter((group) =>
+      group.name.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [planGroups, searchValue]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -42,8 +54,10 @@ export function PlanGroupSelect({ plan }: { plan: Plan }) {
           <Command>
             <CommandInput
               placeholder="Search groups..."
+              value={open ? searchValue : ""}
+              onValueChange={setSearchValue}
               onKeyDown={async (e) => {
-                if (!planGroups) return;
+                if (!planGroups || filtered.length !== 0) return;
 
                 if (e.key === "Enter") {
                   // Handle search
@@ -58,17 +72,17 @@ export function PlanGroupSelect({ plan }: { plan: Plan }) {
               }}
             />
             <CommandList>
-              {planGroups &&
-                planGroups?.data?.map((group) => (
-                  <CommandItem
-                    key={group.id}
-                    onSelect={async () => {
-                      await updatePlan.mutateAsync({ plan_group_id: group.id });
-                    }}
-                  >
-                    {group.name}
-                  </CommandItem>
-                ))}
+              {filtered.map((group) => (
+                <CommandItem
+                  key={group.id}
+                  onSelect={async () => {
+                    await updatePlan.mutateAsync({ plan_group_id: group.id });
+                    setOpen(false);
+                  }}
+                >
+                  {group.name}
+                </CommandItem>
+              ))}
             </CommandList>
           </Command>
         </PopoverContent>

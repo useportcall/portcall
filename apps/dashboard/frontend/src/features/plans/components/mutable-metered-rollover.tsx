@@ -28,8 +28,8 @@ export default function MutableMeteredRollover(props: {
         </button>
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="0">No</SelectItem>
-        <SelectItem value="-1">Yes</SelectItem>
+        <SelectItem value="0">no</SelectItem>
+        <SelectItem value="-1">yes</SelectItem>
       </SelectContent>
     </Select>
   );
@@ -37,11 +37,11 @@ export default function MutableMeteredRollover(props: {
 
 function toRolloverTitle(value: number | null) {
   if (value === null || value === 0) {
-    return "No";
+    return "no";
   }
 
   if (value === -1) {
-    return "Yes";
+    return "yes";
   }
 
   return (

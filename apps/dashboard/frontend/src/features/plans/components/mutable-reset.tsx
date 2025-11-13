@@ -121,7 +121,7 @@ function intervalToTitle(interval: string) {
     case "year":
       return "yearly";
     case "no_reset":
-      return "none";
+      return "never";
     default:
       return "unknown";
   }
