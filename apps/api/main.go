@@ -39,9 +39,10 @@ func main() {
 	r.GET("/v1/users/:user_id/entitlements/:id", entitlement.GetEntitlement)
 
 	r.GET("/v1/subscriptions", subscription.ListSubscriptions)
+	r.POST("/v1/subscriptions/:subscription_id", subscription.UpdateSubscription)
 	r.POST("/v1/subscriptions/:subscription_id/cancel", subscription.CancelSubscription)
 
-	r.POST("/v1/meter_events", meter_event.CreateMeterEvent)
+	r.POST("/v1/meter-events", meter_event.CreateMeterEvent)
 
 	r.POST("/v1/checkout-sessions", checkout_session.CreateCheckoutSession)
 
