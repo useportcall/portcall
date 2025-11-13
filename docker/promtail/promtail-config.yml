@@ -16,3 +16,17 @@ scrape_configs:
           job: dashboard
           app: dashboard
           __path__: /var/log/dashboard/*.log
+  - job_name: api
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: api
+          app: api
+          __path__: /var/log/api/*.log
+  - job_name: checkout
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: checkout
+          app: checkout
+          __path__: /var/log/checkout/*.log

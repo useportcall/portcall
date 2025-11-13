@@ -31,6 +31,8 @@ services:
     volumes:
       - ./promtail/promtail-config.yml:/etc/promtail/config/promtail-config.yml:ro
       - ../apps/dashboard/logs:/var/log/dashboard:ro
+      - ../apps/api/logs:/var/log/api:ro
+      - ../apps/checkout/logs:/var/log/checkout:ro
     depends_on:
       - loki
     networks:
