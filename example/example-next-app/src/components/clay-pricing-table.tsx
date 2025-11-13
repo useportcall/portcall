@@ -32,9 +32,10 @@ import {
 } from "@/constants";
 import { getUserSubscription } from "@/lib/api";
 import { cn } from "@/lib/utils";
-import { ArrowRight, Check, Dot, X } from "lucide-react";
+import { ArrowRight, Check, Dot, Repeat, X } from "lucide-react";
 import { SubscribeButton } from "./subscripe-button";
 import { UnsubscribeButton } from "./unsubscribe-button";
+import { SwitchSubscriptionPlanButton } from "./switch-subscription-plan-button";
 
 const features = [
   {
@@ -263,6 +264,12 @@ async function PlanSubmitButton({ planId }: { planId: string }) {
     return <Subscribe planId={planId} />;
   }
 
+  if (subscription.plan?.id !== planId) {
+    return (
+      <SwitchPlanButton planId={planId} subscriptionId={subscription.id} />
+    );
+  }
+
   return <Unsubscribe id={subscription.id} />;
 }
 
@@ -299,7 +306,7 @@ function Unsubscribe({ id }: { id: string }) {
         </Button>
       </DialogTrigger>
       <DialogContent>
-        <DialogTitle>Subscribe</DialogTitle>
+        <DialogTitle>Cancel subscription</DialogTitle>
         <DialogDescription>
           Are you sure you want to unsubscribe?
         </DialogDescription>
@@ -314,24 +321,35 @@ function Unsubscribe({ id }: { id: string }) {
   );
 }
 
-// function UpdateButton({
-//   subscriptionId,
-//   planId,
-// }: {
-//   subscriptionId: string;
-//   planId: string;
-// }) {
-//   const { mutateAsync, isPending } = useUpdateSubscription(subscriptionId);
-
-//   return (
-//     <ConfirmationDialog
-//       isPending={isPending}
-//       title="Switch Plan"
-//       description="Are you sure you want to switch plan?"
-//     >
-//       <Button>
-//         Switch <Repeat />
-//       </Button>
-//     </ConfirmationDialog>
-//   );
-// }
+function SwitchPlanButton({
+  subscriptionId,
+  planId,
+}: {
+  subscriptionId: string;
+  planId: string;
+}) {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button type="submit">
+          Switch <Repeat />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogTitle>Switch Plan</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to switch plan?
+        </DialogDescription>
+        <DialogFooter>
+          <SwitchSubscriptionPlanButton
+            subscriptionId={subscriptionId}
+            planId={planId}
+          />
+          <DialogClose asChild>
+            <Button variant="outline">No</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}

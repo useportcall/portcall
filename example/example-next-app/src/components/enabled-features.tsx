@@ -1,9 +1,9 @@
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { getUserEntitlement, getUserSubscription } from "@/lib/api";
 import { Check, X } from "lucide-react";
 import { ReactNode } from "react";
+import { IncrementEntitlementButton } from "./increment-entitlement-button";
 
 export default async function EnabledFeatures() {
   const subscription = await getUserSubscription();
@@ -171,7 +171,6 @@ export default async function EnabledFeatures() {
 
 async function FeatureProgress({ featureId }: { featureId: string }) {
   const entitlement = await getUserEntitlement(featureId);
-  // const { mutateAsync } = useCreateMeterEvent(featureId);
 
   if (!entitlement) {
     return <></>;
@@ -192,9 +191,7 @@ async function FeatureProgress({ featureId }: { featureId: string }) {
         value={(entitlement.usage / entitlement.quota) * 100}
         className="w-full"
       />
-      <Button size="sm" className="w-fit mt-1 text-xs">
-        Increment usage 🔼
-      </Button>
+      <IncrementEntitlementButton featureId={featureId} />
     </div>
   );
 }
