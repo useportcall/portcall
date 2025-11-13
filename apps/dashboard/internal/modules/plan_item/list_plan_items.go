@@ -33,7 +33,7 @@ func ListPlanItems(c *routerx.Context) {
 
 	planItems := []models.PlanItem{}
 	if err := c.DB().ListWithOrderAndLimit(&planItems, "created_at DESC", limit, append([]any{query}, args...)...); err != nil {
-		c.ServerError("Failed to list plan items")
+		c.ServerError("Failed to list plan items", err)
 		return
 	}
 
@@ -44,7 +44,7 @@ func ListPlanItems(c *routerx.Context) {
 
 		planFeatures := []models.PlanFeature{}
 		if err := c.DB().List(&planFeatures, "plan_item_id = ?", pi.ID); err != nil {
-			c.ServerError("Failed to list plan features")
+			c.ServerError("Failed to list plan features", err)
 			return
 		}
 
@@ -54,7 +54,7 @@ func ListPlanItems(c *routerx.Context) {
 
 			var feature models.Feature
 			if err := c.DB().FindForID(pf.FeatureID, &feature); err != nil {
-				c.ServerError("Failed to find feature")
+				c.ServerError("Failed to find feature", err)
 				return
 			}
 			planFeature.Feature = map[string]any{"id": feature.PublicID}

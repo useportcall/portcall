@@ -24,7 +24,7 @@ func DisableSecret(c *routerx.Context) {
 	secret.DisabledAt = &now
 
 	if err := c.DB().UpdateForPublicID(c.AppID(), secret.PublicID, secret); err != nil {
-		c.ServerError("Failed to disable secret")
+		c.ServerError("Failed to disable secret", err)
 		return
 	}
 

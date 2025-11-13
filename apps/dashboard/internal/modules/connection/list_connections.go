@@ -8,7 +8,7 @@ import (
 func ListConnections(c *routerx.Context) {
 	var connections []models.Connection
 	if err := c.DB().ListForAppID(c.AppID(), &connections, nil); err != nil {
-		c.ServerError("Failed to list connections")
+		c.ServerError("Failed to list connections", err)
 		return
 	}
 

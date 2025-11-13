@@ -61,7 +61,7 @@ func UpdatePlanItem(c *routerx.Context) {
 	}
 
 	if err := c.DB().Save(planItem); err != nil {
-		c.ServerError("Failed to update plan item")
+		c.ServerError("Failed to update plan item", err)
 		return
 	}
 

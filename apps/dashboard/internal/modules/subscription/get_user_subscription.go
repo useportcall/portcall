@@ -11,7 +11,7 @@ func GetUserSubscription(c *routerx.Context) {
 
 	var user models.User
 	if err := c.DB().GetForPublicID(c.AppID(), userID, &user); err != nil {
-		c.ServerError("Failed to get user")
+		c.ServerError("Failed to get user", err)
 		return
 	}
 
@@ -22,7 +22,7 @@ func GetUserSubscription(c *routerx.Context) {
 			return
 		}
 
-		c.ServerError("Failed to get user subscription")
+		c.ServerError("Failed to get user subscription", err)
 		return
 	}
 

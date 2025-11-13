@@ -26,7 +26,7 @@ func GetPlan(c *routerx.Context) {
 
 	planItems := []models.PlanItem{}
 	if err := c.DB().List(&planItems, "plan_id = ?", plan.ID); err != nil {
-		c.ServerError("Failed to list plan items")
+		c.ServerError("Failed to list plan items", err)
 		return
 	}
 

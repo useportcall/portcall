@@ -45,7 +45,7 @@ func UpdateAddress(c *routerx.Context) {
 	}
 
 	if err := c.DB().Save(&address); err != nil {
-		c.ServerError("Failed to update address")
+		c.ServerError("Failed to update address", err)
 		return
 	}
 

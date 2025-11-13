@@ -26,7 +26,7 @@ func CreateUser(c *routerx.Context) {
 	user.Name = body.Name
 
 	if err := c.DB().Create(&user); err != nil {
-		c.ServerError("Failed to create user")
+		c.ServerError("Failed to create user", err)
 		return
 	}
 

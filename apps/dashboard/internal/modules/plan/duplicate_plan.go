@@ -18,7 +18,7 @@ func DuplicatePlan(c *routerx.Context) {
 
 	var originalPlanItems []models.PlanItem
 	if err := c.DB().List(&originalPlanItems, "plan_id = ?", plan.ID); err != nil {
-		c.ServerError("Failed to list original plan items")
+		c.ServerError("Failed to list original plan items", err)
 		return
 	}
 
@@ -27,7 +27,7 @@ func DuplicatePlan(c *routerx.Context) {
 	plan.ID = 0 // Reset ID for new plan
 	plan.Status = "init"
 	if err := c.DB().Create(plan); err != nil {
-		c.ServerError("Failed to create plan")
+		c.ServerError("Failed to create plan", err)
 		return
 	}
 
@@ -37,7 +37,7 @@ func DuplicatePlan(c *routerx.Context) {
 		// plan features
 		var planFeatures []models.PlanFeature
 		if err := c.DB().List(&planFeatures, "plan_item_id = ?", item.ID); err != nil {
-			c.ServerError("Failed to list plan features")
+			c.ServerError("Failed to list plan features", err)
 			return
 		}
 
@@ -45,7 +45,7 @@ func DuplicatePlan(c *routerx.Context) {
 		item.ID = 0           // Reset ID for new item
 		item.PlanID = plan.ID // Associate with new plan
 		if err := c.DB().Create(&item); err != nil {
-			c.ServerError("Failed to create plan item")
+			c.ServerError("Failed to create plan item", err)
 			return
 		}
 
@@ -55,7 +55,7 @@ func DuplicatePlan(c *routerx.Context) {
 			pf.PlanID = plan.ID     // Associate with new plan
 			pf.PlanItemID = item.ID // Associate with new plan item
 			if err := c.DB().Create(&pf); err != nil {
-				c.ServerError("Failed to create plan feature")
+				c.ServerError("Failed to create plan feature", err)
 				return
 			}
 		}
@@ -65,7 +65,7 @@ func DuplicatePlan(c *routerx.Context) {
 
 	plan.Status = "draft"
 	if err := c.DB().Save(plan); err != nil {
-		c.ServerError("Failed to update plan status")
+		c.ServerError("Failed to update plan status", err)
 		return
 	}
 

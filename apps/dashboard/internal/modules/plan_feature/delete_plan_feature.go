@@ -14,7 +14,7 @@ func DeletePlanFeature(c *routerx.Context) {
 	}
 
 	if err := c.DB().DeleteForID(planFeature); err != nil {
-		c.ServerError("Failed to delete plan feature")
+		c.ServerError("Failed to delete plan feature", err)
 		return
 	}
 

@@ -16,12 +16,12 @@ func CreateConnection(c *routerx.Context) {
 
 	encryptedSecretKey, err := c.Crypto().Encrypt(body.SecretKey)
 	if err != nil {
-		c.ServerError("Internal server error")
+		c.ServerError("Internal server error", err)
 	}
 
 	encryptedWebhookSecret, err := c.Crypto().Encrypt(body.WebhookSecret)
 	if err != nil {
-		c.ServerError("Internal server error")
+		c.ServerError("Internal server error", err)
 	}
 
 	connection := models.Connection{
@@ -36,7 +36,7 @@ func CreateConnection(c *routerx.Context) {
 
 	payment, err := paymentx.New(&connection, c.Crypto())
 	if err != nil {
-		c.ServerError("Failed to initialize connection")
+		c.ServerError("Failed to initialize connection", err)
 		return
 	}
 
@@ -45,7 +45,7 @@ func CreateConnection(c *routerx.Context) {
 	}
 
 	if err := c.DB().Create(&connection); err != nil {
-		c.ServerError("Failed to create connection")
+		c.ServerError("Failed to create connection", err)
 		return
 	}
 

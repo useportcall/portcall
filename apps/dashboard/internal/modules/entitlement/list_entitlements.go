@@ -12,7 +12,7 @@ func ListEntitlements(c *routerx.Context) {
 
 	var user models.User
 	if err := c.DB().GetForPublicID(c.AppID(), userID, &user); err != nil {
-		c.ServerError("Failed to find user for entitlements")
+		c.ServerError("Failed to find user for entitlements", err)
 		return
 	}
 
@@ -26,7 +26,7 @@ func ListEntitlements(c *routerx.Context) {
 
 	var entitlements []models.Entitlement
 	if err := c.DB().List(&entitlements, query...); err != nil {
-		c.ServerError("Failed to list entitlements")
+		c.ServerError("Failed to list entitlements", err)
 		return
 	}
 
@@ -36,7 +36,7 @@ func ListEntitlements(c *routerx.Context) {
 
 		var feature models.Feature
 		if err := c.DB().GetForPublicID(c.AppID(), entitlement.FeaturePublicID, &feature); err != nil {
-			c.ServerError("Failed to find feature for entitlement")
+			c.ServerError("Failed to find feature for entitlement", err)
 			return
 		}
 	}

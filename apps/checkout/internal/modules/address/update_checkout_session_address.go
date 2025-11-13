@@ -32,7 +32,7 @@ func UpdateCheckoutSessionAddress(c *routerx.Context) {
 
 	var user models.User
 	if err := c.DB().FindForID(session.UserID, &user); err != nil {
-		c.ServerError("internal server error")
+		c.ServerError("internal server error", err)
 		return
 	}
 
@@ -47,13 +47,13 @@ func UpdateCheckoutSessionAddress(c *routerx.Context) {
 		Country:    body.Country,
 	}
 	if err := c.DB().Create(address); err != nil {
-		c.ServerError("failed to create address")
+		c.ServerError("failed to create address", err)
 		return
 	}
 
 	user.BillingAddressID = &address.ID
 	if err := c.DB().Save(&user); err != nil {
-		c.ServerError("internal server error")
+		c.ServerError("internal server error", err)
 		return
 	}
 
@@ -63,7 +63,7 @@ func UpdateCheckoutSessionAddress(c *routerx.Context) {
 		"external_payment_method_id": "pm_test_123",
 	}
 	if err := c.Queue().Enqueue("create_payment_method", payload, "billing_queue"); err != nil {
-		c.ServerError("internal server error")
+		c.ServerError("internal server error", err)
 		return
 	}
 

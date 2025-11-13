@@ -10,11 +10,11 @@ func DeleteUser(c *routerx.Context) {
 
 	var user models.User
 	if err := c.DB().GetForPublicID(c.AppID(), id, &user); err != nil {
-		c.ServerError("Failed to get user")
+		c.ServerError("Failed to get user", err)
 	}
 
 	if err := c.DB().RemoveForPublicID(c.AppID(), id, &user); err != nil {
-		c.ServerError("Failed to delete user")
+		c.ServerError("Failed to delete user", err)
 	}
 
 	c.OK(map[string]any{"deleted": true, "id": id})

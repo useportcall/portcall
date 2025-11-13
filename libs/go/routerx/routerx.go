@@ -1,6 +1,7 @@
 package routerx
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -52,7 +53,8 @@ func (c *Context) DB() dbx.IORM {
 	return c.db
 }
 
-func (c *Context) ServerError(message string) {
+func (c *Context) ServerError(message string, err error) {
+	log.Println("server error:", message, err.Error())
 	c.JSON(http.StatusInternalServerError, gin.H{"error": message})
 }
 

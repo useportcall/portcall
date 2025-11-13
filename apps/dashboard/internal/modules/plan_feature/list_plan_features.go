@@ -43,7 +43,7 @@ func ListPlanFeatures(c *routerx.Context) {
 
 	planFeatures := []models.PlanFeature{}
 	if err := c.DB().List(&planFeatures, conds...); err != nil {
-		c.ServerError("Failed to list plan features")
+		c.ServerError("Failed to list plan features", err)
 		return
 	}
 
@@ -54,7 +54,7 @@ func ListPlanFeatures(c *routerx.Context) {
 
 		var planItem models.PlanItem
 		if err := c.DB().FindForID(pf.PlanItemID, &planItem); err != nil {
-			c.ServerError("Failed to find plan item")
+			c.ServerError("Failed to find plan item", err)
 			return
 		}
 
@@ -62,7 +62,7 @@ func ListPlanFeatures(c *routerx.Context) {
 
 		var f models.Feature
 		if err := c.DB().FindForID(pf.FeatureID, &f); err != nil {
-			c.ServerError("Failed to find feature")
+			c.ServerError("Failed to find feature", err)
 			return
 		}
 

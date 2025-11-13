@@ -17,7 +17,7 @@ func GetUser(c *routerx.Context) {
 	if user.BillingAddressID != nil {
 		var billingAddress models.Address
 		if err := c.DB().FindForID(*user.BillingAddressID, &billingAddress); err != nil {
-			c.ServerError("Failed to get billing address")
+			c.ServerError("Failed to get billing address", err)
 			return
 		}
 		user.BillingAddress = &billingAddress

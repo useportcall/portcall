@@ -19,7 +19,7 @@ func CreateCheckoutSession(c *routerx.Context) {
 
 	var company models.Company
 	if err := c.DB().FindFirst(&company, "app_id = ?", c.AppID); err != nil {
-		c.ServerError("error retrieving company for app")
+		c.ServerError("error retrieving company for app", err)
 		return
 	}
 
@@ -30,7 +30,7 @@ func CreateCheckoutSession(c *routerx.Context) {
 
 	var plan models.Plan
 	if err := c.DB().GetForPublicID(c.AppID(), body.PlanID, &plan); err != nil {
-		c.ServerError("error retrieving plan")
+		c.ServerError("error retrieving plan", err)
 		return
 	}
 
@@ -41,44 +41,44 @@ func CreateCheckoutSession(c *routerx.Context) {
 
 	var config models.AppConfig
 	if err := c.DB().FindFirst(&config, "app_id = ?", c.AppID()); err != nil {
-		c.ServerError("error retrieving app config for app")
+		c.ServerError("error retrieving app config for app", err)
 	}
 
 	var connection models.Connection
 	if err := c.DB().FindForID(config.DefaultConnectionID, &connection); err != nil {
-		c.ServerError("error retrieving payment connection for app")
+		c.ServerError("error retrieving payment connection for app", err)
 		return
 	}
 
 	payment, err := paymentx.New(&connection, c.Crypto())
 	if err != nil {
-		c.ServerError("error creating payment client")
+		c.ServerError("error creating payment client", err)
 		return
 	}
 
 	var user models.User
 	if err := c.DB().GetForPublicID(c.AppID(), body.UserID, &user); err != nil {
-		c.ServerError(fmt.Sprintf("error retrieving user %s for app %d: %v", body.UserID, c.AppID(), err))
+		c.ServerError(fmt.Sprintf("error retrieving user %s for app %d: %v", body.UserID, c.AppID(), err), err)
 		return
 	}
 
 	if user.PaymentCustomerID == "" {
 		customerID, err := payment.CreateCustomer(user.Email, user.Name)
 		if err != nil {
-			c.ServerError("error creating payment customer")
+			c.ServerError("error creating payment customer", err)
 			return
 		}
 
 		user.PaymentCustomerID = customerID
 		if err := c.DB().Save(&user); err != nil {
-			c.ServerError("error saving user with payment customer ID")
+			c.ServerError("error saving user with payment customer ID", err)
 			return
 		}
 	}
 
 	sessionID, clientSecret, err := payment.CreateCheckoutSession(user.PaymentCustomerID)
 	if err != nil {
-		c.ServerError("error creating payment checkout session")
+		c.ServerError("error creating payment checkout session", err)
 		return
 	}
 
@@ -97,7 +97,7 @@ func CreateCheckoutSession(c *routerx.Context) {
 		CompanyAddressID:     company.BillingAddressID,
 	}
 	if err := c.DB().Create(checkoutSession); err != nil {
-		c.ServerError("error creating checkout session")
+		c.ServerError("error creating checkout session", err)
 		return
 	}
 

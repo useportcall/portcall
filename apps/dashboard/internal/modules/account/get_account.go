@@ -12,7 +12,7 @@ func GetAccount(c *routerx.Context) {
 	account := new(models.Account)
 	if err := c.DB().FindFirst(account, "email = ?", claims.Email); err != nil {
 		if !dbx.IsRecordNotFoundError(err) {
-			c.ServerError("Internal server error")
+			c.ServerError("Internal server error", err)
 			return
 		}
 
@@ -27,7 +27,7 @@ func GetAccount(c *routerx.Context) {
 		}
 
 		if err := c.DB().Create(account); err != nil {
-			c.ServerError("Internal server error")
+			c.ServerError("Internal server error", err)
 			return
 		}
 	}

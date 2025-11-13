@@ -13,14 +13,14 @@ import (
 func CreateSecret(c *routerx.Context) {
 	var app models.App
 	if err := c.DB().FindForID(c.AppID(), &app); err != nil {
-		c.ServerError("Internal server error")
+		c.ServerError("Internal server error", err)
 		return
 	}
 
 	// create random api key
 	apiKey, err := GenerateAPIKey(64)
 	if err != nil {
-		c.ServerError("Internal server error")
+		c.ServerError("Internal server error", err)
 		return
 	}
 
@@ -28,7 +28,7 @@ func CreateSecret(c *routerx.Context) {
 
 	hash, err := c.Crypto().Encrypt(apiKey)
 	if err != nil {
-		c.ServerError("Failed to encrypt secret value")
+		c.ServerError("Failed to encrypt secret value", err)
 		return
 	}
 
@@ -38,7 +38,7 @@ func CreateSecret(c *routerx.Context) {
 	secret.KeyHash = hash
 
 	if err := c.DB().Create(secret); err != nil {
-		c.ServerError("Failed to create secret")
+		c.ServerError("Failed to create secret", err)
 		return
 	}
 

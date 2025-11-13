@@ -15,7 +15,7 @@ func DeleteAddress(c *routerx.Context) {
 	}
 
 	if err := c.DB().RemoveForPublicID(c.AppID(), id, address); err != nil {
-		c.ServerError("Failed to delete address")
+		c.ServerError("Failed to delete address", err)
 		return
 	}
 

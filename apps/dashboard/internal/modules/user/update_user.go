@@ -22,14 +22,14 @@ func UpdateUser(c *routerx.Context) {
 
 	user.Name = body.Name
 	if err := c.DB().Save(&user); err != nil {
-		c.ServerError("Failed to save user")
+		c.ServerError("Failed to save user", err)
 		return
 	}
 
 	if user.BillingAddressID != nil {
 		var billingAddress models.Address
 		if err := c.DB().FindForID(*user.BillingAddressID, &billingAddress); err != nil {
-			c.ServerError("Failed to fetch billing address")
+			c.ServerError("Failed to fetch billing address", err)
 			return
 		}
 		user.BillingAddress = &billingAddress

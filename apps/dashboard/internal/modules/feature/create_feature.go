@@ -26,32 +26,32 @@ func CreateFeature(c *routerx.Context) {
 	feature.AppID = c.AppID()
 
 	if err := c.DB().Create(&feature); err != nil {
-		c.ServerError("Failed to create feature")
+		c.ServerError("Failed to create feature", err)
 		return
 	}
 
 	if body.PlanFeatureID != "" {
 		var planFeature models.PlanFeature
 		if err := c.DB().GetForPublicID(c.AppID(), body.PlanFeatureID, &planFeature); err != nil {
-			c.ServerError("Failed to get plan feature")
+			c.ServerError("Failed to get plan feature", err)
 			return
 		}
 
 		planFeature.FeatureID = feature.ID
 		if err := c.DB().Save(planFeature); err != nil {
-			c.ServerError("Failed to update plan feature")
+			c.ServerError("Failed to update plan feature", err)
 			return
 		}
 	} else if body.PlanID != "" {
 		plan := &models.Plan{}
 		if err := c.DB().GetForPublicID(c.AppID(), body.PlanID, plan); err != nil {
-			c.ServerError("Failed to get plan")
+			c.ServerError("Failed to get plan", err)
 			return
 		}
 
 		var planItem models.PlanItem
 		if err := c.DB().FindFirst(&planItem, "plan_id = ? AND pricing_model = 'fixed'", plan.ID); err != nil {
-			c.ServerError("Failed to get plan item")
+			c.ServerError("Failed to get plan item", err)
 			return
 		}
 
@@ -65,7 +65,7 @@ func CreateFeature(c *routerx.Context) {
 			Quota:      -1,
 		}
 		if err := c.DB().Create(planFeature); err != nil {
-			c.ServerError("Failed to create plan feature")
+			c.ServerError("Failed to create plan feature", err)
 			return
 		}
 	}

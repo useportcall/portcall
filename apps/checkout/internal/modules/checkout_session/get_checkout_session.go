@@ -24,7 +24,7 @@ func GetCheckoutSession(c *routerx.Context) {
 	if checkoutSession.BillingAddressID != nil {
 		var billingAddress models.Address
 		if err := c.DB().FindForID(*checkoutSession.BillingAddressID, &billingAddress); err != nil {
-			c.ServerError("internal server error")
+			c.ServerError("internal server error", err)
 			return
 		}
 		response.BillingAddress = &apix.Address{}
@@ -33,7 +33,7 @@ func GetCheckoutSession(c *routerx.Context) {
 
 	var companyAddress models.Address
 	if err := c.DB().FindForID(checkoutSession.CompanyAddressID, &companyAddress); err != nil {
-		c.ServerError("internal server error")
+		c.ServerError("internal server error", err)
 		return
 	}
 	response.CompanyAddress = &apix.Address{}
@@ -42,7 +42,7 @@ func GetCheckoutSession(c *routerx.Context) {
 	// company
 	var company models.Company
 	if err := c.DB().FindFirst(&company, "app_id = ?", checkoutSession.AppID); err != nil {
-		c.ServerError("internal server error")
+		c.ServerError("internal server error", err)
 		return
 	}
 	response.Company = &apix.Company{}
@@ -50,7 +50,7 @@ func GetCheckoutSession(c *routerx.Context) {
 
 	var dbPlan *models.Plan
 	if err := c.DB().FindForID(checkoutSession.PlanID, &dbPlan); err != nil {
-		c.ServerError("internal server error")
+		c.ServerError("internal server error", err)
 		return
 	}
 
@@ -59,7 +59,7 @@ func GetCheckoutSession(c *routerx.Context) {
 
 	var planItems []models.PlanItem
 	if err := c.DB().List(&planItems, "plan_id = ?", dbPlan.ID); err != nil {
-		c.ServerError("internal server error")
+		c.ServerError("internal server error", err)
 		return
 	}
 
@@ -71,14 +71,14 @@ func GetCheckoutSession(c *routerx.Context) {
 
 	var planFeatures []models.PlanFeature
 	if err := c.DB().List(&planFeatures, "plan_id = ?", dbPlan.ID); err != nil {
-		c.ServerError("internal server error")
+		c.ServerError("internal server error", err)
 		return
 	}
 
 	for _, pf := range planFeatures {
 		var feature models.Feature
 		if err := c.DB().FindForID(pf.FeatureID, &feature); err != nil {
-			c.ServerError("internal server error")
+			c.ServerError("internal server error", err)
 			return
 		}
 

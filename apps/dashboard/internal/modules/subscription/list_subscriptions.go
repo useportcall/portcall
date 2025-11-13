@@ -11,7 +11,7 @@ import (
 func ListSubscriptions(c *routerx.Context) {
 	subscriptions := []models.Subscription{}
 	if err := c.DB().List(&subscriptions, "app_id = ?", c.AppID()); err != nil {
-		c.ServerError("Failed to list subscriptions")
+		c.ServerError("Failed to list subscriptions", err)
 		return
 	}
 

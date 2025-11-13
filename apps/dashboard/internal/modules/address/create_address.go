@@ -24,19 +24,19 @@ func CreateAddress(c *routerx.Context) {
 	address.Country = body.Country
 
 	if err := c.DB().Create(address); err != nil {
-		c.ServerError("Failed to create address")
+		c.ServerError("Failed to create address", err)
 		return
 	}
 
 	var company models.Company
 	if err := c.DB().FindFirstForAppID(c.AppID(), &company); err != nil {
-		c.ServerError("Failed to find company")
+		c.ServerError("Failed to find company", err)
 		return
 	}
 
 	company.BillingAddressID = address.ID
 	if err := c.DB().Save(&company); err != nil {
-		c.ServerError("Failed to update company with billing address")
+		c.ServerError("Failed to update company with billing address", err)
 		return
 	}
 

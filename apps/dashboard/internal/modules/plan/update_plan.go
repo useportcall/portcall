@@ -51,13 +51,13 @@ func UpdatePlan(c *routerx.Context) {
 	}
 
 	if err := c.DB().Save(plan); err != nil {
-		c.ServerError("Failed to update plan")
+		c.ServerError("Failed to update plan", err)
 		return
 	}
 
 	planItems := []models.PlanItem{}
 	if err := c.DB().List(&planItems, "plan_id = ?", plan.ID); err != nil {
-		c.ServerError("Failed to list plan items")
+		c.ServerError("Failed to list plan items", err)
 		return
 	}
 

@@ -51,7 +51,7 @@ func CreatePlanFeature(c *routerx.Context) {
 		Quota:      -1,
 	}
 	if err := c.DB().Create(planFeature); err != nil {
-		c.ServerError("Failed to create plan feature")
+		c.ServerError("Failed to create plan feature", err)
 		return
 	}
 

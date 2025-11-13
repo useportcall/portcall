@@ -14,13 +14,13 @@ func ListApps(c *routerx.Context) {
 			return
 		}
 
-		c.ServerError("Failed to list apps")
+		c.ServerError("Failed to list apps", err)
 		return
 	}
 
 	apps := []models.App{}
 	if err := c.DB().List(&apps, "account_id = ?", account.ID); err != nil {
-		c.ServerError("Failed to list apps")
+		c.ServerError("Failed to list apps", err)
 		return
 	}
 

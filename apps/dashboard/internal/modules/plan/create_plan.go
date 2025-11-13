@@ -19,7 +19,7 @@ func CreatePlan(c *routerx.Context) {
 		Currency:         "USD",
 		InvoiceDueByDays: 10}
 	if err := c.DB().Create(plan); err != nil {
-		c.ServerError("Failed to create plan")
+		c.ServerError("Failed to create plan", err)
 		return
 	}
 
@@ -33,13 +33,13 @@ func CreatePlan(c *routerx.Context) {
 		UnitAmount:        1000,
 		PricingModel:      "fixed"}
 	if err := c.DB().Create(planItem); err != nil {
-		c.ServerError("Failed to create plan item")
+		c.ServerError("Failed to create plan item", err)
 		return
 	}
 
 	plan.Status = "draft"
 	if err := c.DB().Save(plan); err != nil {
-		c.ServerError("Failed to update plan status")
+		c.ServerError("Failed to update plan status", err)
 		return
 	}
 

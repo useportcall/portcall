@@ -18,7 +18,7 @@ func ListSubscriptions(c *routerx.Context) {
 	if userID := c.Query("user_id"); userID != "" {
 		var user models.User
 		if err := c.DB().GetForPublicID(c.AppID(), userID, &user); err != nil {
-			c.ServerError("Internal server error")
+			c.ServerError("Internal server error", err)
 			return
 		}
 
@@ -39,7 +39,7 @@ func ListSubscriptions(c *routerx.Context) {
 	subscriptions := []models.Subscription{}
 	if err := c.DB().List(&subscriptions, conds...); err != nil {
 		if !dbx.IsRecordNotFoundError(err) {
-			c.ServerError("Internal server error")
+			c.ServerError("Internal server error", err)
 			return
 		}
 	}
@@ -54,7 +54,7 @@ func ListSubscriptions(c *routerx.Context) {
 
 		var plan models.Plan
 		if err := c.DB().FindForID(*subscription.PlanID, &plan); err != nil {
-			c.ServerError("Internal server error")
+			c.ServerError("Internal server error", err)
 			return
 		}
 

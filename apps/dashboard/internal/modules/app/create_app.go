@@ -15,11 +15,11 @@ func CreateApp(c *routerx.Context) {
 			account = models.Account{}
 			account.Email = c.AuthEmail()
 			if err := c.DB().Create(&account); err != nil {
-				c.ServerError("Failed to create account")
+				c.ServerError("Failed to create account", err)
 				return
 			}
 		} else {
-			c.ServerError("Failed to find account")
+			c.ServerError("Failed to find account", err)
 			return
 		}
 	}
@@ -41,7 +41,7 @@ func CreateApp(c *routerx.Context) {
 	app.Name = body.Name
 	app.PublicApiKey = utils.GenPublicID("pk")
 	if err := c.DB().Create(app); err != nil {
-		c.ServerError("Failed to create app")
+		c.ServerError("Failed to create app", err)
 		return
 	}
 
@@ -56,7 +56,7 @@ func CreateApp(c *routerx.Context) {
 	address.PostalCode = "12345"
 	address.Country = "USA"
 	if err := c.DB().Create(address); err != nil {
-		c.ServerError("Failed to create address")
+		c.ServerError("Failed to create address", err)
 		return
 	}
 
@@ -68,7 +68,7 @@ func CreateApp(c *routerx.Context) {
 	company.Email = "default@example.com"
 	company.VATNumber = "123456789"
 	if err := c.DB().Create(company); err != nil {
-		c.ServerError("Failed to create company")
+		c.ServerError("Failed to create company", err)
 		return
 	}
 
@@ -78,7 +78,7 @@ func CreateApp(c *routerx.Context) {
 	connection.Source = "local"
 	connection.Name = "Local Payment Provider"
 	if err := c.DB().Create(connection); err != nil {
-		c.ServerError("Failed to create connection")
+		c.ServerError("Failed to create connection", err)
 		return
 	}
 
@@ -87,7 +87,7 @@ func CreateApp(c *routerx.Context) {
 	appConfig.AppID = app.ID
 	appConfig.DefaultConnectionID = connection.ID
 	if err := c.DB().Create(appConfig); err != nil {
-		c.ServerError("Failed to create app config")
+		c.ServerError("Failed to create app config", err)
 		return
 	}
 

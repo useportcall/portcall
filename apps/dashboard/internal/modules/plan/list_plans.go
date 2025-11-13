@@ -25,7 +25,7 @@ func ListPlans(c *routerx.Context) {
 
 	plans := []models.Plan{}
 	if err := c.DB().ListWithOrder(&plans, "name DESC, created_at DESC", q...); err != nil {
-		c.ServerError("Failed to list plans")
+		c.ServerError("Failed to list plans", err)
 		return
 	}
 
@@ -37,7 +37,7 @@ func ListPlans(c *routerx.Context) {
 	for i, plan := range plans {
 		planItems := []models.PlanItem{}
 		if err := c.DB().List(&planItems, "plan_id = ?", plan.ID); err != nil {
-			c.ServerError("Failed to list plan items")
+			c.ServerError("Failed to list plan items", err)
 			return
 		}
 
@@ -56,7 +56,7 @@ func ListPlans(c *routerx.Context) {
 
 		features := []models.PlanFeature{}
 		if err := c.DB().List(&features, "plan_id = ?", plan.ID); err != nil {
-			c.ServerError("Failed to list plan features")
+			c.ServerError("Failed to list plan features", err)
 			return
 		}
 

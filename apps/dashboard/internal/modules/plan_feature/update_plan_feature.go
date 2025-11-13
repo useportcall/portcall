@@ -52,7 +52,7 @@ func UpdatePlanFeature(c *routerx.Context) {
 	}
 
 	if err := c.DB().Save(planFeature); err != nil {
-		c.ServerError("Failed to update plan feature")
+		c.ServerError("Failed to update plan feature", err)
 		return
 	}
 

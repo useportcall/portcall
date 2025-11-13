@@ -10,7 +10,7 @@ func ListFeatures(c *routerx.Context) {
 
 	features := []models.Feature{}
 	if err := c.DB().List(&features, "app_id = ? AND is_metered = ?", c.AppID(), isMetered); err != nil {
-		c.ServerError("Failed to list features")
+		c.ServerError("Failed to list features", err)
 		return
 	}
 

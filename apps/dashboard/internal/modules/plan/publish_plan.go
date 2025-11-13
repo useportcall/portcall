@@ -31,7 +31,7 @@ func PublishPlan(c *routerx.Context) {
 
 	planItems := []models.PlanItem{}
 	if err := c.DB().List(&planItems, "plan_id = ?", plan.ID); err != nil {
-		c.ServerError("Failed to list plan items")
+		c.ServerError("Failed to list plan items", err)
 		return
 	}
 
@@ -47,7 +47,7 @@ func PublishPlan(c *routerx.Context) {
 	// Update the plan status to "published"
 	plan.Status = "published"
 	if err := c.DB().Save(&plan); err != nil {
-		c.ServerError("Failed to update plan status")
+		c.ServerError("Failed to update plan status", err)
 		return
 	}
 

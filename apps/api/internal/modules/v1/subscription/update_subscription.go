@@ -21,7 +21,7 @@ func UpdateSubscription(c *routerx.Context) {
 
 	var subscription models.Subscription
 	if err := c.DB().GetForPublicID(c.AppID(), subscriptionID, &subscription); err != nil {
-		c.ServerError("Internal server error")
+		c.ServerError("Internal server error", err)
 		return
 	}
 
@@ -32,7 +32,7 @@ func UpdateSubscription(c *routerx.Context) {
 
 	var plan models.Plan
 	if err := c.DB().GetForPublicID(c.AppID(), p.PlanID, &plan); err != nil {
-		c.ServerError("Internal server error")
+		c.ServerError("Internal server error", err)
 		return
 	}
 
@@ -56,18 +56,18 @@ func UpdateSubscription(c *routerx.Context) {
 
 	var si models.SubscriptionItem
 	if err := c.DB().Delete(&si, "subscription_id = ?", subscription.ID); err != nil {
-		c.ServerError("Internal server error")
+		c.ServerError("Internal server error", err)
 		return
 	}
 
 	if err := c.DB().Save(&subscription); err != nil {
-		c.ServerError("Internal server error")
+		c.ServerError("Internal server error", err)
 		return
 	}
 
 	payload := map[string]any{"user_id": subscription.UserID, "plan_id": plan.ID}
 	if err := c.Queue().Enqueue("create_entitlements", payload, "billing_queue"); err != nil {
-		c.ServerError("Internal server error")
+		c.ServerError("Internal server error", err)
 		return
 	}
 

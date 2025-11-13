@@ -51,7 +51,7 @@ func UpsertCompany(c *routerx.Context) {
 	}
 
 	if err := c.DB().Save(&company); err != nil {
-		c.ServerError("Failed to update company")
+		c.ServerError("Failed to update company", err)
 		return
 	}
 

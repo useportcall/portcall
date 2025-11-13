@@ -15,7 +15,7 @@ func DeleteConnection(c *routerx.Context) {
 	}
 
 	if err := c.DB().DeleteForID(&connection); err != nil {
-		c.ServerError("Failed to delete connection")
+		c.ServerError("Failed to delete connection", err)
 		return
 	}
 

@@ -8,7 +8,7 @@ import (
 func ListSecrets(c *routerx.Context) {
 	secrets := []models.Secret{}
 	if err := c.DB().ListForAppID(c.AppID(), &secrets, nil); err != nil {
-		c.ServerError("Failed to list secrets")
+		c.ServerError("Failed to list secrets", err)
 		return
 	}
 

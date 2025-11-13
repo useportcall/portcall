@@ -28,7 +28,7 @@ func CreatePlanItem(c *routerx.Context) {
 	var feature models.Feature
 	if err := c.DB().FindFirst(&feature, "app_id = ? AND is_metered = ?", c.AppID(), true); err != nil {
 		if !dbx.IsRecordNotFoundError(err) {
-			c.ServerError("Failed to fetch feature")
+			c.ServerError("Failed to fetch feature", err)
 			return
 		}
 
@@ -38,7 +38,7 @@ func CreatePlanItem(c *routerx.Context) {
 			IsMetered: true,
 		}
 		if err := c.DB().Create(&feature); err != nil {
-			c.ServerError("Failed to create feature")
+			c.ServerError("Failed to create feature", err)
 			return
 		}
 	}
@@ -57,7 +57,7 @@ func CreatePlanItem(c *routerx.Context) {
 		PublicDescription: body.PublicDescription,
 	}
 	if err := c.DB().Create(planItem); err != nil {
-		c.ServerError("Failed to create plan item")
+		c.ServerError("Failed to create plan item", err)
 		return
 	}
 
@@ -77,7 +77,7 @@ func CreatePlanItem(c *routerx.Context) {
 		Rollover:   body.Rollover,
 	}
 	if err := c.DB().Create(&planFeature); err != nil {
-		c.ServerError("Failed to create plan feature")
+		c.ServerError("Failed to create plan feature", err)
 		return
 	}
 

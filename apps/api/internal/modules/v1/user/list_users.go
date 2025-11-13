@@ -26,7 +26,7 @@ func ListUsers(c *routerx.Context) {
 
 	var users []models.User
 	if err := c.DB().List(&users, conds...); err != nil {
-		c.ServerError("internal server error")
+		c.ServerError("internal server error", err)
 		return
 	}
 

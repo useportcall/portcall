@@ -31,7 +31,7 @@ func ListInvoices(c *routerx.Context) {
 
 	var invoices []models.Invoice
 	if err := c.DB().ListWithOrder(&invoices, "created_at DESC", conds...); err != nil {
-		c.ServerError("Failed to list invoices")
+		c.ServerError("Failed to list invoices", err)
 		return
 	}
 
