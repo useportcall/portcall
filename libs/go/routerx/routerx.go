@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
+	"github.com/useportcall/portcall/libs/go/authx"
 	"github.com/useportcall/portcall/libs/go/cryptox"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/qx"
@@ -68,6 +69,10 @@ func (c *Context) Unauthorized(message string) {
 
 func (c *Context) AuthEmail() string {
 	return c.MustGet("auth_email").(string)
+}
+
+func (c *Context) AuthClaims() *authx.Claims {
+	return c.MustGet("auth_claims").(*authx.Claims)
 }
 
 func (c *Context) AppID() uint {

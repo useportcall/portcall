@@ -14,14 +14,15 @@ func Auth(db dbx.IORM) routerx.HandlerFunc {
 	client := authx.New()
 
 	return func(c *routerx.Context) {
-		email, err := client.Validate(c.Request.Context(), c.Request.Header)
+		claims, err := client.Validate(c.Request.Context(), c.Request.Header)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, gin.H{"access": "unauthorized"})
 			c.Abort()
 			return
 		}
 
-		c.Set("auth_email", email)
+		c.Set("auth_email", claims.Email)
+		c.Set("auth_claims", claims)
 
 		if c.Param("app_id") == "" {
 			c.Next()

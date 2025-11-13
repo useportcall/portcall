@@ -35,11 +35,11 @@ func newLocalAuthClient() IAuthClient {
 	}
 }
 
-func (client *localAuthClient) Validate(ctx context.Context, header http.Header) (string, error) {
+func (client *localAuthClient) Validate(ctx context.Context, header http.Header) (*Claims, error) {
 	h := header.Get("Authorization")
 	if !strings.HasPrefix(h, "Bearer ") {
 		log.Print("Authorization header missing or invalid")
-		return "", fmt.Errorf("authorization header missing or invalid")
+		return nil, fmt.Errorf("authorization header missing or invalid")
 	}
 	raw := strings.TrimPrefix(h, "Bearer ")
 
@@ -49,15 +49,35 @@ func (client *localAuthClient) Validate(ctx context.Context, header http.Header)
 		jwt.WithValidMethods([]string{"RS256"}),
 		jwt.WithLeeway(2*time.Minute),
 	)
+
 	if err != nil || tok == nil || !tok.Valid {
 		log.Printf("JWT parse error: %v", err)
-		return "", fmt.Errorf("JWT parse error: %v", err)
-	}
-	if claims, ok := tok.Claims.(jwt.MapClaims); ok {
-		if email, _ := claims["email"].(string); email != "" {
-			return email, nil
-		}
+		return nil, fmt.Errorf("JWT parse error: %v", err)
 	}
 
-	return "", fmt.Errorf("email claim not found in token")
+	if claims, ok := tok.Claims.(jwt.MapClaims); ok {
+		email, ok := claims["email"].(string)
+		if !ok {
+			return nil, fmt.Errorf("email claim not found in token")
+		}
+
+		givenName, ok := claims["given_name"].(string)
+		if !ok {
+			givenName = ""
+		}
+
+		familyName, ok := claims["family_name"].(string)
+		if !ok {
+			familyName = ""
+		}
+
+		response := new(Claims)
+		response.Email = email
+		response.GivenName = &givenName
+		response.FamilyName = &familyName
+
+		return response, nil
+	}
+
+	return nil, fmt.Errorf("email claim not found in token")
 }

@@ -7,16 +7,25 @@ import (
 )
 
 func GetAccount(c *routerx.Context) {
-	email := c.AuthEmail()
+	claims := c.AuthClaims()
 
 	account := new(models.Account)
-	if err := c.DB().FindFirst(account, "email = ?", email); err != nil {
+	if err := c.DB().FindFirst(account, "email = ?", claims.Email); err != nil {
 		if !dbx.IsRecordNotFoundError(err) {
 			c.ServerError("Internal server error")
 			return
 		}
 
-		account.Email = email
+		account.Email = claims.Email
+
+		if claims.GivenName != nil {
+			account.FirstName = *claims.GivenName
+		}
+
+		if claims.FamilyName != nil {
+			account.LastName = *claims.FamilyName
+		}
+
 		if err := c.DB().Create(account); err != nil {
 			c.ServerError("Internal server error")
 			return

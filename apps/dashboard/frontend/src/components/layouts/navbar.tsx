@@ -21,9 +21,18 @@ import {
 } from "../ui/dropdown-menu";
 import { Separator } from "../ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "../ui/sheet";
+import { Avatar, AvatarFallback } from "../ui/avatar";
+import { useMemo } from "react";
 
 export default function Navbar() {
   const { logout, user } = useAuth();
+
+  const firstLetter = useMemo(() => {
+    if (user?.name && user.name.length > 0) {
+      return user.name.charAt(0).toUpperCase();
+    }
+    return "U";
+  }, [user]);
 
   return (
     <header className="w-full flex h-14 items-center space-mono-regular justify-between md:justify-end gap-4 border-b bg-white px-4 lg:h-[60px] lg:px-6">
@@ -107,14 +116,10 @@ export default function Navbar() {
         </SheetContent>
       </Sheet>
       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="secondary"
-            size="icon"
-            className="rounded-full border border-cyan-800/40"
-          >
-            <span className="sr-only">Toggle user menu</span>
-          </Button>
+        <DropdownMenuTrigger>
+          <Avatar className="border border-cyan-800/40">
+            <AvatarFallback>{firstLetter}</AvatarFallback>
+          </Avatar>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end">
           <DropdownMenuItem disabled>{user?.name}</DropdownMenuItem>
