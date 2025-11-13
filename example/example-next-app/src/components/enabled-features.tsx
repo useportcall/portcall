@@ -31,7 +31,7 @@ export default async function EnabledFeatures() {
         <p className="mb-4 font-medium text-sm">Unmetered features</p>
         <div className="flex flex-wrap gap-2">
           <BasicFeature
-            featureId="scultor"
+            featureId="sculptor"
             disabled={
               <Badge className="bg-slate-100 text-slate-600">
                 <X />
@@ -91,7 +91,7 @@ export default async function EnabledFeatures() {
             }
           />
           <BasicFeature
-            featureId="100_integration_providers"
+            featureId="integration_providers"
             disabled={
               <Badge className="bg-slate-100 text-slate-600">
                 <X /> 100+ integration providers
@@ -134,7 +134,7 @@ export default async function EnabledFeatures() {
             }
           />
           <BasicFeature
-            featureId="use_own_api_keys"
+            featureId="use_your_own_api_keys"
             disabled={
               <Badge className="bg-slate-100 text-slate-600">
                 <X />
