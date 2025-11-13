@@ -20,10 +20,10 @@ interface ExpiryInputProps {
  */
 export default function ExpiryInput({
   fullYear = false,
-  label = "Expiration date",
+  // label = "Expiration date",
   name = "expiry",
-  className = "",
-}: ExpiryInputProps) {
+}: // className = "",
+ExpiryInputProps) {
   const [value, setValue] = useState("");
 
   const formatExpiry = (raw: string): string => {
