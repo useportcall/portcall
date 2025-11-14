@@ -49,3 +49,20 @@ func New(db dbx.IORM, crypto cryptox.ICrypto, queues map[string]int) IServer {
 
 	return &server{instance, muxInstance}
 }
+func NewNoDeps(queues map[string]int) IServer {
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		log.Fatal("REDIS_ADDR environment variable not set")
+	}
+
+	instance := asynq.NewServer(
+		asynq.RedisClientOpt{Addr: redisAddr},
+		asynq.Config{
+			Queues: queues,
+		},
+	)
+
+	muxInstance := &multiplexer{asynq.NewServeMux(), nil, nil, nil}
+
+	return &server{instance, muxInstance}
+}

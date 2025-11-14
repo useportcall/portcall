@@ -69,8 +69,8 @@ func PayInvoice(c server.IContext) error {
 		"date_paid":      time.Now().Format("January 2, 2006"),
 		"company_name":   company.Name,
 	}
-	if err := c.Queue().Enqueue("send_invoice_paid_receipt", payload, "email_queue"); err != nil {
-		return fmt.Errorf("failed to enqueue send_invoice_paid_receipt task: %w", err)
+	if err := c.Queue().Enqueue("send_invoice_paid_email", payload, "email_queue"); err != nil {
+		return fmt.Errorf("failed to enqueue send_invoice_paid_email task: %w", err)
 	}
 
 	return nil

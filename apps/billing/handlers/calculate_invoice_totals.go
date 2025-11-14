@@ -55,9 +55,5 @@ func CalculateInvoiceTotals(c server.IContext) error {
 		}
 	}
 
-	if err := c.Queue().Enqueue("send_invoice_issued_email", map[string]any{"public_id": invoice.PublicID}, "email_queue"); err != nil {
-		return fmt.Errorf("failed to enqueue invoice issued email: %w", err)
-	}
-
 	return nil
 }
