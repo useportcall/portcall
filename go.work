@@ -11,6 +11,7 @@ use (
 	./libs/go/authx
 	./libs/go/cryptox
 	./libs/go/dbx
+	./libs/go/emailx
 	./libs/go/envx
 	./libs/go/logx
 	./libs/go/qx
