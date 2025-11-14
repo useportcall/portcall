@@ -6,6 +6,7 @@ use (
 	./apps/checkout
 	./apps/dashboard
 	./apps/email
+	./apps/file
 	./apps/migrate
 	./libs/go/apix
 	./libs/go/authx
