@@ -1,9 +1,9 @@
 package subscription
 
 import (
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan"
 	"github.com/useportcall/portcall/apps/dashboard/internal/modules/subscription_item"
 	"github.com/useportcall/portcall/apps/dashboard/internal/modules/user"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -28,7 +28,7 @@ func ListSubscriptions(c *routerx.Context) {
 		if sub.PlanID != nil {
 			var p models.Plan
 			if err := c.DB().FindForID(*sub.PlanID, &p); err == nil {
-				s.Plan = new(plan.Plan).Set(&p)
+				s.Plan = new(apix.Plan).Set(&p)
 			}
 		}
 
