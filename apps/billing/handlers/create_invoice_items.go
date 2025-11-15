@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
@@ -24,9 +25,19 @@ func CreateInvoiceItems(c server.IContext) error {
 		return fmt.Errorf("failed to find invoice with ID %d: %w", p.InvoiceID, err)
 	}
 
-	var subscriptionItems []models.SubscriptionItem
-	if err := c.DB().List(&subscriptionItems, "subscription_id = ?", invoice.SubscriptionID); err != nil {
+	subscriptionID := invoice.SubscriptionID
+	if subscriptionID == nil {
+		return fmt.Errorf("invoice with ID %d has no associated subscription", p.InvoiceID)
+	}
+
+	subscriptionItems := []models.SubscriptionItem{}
+	if err := c.DB().List(&subscriptionItems, "subscription_id = ?", *subscriptionID); err != nil {
 		return err
+	}
+
+	log.Printf("Found %d subscription items for Subscription ID: %d\n", len(subscriptionItems), *subscriptionID)
+	if len(subscriptionItems) == 0 {
+		return fmt.Errorf("no subscription items found for subscription ID %d", *subscriptionID)
 	}
 
 	for _, si := range subscriptionItems {
@@ -45,6 +56,8 @@ func CreateInvoiceItems(c server.IContext) error {
 		if err := c.DB().Create(invoiceItem); err != nil {
 			return err
 		}
+
+		log.Printf("Created Invoice Item: ID=%d, Total=%d\n", invoiceItem.ID, invoiceItem.Total)
 	}
 
 	payload := map[string]any{
