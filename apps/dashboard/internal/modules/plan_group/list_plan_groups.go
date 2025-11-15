@@ -1,6 +1,7 @@
 package plan_group
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -12,7 +13,7 @@ func ListPlanGroups(c *routerx.Context) {
 		return
 	}
 
-	response := make([]PlanGroup, len(planGroups))
+	response := make([]apix.PlanGroup, len(planGroups))
 	for i, pg := range planGroups {
 		response[i].Set(&pg)
 	}
