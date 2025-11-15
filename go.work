@@ -1,6 +1,7 @@
 go 1.25.4
 
 use (
+	./apps/admin
 	./apps/api
 	./apps/billing
 	./apps/checkout
