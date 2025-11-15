@@ -2,6 +2,7 @@ package subscription
 
 import (
 	"github.com/useportcall/portcall/libs/go/apix"
+	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -30,29 +31,35 @@ func UpdateSubscription(c *routerx.Context) {
 		return
 	}
 
-	var plan models.Plan
-	if err := c.DB().GetForPublicID(c.AppID(), p.PlanID, &plan); err != nil {
+	var oldPlan models.Plan
+	if err := c.DB().FindForID(*subscription.PlanID, &oldPlan); err != nil {
 		c.ServerError("Internal server error", err)
 		return
 	}
 
-	if plan.Currency != subscription.Currency {
+	var newPlan models.Plan
+	if err := c.DB().GetForPublicID(c.AppID(), p.PlanID, &newPlan); err != nil {
+		c.ServerError("Internal server error", err)
+		return
+	}
+
+	if newPlan.Currency != subscription.Currency {
 		c.BadRequest("Cannot change currency when switching plan")
 		return
 	}
 
-	if plan.Interval != subscription.BillingInterval {
+	if newPlan.Interval != subscription.BillingInterval {
 		c.BadRequest("Cannot change interval when switching plan")
 		return
 	}
 
-	if plan.IntervalCount != subscription.BillingIntervalCount {
+	if newPlan.IntervalCount != subscription.BillingIntervalCount {
 		c.BadRequest("Cannot change interval count when switching plan")
 		return
 	}
 
-	subscription.PlanID = &plan.ID
-	subscription.InvoiceDueByDays = plan.InvoiceDueByDays
+	subscription.PlanID = &newPlan.ID
+	subscription.InvoiceDueByDays = newPlan.InvoiceDueByDays
 
 	var si models.SubscriptionItem
 	if err := c.DB().Delete(&si, "subscription_id = ?", subscription.ID); err != nil {
@@ -60,13 +67,59 @@ func UpdateSubscription(c *routerx.Context) {
 		return
 	}
 
+	var planItems []models.PlanItem
+	if err := c.DB().List(&planItems, "plan_id = ?", newPlan.ID); err != nil {
+		c.ServerError("Internal server error", err)
+		return
+	}
+
+	for _, pi := range planItems {
+		var title string
+		if pi.PricingModel == "fixed" {
+			title = newPlan.Name
+		} else {
+			title = pi.PublicTitle
+		}
+
+		subscriptionItem := models.SubscriptionItem{
+			PublicID:       dbx.GenPublicID("si"),
+			PlanItemID:     &pi.ID,
+			Quantity:       pi.Quantity,
+			AppID:          pi.AppID,
+			UnitAmount:     pi.UnitAmount,
+			PricingModel:   pi.PricingModel,
+			Tiers:          pi.Tiers,
+			Maximum:        pi.Maximum,
+			Minimum:        pi.Minimum,
+			Title:          title,
+			Description:    pi.PublicDescription,
+			SubscriptionID: subscription.ID,
+		}
+		if err := c.DB().Create(&subscriptionItem); err != nil {
+			c.ServerError("Internal server error", err)
+			return
+		}
+	}
+
 	if err := c.DB().Save(&subscription); err != nil {
 		c.ServerError("Internal server error", err)
 		return
 	}
 
-	payload := map[string]any{"user_id": subscription.UserID, "plan_id": plan.ID}
-	if err := c.Queue().Enqueue("create_entitlements", payload, "billing_queue"); err != nil {
+	if err := c.Queue().Enqueue(
+		"process_plan_switch",
+		map[string]any{"old_plan_id": oldPlan.ID, "new_plan_id": newPlan.ID, "subscription_id": subscription.ID},
+		"billing_queue",
+	); err != nil {
+		c.ServerError("Internal server error", err)
+		return
+	}
+
+	if err := c.Queue().Enqueue(
+		"create_entitlements",
+		map[string]any{"user_id": subscription.UserID, "plan_id": newPlan.ID},
+		"billing_queue",
+	); err != nil {
 		c.ServerError("Internal server error", err)
 		return
 	}
