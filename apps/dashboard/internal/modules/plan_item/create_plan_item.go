@@ -2,6 +2,7 @@ package plan_item
 
 import (
 	"github.com/useportcall/portcall/apps/dashboard/internal/utils"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
@@ -81,5 +82,5 @@ func CreatePlanItem(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(PlanItem).Set(planItem))
+	c.OK(new(apix.PlanItem).Set(planItem))
 }

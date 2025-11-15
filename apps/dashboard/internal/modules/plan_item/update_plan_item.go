@@ -1,6 +1,7 @@
 package plan_item
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -27,12 +28,12 @@ func UpdatePlanItem(c *routerx.Context) {
 		planItem.PricingModel = body.PricingModel
 	}
 
-	if body.Quantity != 0 {
-		planItem.Quantity = body.Quantity
+	if body.Quantity != nil {
+		planItem.Quantity = *body.Quantity
 	}
 
-	if body.UnitAmount != 0 {
-		planItem.UnitAmount = body.UnitAmount
+	if body.UnitAmount != nil {
+		planItem.UnitAmount = *body.UnitAmount
 	}
 
 	if body.Tiers != nil {
@@ -65,7 +66,5 @@ func UpdatePlanItem(c *routerx.Context) {
 		return
 	}
 
-	response := &PlanItem{}
-	response.Set(planItem)
-	c.OK(response)
+	c.OK(new(apix.PlanItem).Set(planItem))
 }

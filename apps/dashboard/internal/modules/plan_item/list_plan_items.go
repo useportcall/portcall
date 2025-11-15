@@ -3,7 +3,7 @@ package plan_item
 import (
 	"strconv"
 
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_feature"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -37,9 +37,9 @@ func ListPlanItems(c *routerx.Context) {
 		return
 	}
 
-	response := make([]PlanItem, len(planItems))
+	response := make([]apix.PlanItem, len(planItems))
 	for i, pi := range planItems {
-		response[i] = *new(PlanItem)
+		response[i] = *new(apix.PlanItem)
 		response[i].Set(&pi)
 
 		planFeatures := []models.PlanFeature{}
@@ -49,7 +49,7 @@ func ListPlanItems(c *routerx.Context) {
 		}
 
 		for _, pf := range planFeatures {
-			planFeature := plan_feature.PlanFeature{}
+			planFeature := apix.PlanFeature{}
 			planFeature.Set(&pf)
 
 			var feature models.Feature
