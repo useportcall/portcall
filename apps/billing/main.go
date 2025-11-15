@@ -31,6 +31,7 @@ func main() {
 	server.H("end_subscription_reset", handlers.EndSubscriptionReset)
 	server.H("process_meter_event", handlers.ProcessMeterEvent)
 	server.H("create_entitlements", handlers.CreateEntitlements)
+	server.H("process_plan_switch", handlers.ProcessPlanSwitch)
 
 	server.R()
 }
