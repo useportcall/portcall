@@ -66,7 +66,9 @@ export function PlanGroupSelect({ plan }: { plan: Plan }) {
                   ) {
                     await createPlanGroup.mutateAsync({
                       name: e.currentTarget.value,
+                      plan_id: plan.id,
                     });
+                    setOpen(false);
                   }
                 }
               }}

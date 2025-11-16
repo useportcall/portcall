@@ -45,7 +45,7 @@ function CreateMeteredFeatureButton() {
           public_title: "New Metered Feature",
           public_description: "",
           unit_amount: 0,
-          pricing_model: "unit",
+          pricing_model: "none",
           feature_id: null,
           quota: 0,
           tiers: [],

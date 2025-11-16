@@ -95,9 +95,11 @@ export function PlanItemCard({ planItem }: { planItem: MeteredPlanItem }) {
           </DropdownMenu>
         </div>
       </CardHeader>
-      <CardContent>
-        <MutablePlanItemPrice planItem={planItem} />
-      </CardContent>
+      {planItem.pricing_model !== "none" && (
+        <CardContent>
+          <MutablePlanItemPrice planItem={planItem} />
+        </CardContent>
+      )}
     </Card>
   );
 }

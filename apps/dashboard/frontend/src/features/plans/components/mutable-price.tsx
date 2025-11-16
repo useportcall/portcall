@@ -151,6 +151,7 @@ export function PricingModelSelect({
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
+          <SelectItem value="none">None</SelectItem>
           <SelectItem value="unit">Unit</SelectItem>
           <SelectItem value="tier">Tier</SelectItem>
           <SelectItem value="block">Block</SelectItem>

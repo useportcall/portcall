@@ -111,7 +111,6 @@ function AddNewFeature({ planFeatures }: { planFeatures: PlanFeature[] }) {
                     plan_id: id,
                   });
                   setValue("");
-                  setOpen(false);
                 }
               }}
             />

@@ -29,6 +29,8 @@ function formatFixedCharge(plan: Plan) {
 
   const currency = plan.currency.toUpperCase();
 
+  if (fixedPlanItem.unit_amount === 0) return "Free";
+
   const fee = Number(fixedPlanItem.unit_amount / 100).toFixed(2);
 
   let interval = "";
@@ -184,10 +186,16 @@ function EditPlanMenuItem({ planId }: { planId: string }) {
 }
 
 function DuplicatePlanMenuItem({ plan }: { plan: Plan }) {
-  const { mutate, isPending } = useDuplicatePlan(plan.id);
+  const { mutateAsync, isPending } = useDuplicatePlan(plan.id);
 
   return (
-    <DropdownMenuItem disabled={isPending} onClick={() => mutate({})}>
+    <DropdownMenuItem
+      disabled={isPending}
+      onClick={(e) => {
+        e.stopPropagation();
+        mutateAsync({});
+      }}
+    >
       {isPending ? (
         <span className="flex items-center gap-2">
           <Loader2 className="animate-spin w-4 h-4" /> Duplicating...
