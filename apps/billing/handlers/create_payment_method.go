@@ -31,7 +31,7 @@ func CreatePaymentMethod(c server.IContext) error {
 	paymentMethod.UserID = checkoutSession.UserID
 	paymentMethod.ExternalID = p.ExternalPaymentMethodID
 	paymentMethod.ExternalType = "card"
-	if err := c.DB().FindFirst(&paymentMethod, "external_id = ?", p.ExternalPaymentMethodID); err != nil {
+	if err := c.DB().FindFirst(&paymentMethod, "user_id = ? AND external_id = ?", checkoutSession.UserID, p.ExternalPaymentMethodID); err != nil {
 		if !dbx.IsRecordNotFoundError(err) {
 			return err
 		}
