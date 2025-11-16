@@ -44,7 +44,7 @@ func CreateInvoice(c server.IContext) error {
 		PublicID:          publicID,
 		Status:            "pending",
 		Currency:          subscription.Currency,
-		PDFURL:            fmt.Sprintf("http://localhost:8085/view/%s", publicID),          // TODO: fix
+		PDFURL:            fmt.Sprintf("http://localhost:8085/invoices/%s/view", publicID), // TODO: fix
 		EmailURL:          fmt.Sprintf("http://localhost:8085/invoice-email/%s", publicID), // TODO: fix
 		DueBy:             time.Now().AddDate(0, 0, subscription.InvoiceDueByDays),
 		InvoiceNumber:     fmt.Sprintf("INV-%07d", count+1), // invoice number should be INV-0000001 format
@@ -57,7 +57,7 @@ func CreateInvoice(c server.IContext) error {
 	}
 
 	if err := c.Queue().Enqueue("create_invoice_items", map[string]any{"invoice_id": invoice.ID}, "billing_queue"); err != nil {
-		return fmt.Errorf("failed to enqueue calculate_invoice_totals task: %w", err)
+		return fmt.Errorf("failed to enqueue calculate_invoice_items task: %w", err)
 	}
 
 	return nil
