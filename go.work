@@ -5,6 +5,7 @@ use (
 	./apps/api
 	./apps/billing
 	./apps/checkout
+	./apps/cron
 	./apps/dashboard
 	./apps/email
 	./apps/file
