@@ -32,6 +32,10 @@ func ProcessMeterEvent(c server.IContext) error {
 		return err
 	}
 
+	if entitlement.Interval == "per_use" {
+		return nil
+	}
+
 	if err := c.DB().IncrementCount(&entitlement, "usage", meterEvent.Usage); err != nil {
 		return err
 	}
