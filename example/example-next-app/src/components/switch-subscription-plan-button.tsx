@@ -2,10 +2,18 @@
 
 import switchSubscriptionPlan from "@/app/actions/switch-subscription-plan";
 import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { useTransition } from "react";
+import { Loader2, Repeat } from "lucide-react";
+import { useState, useTransition } from "react";
 import { toast } from "sonner";
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogTitle,
+  DialogTrigger,
+} from "./ui/dialog";
 
 export function SwitchSubscriptionPlanButton({
   subscriptionId,
@@ -14,8 +22,7 @@ export function SwitchSubscriptionPlanButton({
   subscriptionId: string;
   planId: string;
 }) {
-  const router = useRouter();
-
+  const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
 
   const handleClick = () => {
@@ -27,15 +34,34 @@ export function SwitchSubscriptionPlanButton({
         return;
       }
 
-      // reload page to reflect new plan
-      router.refresh();
+      toast.success("Plan switched successfully");
+
+      setOpen(false);
     });
   };
 
   return (
-    <Button onClick={handleClick} disabled={isPending}>
-      {isPending && <Loader2 className="animate-spin h-4 w-4" />}
-      Yes
-    </Button>
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button type="submit">
+          Switch <Repeat />
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogTitle>Switch Plan</DialogTitle>
+        <DialogDescription>
+          Are you sure you want to switch plan?
+        </DialogDescription>
+        <DialogFooter>
+          <Button onClick={handleClick} disabled={isPending}>
+            {isPending && <Loader2 className="animate-spin h-4 w-4" />}
+            Yes
+          </Button>
+          <DialogClose asChild>
+            <Button variant="outline">No</Button>
+          </DialogClose>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
