@@ -8,7 +8,7 @@ export default async function Page() {
   const subscription = await getUserSubscription();
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-[10rem_1fr] h-screen w-screen">
+    <div className="grid grid-cols-1 sm:grid-cols-[8rem_1fr] h-screen w-screen">
       <div className="w-full h-screen border-r hidden sm:block"></div>
       <div className="flex flex-col h-screen">
         <div className="h-15 flex items-center justify-end gap-2 p-4 border-b">

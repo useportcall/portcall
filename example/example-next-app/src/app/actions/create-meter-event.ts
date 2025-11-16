@@ -4,7 +4,10 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-export default async function createMeterEvent(props: { featureId: string }) {
+export default async function createMeterEvent(props: {
+  featureId: string;
+  usage: number;
+}) {
   const cookieStore = await cookies();
 
   const userId = cookieStore.get("user_id")?.value;
@@ -25,12 +28,12 @@ export default async function createMeterEvent(props: { featureId: string }) {
     body: JSON.stringify({
       feature_id: props.featureId,
       user_id: userId,
-      usage: 10,
+      usage: props.usage,
     }),
   });
 
   if (!res.ok) {
-    return { ok: false, message: "Failed to cancel subscription" };
+    return { ok: false, message: "Failed to increment entitlement" };
   }
 
   await new Promise((resolve) => setTimeout(resolve, 1000));

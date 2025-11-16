@@ -3,7 +3,8 @@ import { Progress } from "@/components/ui/progress";
 import { getUserEntitlement, getUserSubscription } from "@/lib/api";
 import { Check, X } from "lucide-react";
 import { ReactNode } from "react";
-import { IncrementEntitlementButton } from "./increment-entitlement-button";
+import { MeteredFeatureForm } from "./metered-feature-form";
+import { Separator } from "./ui/separator";
 
 export default async function EnabledFeatures() {
   const subscription = await getUserSubscription();
@@ -22,9 +23,11 @@ export default async function EnabledFeatures() {
       <hr />
       <div className="flex flex-col w-full gap-2">
         <p className="mb-4 font-medium text-sm">Metered features</p>
-        <FeatureProgress featureId="credits" />
-        <FeatureProgress featureId="people_company_searches" />
-        <FeatureProgress featureId="users" />
+        <MeteredFeature featureId="credits" />
+        <Separator className="my-2" />
+        <MeteredFeature featureId="users" />
+        <Separator className="my-2" />
+        <MeteredFeature featureId="people_company_searches" />
       </div>
       <hr />
       <div className="flex flex-col gap-2 w-full">
@@ -138,13 +141,13 @@ export default async function EnabledFeatures() {
             disabled={
               <Badge className="bg-slate-100 text-slate-600">
                 <X />
-                Use own API keys
+                Use your own API keys
               </Badge>
             }
             enabled={
               <Badge variant={"outline"}>
                 <Check />
-                Use own API keys
+                Use your own API keys
               </Badge>
             }
           />
@@ -163,13 +166,103 @@ export default async function EnabledFeatures() {
               </Badge>
             }
           />
+          <BasicFeature
+            featureId="integrate_with_any_http_api"
+            disabled={
+              <Badge className="bg-slate-100 text-slate-600">
+                <X />
+                Integrate with any HTTP API
+              </Badge>
+            }
+            enabled={
+              <Badge variant={"outline"}>
+                <Check />
+                Integrate with any HTTP API
+              </Badge>
+            }
+          />
+          <BasicFeature
+            featureId="webhooks"
+            disabled={
+              <Badge className="bg-slate-100 text-slate-600">
+                <X />
+                Webhooks
+              </Badge>
+            }
+            enabled={
+              <Badge variant={"outline"}>
+                <Check />
+                Webhooks
+              </Badge>
+            }
+          />
+          <BasicFeature
+            featureId="email_sequencing_integrations"
+            disabled={
+              <Badge className="bg-slate-100 text-slate-600">
+                <X />
+                Email sequencing integrations
+              </Badge>
+            }
+            enabled={
+              <Badge variant={"outline"}>
+                <Check />
+                Email sequencing integrations
+              </Badge>
+            }
+          />
+          <BasicFeature
+            featureId="exclude_people_company_filters"
+            disabled={
+              <Badge className="bg-slate-100 text-slate-600">
+                <X />
+                Exclude people/company filters
+              </Badge>
+            }
+            enabled={
+              <Badge variant={"outline"}>
+                <Check />
+                Exclude people/company filters
+              </Badge>
+            }
+          />
+          <BasicFeature
+            featureId="web_intent"
+            disabled={
+              <Badge className="bg-slate-100 text-slate-600">
+                <X />
+                Web Intent
+              </Badge>
+            }
+            enabled={
+              <Badge variant={"outline"}>
+                <Check />
+                Web Intent
+              </Badge>
+            }
+          />
+          <BasicFeature
+            featureId="crm_integrations"
+            disabled={
+              <Badge className="bg-slate-100 text-slate-600">
+                <X />
+                CRM Integrations
+              </Badge>
+            }
+            enabled={
+              <Badge variant={"outline"}>
+                <Check />
+                CRM Integrations
+              </Badge>
+            }
+          />
         </div>
       </div>
     </div>
   );
 }
 
-async function FeatureProgress({ featureId }: { featureId: string }) {
+async function MeteredFeature({ featureId }: { featureId: string }) {
   const entitlement = await getUserEntitlement(featureId);
 
   if (!entitlement) {
@@ -178,20 +271,24 @@ async function FeatureProgress({ featureId }: { featureId: string }) {
 
   return (
     <div className="w-full space-y-2 flex flex-col">
-      <div className="flex justify-between">
+      <div className="flex justify-between items-center gap-2">
         <Badge variant={"outline"}>{featureId}</Badge>
         {entitlement.quota > 0 && (
-          <span className="text-xs">
+          <span className="text-xs whitespace-nowrap">
             {entitlement.usage} / {entitlement.quota}
           </span>
         )}
-        {entitlement.quota < 0 && <span className="text-xs">Unlimited</span>}
+        {entitlement.quota < 0 && (
+          <span className="text-xs">{entitlement.usage}</span>
+        )}
       </div>
-      <Progress
-        value={(entitlement.usage / entitlement.quota) * 100}
-        className="w-full"
-      />
-      <IncrementEntitlementButton featureId={featureId} />
+      {entitlement.quota > 0 && (
+        <Progress
+          value={(entitlement.usage / entitlement.quota) * 100}
+          className="w-full"
+        />
+      )}
+      <MeteredFeatureForm featureId={featureId} />
     </div>
   );
 }

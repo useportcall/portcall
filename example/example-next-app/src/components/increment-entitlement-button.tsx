@@ -6,14 +6,16 @@ import { toast } from "sonner";
 import { Button } from "./ui/button";
 
 export function IncrementEntitlementButton({
+  usage,
   featureId,
 }: {
+  usage: number;
   featureId: string;
 }) {
   const [isPending, startTransition] = useTransition();
   const handleClick = () => {
     startTransition(async () => {
-      const result = await createMeterEvent({ featureId });
+      const result = await createMeterEvent({ featureId, usage });
 
       if (!result.ok) {
         toast.error(result.message);
@@ -25,11 +27,11 @@ export function IncrementEntitlementButton({
   return (
     <Button
       size="sm"
-      className="w-fit mt-1 text-xs"
+      className="w-fit text-xs"
       onClick={handleClick}
       disabled={isPending}
     >
-      Increment usage 🔼
+      Submit 🔼
     </Button>
   );
 }

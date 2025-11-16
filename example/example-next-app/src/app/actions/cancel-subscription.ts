@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
@@ -32,6 +33,10 @@ export default async function cancelSubscription(subscriptionId: string) {
   }
 
   const data: { data: any } = await res.json();
+
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  revalidatePath("/");
 
   return { ok: true, url: data.data.url };
 }

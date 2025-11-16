@@ -63,6 +63,10 @@ const features = [
     items: [true, true, true, true],
   },
   {
+    feature: "Scheduling",
+    items: [false, true, true, true],
+  },
+  {
     feature: "Phone number enrichments",
     items: [false, true, true, true],
   },
@@ -266,7 +270,10 @@ async function PlanSubmitButton({ planId }: { planId: string }) {
 
   if (subscription.plan?.id !== planId) {
     return (
-      <SwitchPlanButton planId={planId} subscriptionId={subscription.id} />
+      <SwitchSubscriptionPlanButton
+        subscriptionId={subscription.id}
+        planId={planId}
+      />
     );
   }
 
@@ -312,39 +319,6 @@ function Unsubscribe({ id }: { id: string }) {
         </DialogDescription>
         <DialogFooter>
           <UnsubscribeButton subscriptionId={id} />
-          <DialogClose asChild>
-            <Button variant="outline">No</Button>
-          </DialogClose>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
-
-function SwitchPlanButton({
-  subscriptionId,
-  planId,
-}: {
-  subscriptionId: string;
-  planId: string;
-}) {
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button type="submit">
-          Switch <Repeat />
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogTitle>Switch Plan</DialogTitle>
-        <DialogDescription>
-          Are you sure you want to switch plan?
-        </DialogDescription>
-        <DialogFooter>
-          <SwitchSubscriptionPlanButton
-            subscriptionId={subscriptionId}
-            planId={planId}
-          />
           <DialogClose asChild>
             <Button variant="outline">No</Button>
           </DialogClose>
