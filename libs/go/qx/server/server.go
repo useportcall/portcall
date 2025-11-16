@@ -7,12 +7,14 @@ import (
 	"github.com/hibiken/asynq"
 	"github.com/useportcall/portcall/libs/go/cryptox"
 	"github.com/useportcall/portcall/libs/go/dbx"
+	"github.com/useportcall/portcall/libs/go/emailx"
 	"github.com/useportcall/portcall/libs/go/qx"
 )
 
 type IServer interface {
 	R()
 	H(taskType string, handler HandlerFunc)
+	SetEmailClient(emailClient emailx.IEmailClient)
 }
 
 type server struct {
@@ -30,6 +32,10 @@ func (s *server) H(taskType string, handler HandlerFunc) {
 	s.mux.HandleFunc(taskType, handler)
 }
 
+func (s *server) SetEmailClient(emailClient emailx.IEmailClient) {
+	s.mux.email = emailClient
+}
+
 func New(db dbx.IORM, crypto cryptox.ICrypto, queues map[string]int) IServer {
 	redisAddr := os.Getenv("REDIS_ADDR")
 	if redisAddr == "" {
@@ -38,7 +44,7 @@ func New(db dbx.IORM, crypto cryptox.ICrypto, queues map[string]int) IServer {
 
 	q := qx.New()
 
-	muxInstance := &multiplexer{asynq.NewServeMux(), db, q, crypto}
+	muxInstance := &multiplexer{asynq.NewServeMux(), db, q, crypto, nil}
 
 	instance := asynq.NewServer(
 		asynq.RedisClientOpt{Addr: redisAddr},
@@ -49,6 +55,7 @@ func New(db dbx.IORM, crypto cryptox.ICrypto, queues map[string]int) IServer {
 
 	return &server{instance, muxInstance}
 }
+
 func NewNoDeps(queues map[string]int) IServer {
 	redisAddr := os.Getenv("REDIS_ADDR")
 	if redisAddr == "" {
@@ -62,7 +69,7 @@ func NewNoDeps(queues map[string]int) IServer {
 		},
 	)
 
-	muxInstance := &multiplexer{asynq.NewServeMux(), nil, nil, nil}
+	muxInstance := &multiplexer{asynq.NewServeMux(), nil, nil, nil, nil}
 
 	return &server{instance, muxInstance}
 }
