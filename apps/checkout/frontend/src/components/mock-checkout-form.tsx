@@ -55,8 +55,14 @@ export function MockCheckout({ form, session }: Props) {
               control={form.control}
               name="postal_code"
               title="Postal Code"
+              placeholder="WC1A 1NU"
             />
-            <FormInput control={form.control} name="city" title="City" />
+            <FormInput
+              control={form.control}
+              name="city"
+              title="City"
+              placeholder="London"
+            />
           </div>
           <Totals session={session} />
         </MockCheckoutForm>
