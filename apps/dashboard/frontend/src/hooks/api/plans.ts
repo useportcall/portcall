@@ -52,11 +52,19 @@ export function usePublishPlan(planId: string) {
 }
 
 export function useDuplicatePlan(planId: string) {
+  const navigate = useNavigate();
+
   return useAppMutation<any, any>({
     method: "post",
     path: `${PLANS_PATH}/${planId}/duplicate`,
     invalidate: PLANS_PATH,
-    onSuccess: () => toast("Plan duplicated"),
+    onSuccess: (result) => {
+      toast("Plan duplicated", {
+        description: "The plan was successfully duplicated.",
+      });
+
+      navigate(`${PLANS_PATH}/${result.data.id}`);
+    },
     onError: () => toast("Failed to duplicate plan"),
   });
 }

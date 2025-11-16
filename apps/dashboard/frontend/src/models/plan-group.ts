@@ -5,4 +5,5 @@ export interface PlanGroup {
 
 export interface CreatePlanGroupRequest {
   name: string;
+  plan_id: string;
 }
