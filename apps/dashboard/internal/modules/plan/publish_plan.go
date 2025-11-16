@@ -1,14 +1,14 @@
 package plan
 
 import (
-	plan_item "github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_item"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
 func PublishPlan(c *routerx.Context) {
 	id := c.Param("id")
-	response := new(Plan)
+	response := new(apix.Plan)
 
 	plan := models.Plan{}
 	if err := c.DB().GetForPublicID(c.AppID(), id, &plan); err != nil {
@@ -36,7 +36,7 @@ func PublishPlan(c *routerx.Context) {
 	}
 
 	for _, pi := range planItems {
-		planItem := plan_item.PlanItem{}
+		planItem := apix.PlanItem{}
 		planItem.Set(&pi)
 		if planItem.UnitAmount > 0 || planItem.Tiers != nil {
 			plan.IsFree = false

@@ -1,9 +1,7 @@
 package plan
 
 import (
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_feature"
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_group"
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_item"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -24,12 +22,12 @@ func ListPlans(c *routerx.Context) {
 	}
 
 	plans := []models.Plan{}
-	if err := c.DB().ListWithOrder(&plans, "name DESC, created_at DESC", q...); err != nil {
+	if err := c.DB().ListWithOrder(&plans, "created_at DESC", q...); err != nil {
 		c.ServerError("Failed to list plans", err)
 		return
 	}
 
-	response := make([]Plan, len(plans))
+	response := make([]apix.Plan, len(plans))
 	for i, plan := range plans {
 		response[i].Set(&plan)
 	}
@@ -44,13 +42,13 @@ func ListPlans(c *routerx.Context) {
 		if plan.PlanGroupID != nil {
 			var planGroup models.PlanGroup
 			if err := c.DB().FindForID(*plan.PlanGroupID, &planGroup); err == nil {
-				response[i].PlanGroup = (&plan_group.PlanGroup{}).Set(&planGroup)
+				response[i].PlanGroup = (&apix.PlanGroup{}).Set(&planGroup)
 			}
 		}
 
-		response[i].Items = make([]plan_item.PlanItem, len(planItems))
+		response[i].Items = make([]apix.PlanItem, len(planItems))
 		for j, item := range planItems {
-			response[i].Items[j] = plan_item.PlanItem{}
+			response[i].Items[j] = apix.PlanItem{}
 			response[i].Items[j].Set(&item)
 		}
 
@@ -62,7 +60,7 @@ func ListPlans(c *routerx.Context) {
 
 		response[i].Features = make([]any, len(features))
 		for j, feature := range features {
-			response[i].Features[j] = (&plan_feature.PlanFeature{}).Set(&feature)
+			response[i].Features[j] = (&apix.PlanFeature{}).Set(&feature)
 		}
 	}
 

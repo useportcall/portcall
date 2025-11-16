@@ -1,15 +1,14 @@
 package plan
 
 import (
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_group"
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_item"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
 func GetPlan(c *routerx.Context) {
 	id := c.Param("id")
-	response := new(Plan)
+	response := new(apix.Plan)
 
 	plan := models.Plan{}
 	if err := c.DB().GetForPublicID(c.AppID(), id, &plan); err != nil {
@@ -20,7 +19,7 @@ func GetPlan(c *routerx.Context) {
 	if plan.PlanGroupID != nil {
 		var planGroup models.PlanGroup
 		if err := c.DB().FindForID(*plan.PlanGroupID, &planGroup); err == nil {
-			response.PlanGroup = new(plan_group.PlanGroup).Set(&planGroup)
+			response.PlanGroup = new(apix.PlanGroup).Set(&planGroup)
 		}
 	}
 
@@ -31,7 +30,7 @@ func GetPlan(c *routerx.Context) {
 	}
 
 	for _, item := range planItems {
-		planItem := plan_item.PlanItem{}
+		planItem := apix.PlanItem{}
 		planItem.Set(&item)
 		response.Items = append(response.Items, planItem)
 	}

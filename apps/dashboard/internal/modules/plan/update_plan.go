@@ -3,10 +3,19 @@ package plan
 import (
 	"strings"
 
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_item"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type UpdatePlanRequest struct {
+	Name            string `json:"name"`
+	Currency        string `json:"currency"`
+	TrialPeriodDays int    `json:"trial_period_days"`
+	Interval        string `json:"interval"`
+	IntervalCount   *int   `json:"interval_count"`
+	PlanGroupID     string `json:"plan_group_id"`
+}
 
 func UpdatePlan(c *routerx.Context) {
 	id := c.Param("id")
@@ -61,8 +70,8 @@ func UpdatePlan(c *routerx.Context) {
 		return
 	}
 
-	response := new(Plan)
-	response.Items = make([]plan_item.PlanItem, len(planItems))
+	response := new(apix.Plan)
+	response.Items = make([]apix.PlanItem, len(planItems))
 	for i, pi := range planItems {
 		response.Items[i].Set(&pi)
 	}

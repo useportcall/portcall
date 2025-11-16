@@ -1,8 +1,10 @@
 package plan
 
 import (
-	plan_item "github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_item"
+	"time"
+
 	"github.com/useportcall/portcall/apps/dashboard/internal/utils"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -25,14 +27,16 @@ func DuplicatePlan(c *routerx.Context) {
 	// Copy relevant fields from the original plan
 	plan.PublicID = utils.GenPublicID("plan")
 	plan.ID = 0 // Reset ID for new plan
+	plan.CreatedAt = time.Now()
+	plan.UpdatedAt = time.Now()
 	plan.Status = "init"
 	if err := c.DB().Create(plan); err != nil {
 		c.ServerError("Failed to create plan", err)
 		return
 	}
 
-	result := new(Plan)
-	result.Items = make([]plan_item.PlanItem, len(originalPlanItems))
+	result := new(apix.Plan)
+	result.Items = make([]apix.PlanItem, len(originalPlanItems))
 	for i, item := range originalPlanItems {
 		// plan features
 		var planFeatures []models.PlanFeature
@@ -60,7 +64,7 @@ func DuplicatePlan(c *routerx.Context) {
 			}
 		}
 
-		result.Items[i] = *(&plan_item.PlanItem{}).Set(&item)
+		result.Items[i] = *(&apix.PlanItem{}).Set(&item)
 	}
 
 	plan.Status = "draft"

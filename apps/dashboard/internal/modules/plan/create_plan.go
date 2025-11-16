@@ -1,8 +1,8 @@
 package plan
 
 import (
-	plan_item "github.com/useportcall/portcall/apps/dashboard/internal/modules/plan_item"
 	"github.com/useportcall/portcall/apps/dashboard/internal/utils"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -27,7 +27,7 @@ func CreatePlan(c *routerx.Context) {
 		AppID:             c.AppID(),
 		PublicID:          utils.GenPublicID("pi"),
 		PlanID:            plan.ID,
-		PublicTitle:       "New Plan Item",
+		PublicTitle:       "",
 		PublicDescription: "",
 		Quantity:          1,
 		UnitAmount:        1000,
@@ -43,8 +43,8 @@ func CreatePlan(c *routerx.Context) {
 		return
 	}
 
-	response := new(Plan).Set(plan)
-	response.Items = append(response.Items, *new(plan_item.PlanItem).Set(planItem))
+	response := new(apix.Plan).Set(plan)
+	response.Items = append(response.Items, *new(apix.PlanItem).Set(planItem))
 
 	c.OK(response)
 }
