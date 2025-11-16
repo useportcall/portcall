@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/useportcall/portcall/apps/billing/handlers"
+	"github.com/useportcall/portcall/apps/billing/internal/handlers"
 	"github.com/useportcall/portcall/libs/go/cryptox"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/envx"
