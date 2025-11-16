@@ -8,6 +8,7 @@ import (
 	"github.com/useportcall/portcall/libs/go/cryptox"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/emailx"
+	"github.com/useportcall/portcall/libs/go/logx"
 	"github.com/useportcall/portcall/libs/go/qx"
 )
 
@@ -37,6 +38,8 @@ func (s *server) SetEmailClient(emailClient emailx.IEmailClient) {
 }
 
 func New(db dbx.IORM, crypto cryptox.ICrypto, queues map[string]int) IServer {
+	logx.Init()
+
 	redisAddr := os.Getenv("REDIS_ADDR")
 	if redisAddr == "" {
 		log.Fatal("REDIS_ADDR environment variable not set")
