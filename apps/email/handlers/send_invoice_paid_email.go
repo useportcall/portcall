@@ -1,16 +1,35 @@
 package handlers
 
 import (
-	"github.com/useportcall/portcall/libs/go/emailx"
+	"bytes"
+	"encoding/json"
+	"log"
+	"text/template"
+
 	"github.com/useportcall/portcall/libs/go/qx/server"
 )
 
 func SendInvoicePaidEmail(c server.IContext) error {
-	return emailx.SendTemplateEmail(
-		c.Payload(),
-		"templates/invoice_paid_receipt.html",
+	var body any
+	if err := json.Unmarshal(c.Payload(), &body); err != nil {
+		return err
+	}
+
+	tmpl, err := template.ParseFiles("templates/invoice_paid_receipt.html")
+	if err != nil {
+		log.Fatal("failed to parse template:", err)
+	}
+
+	var htmlContentBuf bytes.Buffer
+	if err := tmpl.Execute(&htmlContentBuf, body); err != nil {
+		log.Fatal("failed to execute template:", err)
+	}
+	content := htmlContentBuf.String()
+
+	return c.EmailClient().Send(
+		content,
 		"Invoice Paid",
-		"Dev Bot <dev@example.test>",
+		"dev@example.test",
 		[]string{"you@example.test"},
 	)
 }

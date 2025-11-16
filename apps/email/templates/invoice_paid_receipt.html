@@ -1,0 +1,80 @@
+<!-- invoice_paid_receipt.html -->
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>{{.CompanyName}} invoice paid</title>
+    <style>
+      body {
+        font-family: "Inter", "Segoe UI", Arial, sans-serif;
+
+        background: oklch(98.5% 0.001 106.423);
+        color: oklch(12.9% 0.042 264.695);
+        font-size: 12px;
+      }
+      .container {
+        max-width: 600px;
+        margin: 40px auto;
+        background: #fff;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        padding: 32px;
+      }
+      .title {
+        font-size: 16px;
+      }
+      .details {
+        margin: 24px 0;
+      }
+      .footer {
+        color: oklch(70.4% 0.04 256.788);
+        font-size: 10px;
+        margin-top: 32px;
+      }
+      .banner {
+        margin-top: 14px;
+        background: oklch(96.8% 0.007 247.896);
+        width: fit-content;
+        border: 1px solid oklch(70.4% 0.04 256.788);
+        padding: 4px 10px;
+        color: oklch(12.9% 0.042 264.695);
+        border-radius: 100px;
+        text-decoration: none;
+      }
+      .banner:hover {
+        background-color: oklch(92.9% 0.013 255.508);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <p>Hi {{.recipient_name}},</p>
+      <p>
+        This is an email confirmation of your payment for the invoice
+        <strong>#{{.invoice_number}}</strong>, issued by {{.company_name}}.
+      </p>
+      <div class="details">
+        <p><strong>Amount Paid:</strong> {{.amount_paid}}</p>
+        <p><strong>Date Paid:</strong> {{.date_paid}}</p>
+        <!-- <p><strong>Payment Method:</strong> {{.payment_method}}</p> -->
+      </div>
+      <p>
+        To download your invoice, log into your {{.company_name}} dashboard.
+      </p>
+      <p>
+        If you have any questions, don't hesitate to contact our support team.
+      </p>
+      <p>{{.company_name}}</p>
+      <div class="footer">
+        <p>&copy; {{.year}} {{.company_name}}. All rights reserved.</p>
+        <p style="margin-top: 20px">
+          This is an automated message. Please do not reply directly to this
+          email.
+        </p>
+        <a href="https://useportcall.com" class="banner">
+          Powered by ⚓️ Portcall
+        </a>
+      </div>
+    </div>
+  </body>
+</html>
