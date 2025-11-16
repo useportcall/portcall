@@ -4,11 +4,19 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/paymentx"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type CreateCheckoutSessionRequest struct {
+	UserID      string `json:"user_id"`
+	PlanID      string `json:"plan_id"`
+	CancelURL   string `json:"cancel_url"`
+	RedirectURL string `json:"redirect_url"`
+}
 
 func CreateCheckoutSession(c *routerx.Context) {
 	var body CreateCheckoutSessionRequest
@@ -101,7 +109,7 @@ func CreateCheckoutSession(c *routerx.Context) {
 		return
 	}
 
-	response := new(CheckoutSession).Set(checkoutSession)
+	response := new(apix.CheckoutSession).Set(checkoutSession)
 
 	c.OK(response)
 }
