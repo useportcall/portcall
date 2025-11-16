@@ -20,12 +20,24 @@ func CreateSubscriptionItems(c server.IContext) error {
 		return err
 	}
 
+	var plan models.Plan
+	if err := c.DB().FindForID(p.PlanID, &plan); err != nil {
+		return err
+	}
+
 	var planItems []models.PlanItem
 	if err := c.DB().List(&planItems, "plan_id = ?", p.PlanID); err != nil {
 		return err
 	}
 
 	for _, pi := range planItems {
+		var title string
+		if pi.PricingModel == "fixed" {
+			title = plan.Name
+		} else {
+			title = pi.PublicTitle
+		}
+
 		subscriptionItem := models.SubscriptionItem{
 			PublicID:       dbx.GenPublicID("si"),
 			PlanItemID:     &pi.ID,
@@ -36,7 +48,7 @@ func CreateSubscriptionItems(c server.IContext) error {
 			Tiers:          pi.Tiers,
 			Maximum:        pi.Maximum,
 			Minimum:        pi.Minimum,
-			Title:          pi.PublicTitle,
+			Title:          title,
 			Description:    pi.PublicDescription,
 			SubscriptionID: p.SubscriptionID,
 		}
