@@ -1,9 +1,18 @@
 package plan_feature
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type UpdatePlanFeatureRequest struct {
+	PlanItemID string  `json:"plan_item_id"`
+	FeatureID  *string `json:"feature_id"`
+	Interval   string  `json:"interval"`
+	Quota      int     `json:"quota"`
+	Rollover   *int    `json:"rollover"`
+}
 
 func UpdatePlanFeature(c *routerx.Context) {
 	id := c.Param("id")
@@ -56,5 +65,5 @@ func UpdatePlanFeature(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(PlanFeature).Set(planFeature))
+	c.OK(new(apix.PlanFeature).Set(planFeature))
 }

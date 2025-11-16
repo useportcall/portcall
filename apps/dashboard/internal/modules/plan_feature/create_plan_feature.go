@@ -1,10 +1,16 @@
 package plan_feature
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type CreatePlanFeatureRequest struct {
+	FeatureID string `json:"feature_id"`
+	PlanID    string `json:"plan_id"`
+}
 
 func CreatePlanFeature(c *routerx.Context) {
 	var body CreatePlanFeatureRequest
@@ -55,5 +61,5 @@ func CreatePlanFeature(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(PlanFeature).Set(planFeature))
+	c.OK(new(apix.PlanFeature).Set(planFeature))
 }
