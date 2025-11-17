@@ -94,6 +94,21 @@ export default async function EnabledFeatures() {
             }
           />
           <BasicFeature
+            featureId="rollover_credits"
+            disabled={
+              <Badge className="bg-slate-100 text-slate-600">
+                <X />
+                Rollover Credits
+              </Badge>
+            }
+            enabled={
+              <Badge variant={"outline"}>
+                <Check />
+                Rollover Credits
+              </Badge>
+            }
+          />
+          <BasicFeature
             featureId="integration_providers"
             disabled={
               <Badge className="bg-slate-100 text-slate-600">
