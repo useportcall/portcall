@@ -33,6 +33,7 @@ services:
       - ../apps/dashboard/logs:/var/log/dashboard:ro
       - ../apps/api/logs:/var/log/api:ro
       - ../apps/checkout/logs:/var/log/checkout:ro
+      - ../apps/billing/logs:/var/log/billing:ro
     depends_on:
       - loki
     networks:

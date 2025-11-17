@@ -30,3 +30,10 @@ scrape_configs:
           job: checkout
           app: checkout
           __path__: /var/log/checkout/*.log
+  - job_name: billing
+    static_configs:
+      - targets: [localhost]
+        labels:
+          job: billing
+          app: billing
+          __path__: /var/log/billing/*.log
