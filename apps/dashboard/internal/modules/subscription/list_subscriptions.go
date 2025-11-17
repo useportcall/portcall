@@ -1,8 +1,6 @@
 package subscription
 
 import (
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/subscription_item"
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/user"
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
@@ -15,14 +13,14 @@ func ListSubscriptions(c *routerx.Context) {
 		return
 	}
 
-	result := make([]Subscription, len(subscriptions))
+	result := make([]apix.Subscription, len(subscriptions))
 
 	for i, sub := range subscriptions {
-		s := new(Subscription).Set(&sub)
+		s := new(apix.Subscription).Set(&sub)
 
 		var u models.User
 		if err := c.DB().FindForID(sub.UserID, &u); err == nil {
-			s.User = new(user.User).Set(&u)
+			s.User = new(apix.User).Set(&u)
 		}
 
 		if sub.PlanID != nil {
@@ -33,10 +31,14 @@ func ListSubscriptions(c *routerx.Context) {
 		}
 
 		var subscriptionItems []models.SubscriptionItem
-		if err := c.DB().List(&subscriptionItems, "subscription_id = ?", sub.ID); err == nil {
-			for _, item := range subscriptionItems {
-				s.Items = append(s.Items, *new(subscription_item.SubscriptionItem).Set(&item))
-			}
+		if err := c.DB().List(&subscriptionItems, "subscription_id = ?", sub.ID); err != nil {
+			c.ServerError("Failed to list subscription items", err)
+			return
+		}
+
+		s.Items = make([]apix.SubscriptionItem, len(subscriptionItems))
+		for i, item := range subscriptionItems {
+			s.Items[i].Set(&item)
 		}
 
 		result[i] = *s
