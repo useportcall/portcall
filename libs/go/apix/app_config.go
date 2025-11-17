@@ -1,4 +1,4 @@
-package app_config
+package apix
 
 import (
 	"time"

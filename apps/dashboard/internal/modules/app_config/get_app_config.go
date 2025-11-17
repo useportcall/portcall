@@ -1,6 +1,7 @@
 package app_config
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -12,5 +13,5 @@ func GetAppConfig(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(AppConfig).Set(&appConfig))
+	c.OK(new(apix.AppConfig).Set(&appConfig))
 }
