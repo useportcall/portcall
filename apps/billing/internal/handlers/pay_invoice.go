@@ -63,9 +63,12 @@ func PayInvoice(c server.IContext) error {
 		return err
 	}
 
+	// should be in decimals not cents
+	amountPaid := float64(invoice.Total) / 100.0
+
 	payload := map[string]any{
 		"invoice_number": invoice.InvoiceNumber,
-		"amount_paid":    fmt.Sprintf("$%d", invoice.Total), // TODO: fix
+		"amount_paid":    fmt.Sprintf("$%.2f", amountPaid),
 		"date_paid":      time.Now().Format("January 2, 2006"),
 		"company_name":   company.Name,
 	}
