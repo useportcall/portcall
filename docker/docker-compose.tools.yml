@@ -32,3 +32,10 @@ services:
       - DATABASE_URL=postgresql://admin:adminpassword@postgres:5432/main_portcall_db
     ports:
       - "5555:5555"
+  
+  redis_insight:
+    image: redis/redisinsight
+    container_name: redis_insight
+    restart: always
+    ports:
+      - "5540:5540"
