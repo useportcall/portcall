@@ -35,6 +35,7 @@ func main() {
 	r.Use(func(c *routerx.Context) {
 		apiKey := c.Request.Header.Get("x-api-key")
 		if apiKey == "" {
+			log.Println("Missing API key")
 			c.Unauthorized("Missing API key")
 			c.Abort()
 			return
@@ -46,12 +47,14 @@ func main() {
 
 		var secret models.Secret
 		if err := c.DB().FindFirst(&secret, "public_id = ?", publicID); err != nil {
+			log.Println("API Key lookup failed:", err)
 			c.Unauthorized("Invalid API key")
 			c.Abort()
 			return
 		}
 
 		if secret.DisabledAt != nil {
+			log.Println("API Key is disabled")
 			c.Unauthorized("Invalid API key")
 			c.Abort()
 			return
