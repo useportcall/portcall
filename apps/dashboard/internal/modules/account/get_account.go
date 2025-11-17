@@ -1,6 +1,7 @@
 package account
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
@@ -32,5 +33,5 @@ func GetAccount(c *routerx.Context) {
 		}
 	}
 
-	c.OK(new(Account).Set(account))
+	c.OK(new(apix.Account).Set(account))
 }
