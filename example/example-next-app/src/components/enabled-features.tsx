@@ -33,244 +33,40 @@ export default async function EnabledFeatures() {
       <div className="flex flex-col gap-2 w-full">
         <p className="mb-4 font-medium text-sm">Unmetered features</p>
         <div className="flex flex-wrap gap-2">
-          <BasicFeature
-            featureId="sculptor"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Sculptor
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Sculptor
-              </Badge>
-            }
-          />
-          <BasicFeature
-            featureId="sequencer"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Sequencer
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Sequencer
-              </Badge>
-            }
-          />
-          <BasicFeature
-            featureId="exporting"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Exporting
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Exporting
-              </Badge>
-            }
-          />
-          <BasicFeature
-            featureId="ai_claygent"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                AI/Claygent
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                AI/Claygent
-              </Badge>
-            }
-          />
-          <BasicFeature
-            featureId="rollover_credits"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Rollover Credits
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Rollover Credits
-              </Badge>
-            }
-          />
+          <BasicFeature featureId="sculptor" title="Sculptor" />
+          <BasicFeature featureId="sequencer" title="Sequencer" />
+          <BasicFeature featureId="exporting" title="Exporting" />
+          <BasicFeature featureId="ai_claygent" title="AI/Claygent" />
+          <BasicFeature featureId="rollover_credits" title="Rollover Credits" />
           <BasicFeature
             featureId="integration_providers"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X /> 100+ integration providers
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                100+ integration providers
-              </Badge>
-            }
+            title="100+ integration providers"
           />
-          <BasicFeature
-            featureId="scheduling"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Scheduling
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Scheduling
-              </Badge>
-            }
-          />
+          <BasicFeature featureId="scheduling" title="Scheduling" />
           <BasicFeature
             featureId="phone_number_enrichments"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X /> Phone number enrichments
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Phone number enrichments
-              </Badge>
-            }
+            title="Phone number enrichments"
           />
           <BasicFeature
             featureId="use_your_own_api_keys"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Use your own API keys
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Use your own API keys
-              </Badge>
-            }
+            title="Use your own API keys"
           />
-          <BasicFeature
-            featureId="signals"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Signals
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Signals
-              </Badge>
-            }
-          />
+          <BasicFeature featureId="signals" title="Signals" />
           <BasicFeature
             featureId="integrate_with_any_http_api"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Integrate with any HTTP API
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Integrate with any HTTP API
-              </Badge>
-            }
+            title="Integrate with any HTTP API"
           />
-          <BasicFeature
-            featureId="webhooks"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Webhooks
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Webhooks
-              </Badge>
-            }
-          />
+          <BasicFeature featureId="webhooks" title="Webhooks" />
           <BasicFeature
             featureId="email_sequencing_integrations"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Email sequencing integrations
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Email sequencing integrations
-              </Badge>
-            }
+            title="Email sequencing integrations"
           />
           <BasicFeature
             featureId="exclude_people_company_filters"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Exclude people/company filters
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Exclude people/company filters
-              </Badge>
-            }
+            title="Exclude people/company filters"
           />
-          <BasicFeature
-            featureId="web_intent"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                Web Intent
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                Web Intent
-              </Badge>
-            }
-          />
-          <BasicFeature
-            featureId="crm_integrations"
-            disabled={
-              <Badge className="bg-slate-100 text-slate-600">
-                <X />
-                CRM Integrations
-              </Badge>
-            }
-            enabled={
-              <Badge variant={"outline"}>
-                <Check />
-                CRM Integrations
-              </Badge>
-            }
-          />
+          <BasicFeature featureId="web_intent" title="Web Intent" />
+          <BasicFeature featureId="crm_integrations" title="CRM Integrations" />
         </div>
       </div>
     </div>
@@ -310,22 +106,26 @@ async function MeteredFeature({ featureId }: { featureId: string }) {
 
 async function BasicFeature({
   featureId,
-  enabled,
-  disabled,
+  title,
 }: {
   featureId: string;
-  enabled: ReactNode;
-  disabled: ReactNode;
+  title: string;
 }) {
   const entitlement = await getUserEntitlement(featureId);
 
-  if (!entitlement) {
-    return disabled;
+  if (!entitlement || !entitlement.enabled) {
+    return (
+      <Badge className="bg-slate-100 text-slate-600">
+        <X />
+        {title}
+      </Badge>
+    );
   }
 
-  if (!entitlement.enabled) {
-    return disabled;
-  }
-
-  return enabled;
+  return (
+    <Badge variant={"outline"}>
+      <Check />
+      {title}
+    </Badge>
+  );
 }
