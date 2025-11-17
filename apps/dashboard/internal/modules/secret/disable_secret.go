@@ -3,6 +3,7 @@ package secret
 import (
 	"time"
 
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -28,5 +29,5 @@ func DisableSecret(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(Secret).Set(secret))
+	c.OK(new(apix.Secret).Set(secret))
 }

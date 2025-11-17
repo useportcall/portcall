@@ -1,6 +1,7 @@
 package secret
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -12,9 +13,9 @@ func ListSecrets(c *routerx.Context) {
 		return
 	}
 
-	response := make([]*Secret, len(secrets))
-	for i := range secrets {
-		response[i] = new(Secret).Set(&secrets[i])
+	response := make([]apix.Secret, len(secrets))
+	for i, secret := range secrets {
+		response[i].Set(&secret)
 	}
 
 	c.OK(response)
