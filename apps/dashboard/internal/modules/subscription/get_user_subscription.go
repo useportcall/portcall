@@ -1,6 +1,7 @@
 package subscription
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
@@ -26,5 +27,5 @@ func GetUserSubscription(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(Subscription).Set(&subscription))
+	c.OK(new(apix.Subscription).Set(&subscription))
 }

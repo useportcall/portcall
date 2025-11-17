@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -35,7 +36,7 @@ func ListInvoices(c *routerx.Context) {
 		return
 	}
 
-	response := make([]Invoice, len(invoices))
+	response := make([]apix.Invoice, len(invoices))
 	for i, inv := range invoices {
 		response[i].Set(&inv)
 	}
