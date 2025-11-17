@@ -1,9 +1,14 @@
 package user
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type UpdateUserRequest struct {
+	Name string `json:"name" binding:"required"`
+}
 
 func UpdateUser(c *routerx.Context) {
 	id := c.Param("id")
@@ -35,5 +40,5 @@ func UpdateUser(c *routerx.Context) {
 		user.BillingAddress = &billingAddress
 	}
 
-	c.OK(new(User).Set(&user))
+	c.OK(new(apix.User).Set(&user))
 }

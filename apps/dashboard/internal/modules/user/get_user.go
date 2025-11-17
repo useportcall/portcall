@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -23,5 +24,5 @@ func GetUser(c *routerx.Context) {
 		user.BillingAddress = &billingAddress
 	}
 
-	c.OK(new(User).Set(&user))
+	c.OK(new(apix.User).Set(&user))
 }

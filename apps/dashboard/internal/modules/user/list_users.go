@@ -1,6 +1,7 @@
 package user
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -20,7 +21,7 @@ func ListUsers(c *routerx.Context) {
 		return
 	}
 
-	response := make([]User, len(users))
+	response := make([]apix.User, len(users))
 	for i := range users {
 		if users[i].BillingAddressID != nil {
 			var billingAddress models.Address
@@ -29,7 +30,7 @@ func ListUsers(c *routerx.Context) {
 			}
 		}
 
-		response[i] = *new(User).Set(&users[i])
+		response[i] = *new(apix.User).Set(&users[i])
 
 		var subscriptionCount int64
 		if err := c.DB().Count(&subscriptionCount, models.Subscription{}, "user_id = ?", users[i].ID); err == nil {

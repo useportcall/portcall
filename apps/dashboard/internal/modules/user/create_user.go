@@ -1,10 +1,16 @@
 package user
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type CreateUserRequest struct {
+	Email string `json:"email" binding:"required,email"`
+	Name  string `json:"name"`
+}
 
 func CreateUser(c *routerx.Context) {
 	var body CreateUserRequest
@@ -30,5 +36,5 @@ func CreateUser(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(User).Set(&user))
+	c.OK(new(apix.User).Set(&user))
 }
