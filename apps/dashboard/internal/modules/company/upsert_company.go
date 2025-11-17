@@ -1,6 +1,7 @@
 package company
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -55,7 +56,7 @@ func UpsertCompany(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(Company).Set(&company))
+	c.OK(new(apix.Company).Set(&company))
 }
 
 type UpdateCompanyRequest struct {

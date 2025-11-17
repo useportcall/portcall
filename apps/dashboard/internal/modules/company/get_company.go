@@ -1,7 +1,7 @@
 package company
 
 import (
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/address"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -13,11 +13,11 @@ func GetCompany(c *routerx.Context) {
 		return
 	}
 
-	response := new(Company).Set(&company)
+	response := new(apix.Company).Set(&company)
 
 	var billingAddress models.Address
 	if err := c.DB().FindForID(company.BillingAddressID, &billingAddress); err == nil {
-		response.BillingAddress = new(address.Address)
+		response.BillingAddress = new(apix.Address)
 		response.BillingAddress.Set(&billingAddress)
 	}
 
