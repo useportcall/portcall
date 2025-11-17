@@ -1,10 +1,18 @@
 package feature
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type CreateFeatureRequest struct {
+	FeatureID     string `json:"feature_id"`
+	IsMetered     bool   `json:"is_metered"`
+	PlanID        string `json:"plan_id,omitempty"`
+	PlanFeatureID string `json:"plan_feature_id,omitempty"`
+}
 
 func CreateFeature(c *routerx.Context) {
 	var body CreateFeatureRequest
@@ -70,5 +78,5 @@ func CreateFeature(c *routerx.Context) {
 		}
 	}
 
-	c.OK(new(Feature).Set(&feature))
+	c.OK(new(apix.Feature).Set(&feature))
 }

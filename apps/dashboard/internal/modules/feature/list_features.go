@@ -1,6 +1,7 @@
 package feature
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -14,7 +15,7 @@ func ListFeatures(c *routerx.Context) {
 		return
 	}
 
-	response := make([]Feature, len(features))
+	response := make([]apix.Feature, len(features))
 	for i, feature := range features {
 		response[i].Set(&feature)
 	}

@@ -1,7 +1,6 @@
 package plan_feature
 
 import (
-	"github.com/useportcall/portcall/apps/dashboard/internal/modules/feature"
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
@@ -67,7 +66,7 @@ func ListPlanFeatures(c *routerx.Context) {
 			return
 		}
 
-		data.Feature = new(feature.Feature).Set(&f)
+		data.Feature = new(apix.Feature).Set(&f)
 
 		response[i] = *data
 	}
