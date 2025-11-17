@@ -8,6 +8,17 @@ import (
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
+type CreatePlanItemRequest struct {
+	PlanID            string `json:"plan_id"`
+	PricingModel      string `json:"pricing_model"`
+	UnitAmount        int64  `json:"unit_amount"`
+	PublicTitle       string `json:"public_title"`
+	PublicDescription string `json:"public_description"`
+	Interval          string `json:"interval"`
+	Quota             int    `json:"quota"`
+	Rollover          int    `json:"rollover"`
+}
+
 func CreatePlanItem(c *routerx.Context) {
 	body := new(CreatePlanItemRequest)
 	if err := c.BindJSON(body); err != nil {
