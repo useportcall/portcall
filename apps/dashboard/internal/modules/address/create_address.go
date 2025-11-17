@@ -2,9 +2,19 @@ package address
 
 import (
 	"github.com/useportcall/portcall/apps/dashboard/internal/utils"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type CreateAddressRequest struct {
+	Line1      string `json:"line1"`
+	Line2      string `json:"line2"`
+	City       string `json:"city"`
+	State      string `json:"state"`
+	PostalCode string `json:"postal_code"`
+	Country    string `json:"country"`
+}
 
 func CreateAddress(c *routerx.Context) {
 	var body CreateAddressRequest
@@ -40,5 +50,5 @@ func CreateAddress(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(Address).Set(address))
+	c.OK(new(apix.Address).Set(address))
 }

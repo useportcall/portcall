@@ -1,9 +1,19 @@
 package address
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type UpdateAddressRequest struct {
+	Line1      string `json:"line1"`
+	Line2      string `json:"line2"`
+	City       string `json:"city"`
+	State      string `json:"state"`
+	PostalCode string `json:"postal_code"`
+	Country    string `json:"country"`
+}
 
 func UpdateAddress(c *routerx.Context) {
 	id := c.Param("id")
@@ -49,5 +59,5 @@ func UpdateAddress(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(Address).Set(&address))
+	c.OK(new(apix.Address).Set(&address))
 }

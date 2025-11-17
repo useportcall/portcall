@@ -1,6 +1,7 @@
 package address
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -12,7 +13,7 @@ func ListAddresses(c *routerx.Context) {
 		return
 	}
 
-	response := make([]Address, len(addresses))
+	response := make([]apix.Address, len(addresses))
 	for i, addr := range addresses {
 		response[i].Set(&addr)
 	}
