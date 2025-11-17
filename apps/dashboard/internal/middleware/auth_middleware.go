@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -16,6 +17,7 @@ func Auth(db dbx.IORM) routerx.HandlerFunc {
 	return func(c *routerx.Context) {
 		claims, err := client.Validate(c.Request.Context(), c.Request.Header)
 		if err != nil {
+			log.Println("Auth Middleware - Unauthorized access attempt:", err)
 			c.JSON(http.StatusUnauthorized, gin.H{"access": "unauthorized"})
 			c.Abort()
 			return
@@ -31,6 +33,7 @@ func Auth(db dbx.IORM) routerx.HandlerFunc {
 
 		var app models.App
 		if err := db.FindFirst(&app, "public_id = ?", c.Param("app_id")); err != nil {
+			log.Println("Auth Middleware - App not found:", err)
 			c.JSON(http.StatusUnauthorized, gin.H{"error": "App not found"})
 			c.Abort()
 			return
