@@ -1,4 +1,4 @@
-package connection
+package apix
 
 import (
 	"time"
@@ -23,12 +23,4 @@ func (c *Connection) Set(connection *models.Connection) *Connection {
 	c.CreatedAt = connection.CreatedAt
 	c.UpdatedAt = connection.UpdatedAt
 	return c
-}
-
-type CreateConnectionRequest struct {
-	Name          string `json:"name"`
-	Source        string `json:"source"`
-	PublicKey     string `json:"public_key"`
-	SecretKey     string `json:"secret_key"`
-	WebhookSecret string `json:"webhook_secret"`
 }

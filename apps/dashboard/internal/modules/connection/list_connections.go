@@ -1,6 +1,7 @@
 package connection
 
 import (
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -12,7 +13,7 @@ func ListConnections(c *routerx.Context) {
 		return
 	}
 
-	response := make([]Connection, len(connections))
+	response := make([]apix.Connection, len(connections))
 	for i, connection := range connections {
 		response[i].Set(&connection)
 	}

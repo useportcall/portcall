@@ -2,10 +2,19 @@ package connection
 
 import (
 	"github.com/useportcall/portcall/apps/dashboard/internal/utils"
+	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/paymentx"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
+
+type CreateConnectionRequest struct {
+	Name          string `json:"name"`
+	Source        string `json:"source"`
+	PublicKey     string `json:"public_key"`
+	SecretKey     string `json:"secret_key"`
+	WebhookSecret string `json:"webhook_secret"`
+}
 
 func CreateConnection(c *routerx.Context) {
 	var body CreateConnectionRequest
@@ -49,5 +58,5 @@ func CreateConnection(c *routerx.Context) {
 		return
 	}
 
-	c.OK(new(Connection).Set(&connection))
+	c.OK(new(apix.Connection).Set(&connection))
 }
