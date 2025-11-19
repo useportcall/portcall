@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { getUserSubscription } from "@/lib/api";
 import { logout } from "./actions/logout";
 import { ClayPricingTable } from "../components/clay-pricing-table";
-import EnabledFeatures from "../components/enabled-features";
+import Features from "../components/enabled-features";
 
 export default async function Page() {
   const subscription = await getUserSubscription();
@@ -21,7 +21,7 @@ export default async function Page() {
               <ClayPricingTable />
             </div>
           </div>
-          <EnabledFeatures />
+          <Features />
         </div>
       </div>
     </div>
