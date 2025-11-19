@@ -43,7 +43,7 @@ export function useAuth() {
     const u: User = data?.user;
     if (u) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
-      document.cookie = `user_id=${u.id}; path=/; secure; SameSite=Lax`;
+      document.cookie = `user_id=${u.id}; path=/; SameSite=Lax`;
       setUser(u);
       router.replace("/");
     }
