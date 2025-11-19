@@ -1,0 +1,11 @@
+services:
+
+  cron_worker:
+    build:
+      context: ../apps/cron
+    container_name: cron_worker
+    restart: always
+    depends_on:
+      - redis
+    environment:
+      REDIS_ADDR: "redis:6379"
