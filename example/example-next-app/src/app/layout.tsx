@@ -1,7 +1,6 @@
 import { Toaster } from "@/components/ui/sonner";
 import { Metadata } from "next";
 import "./globals.css";
-import Providers from "./providers";
 
 export const metadata: Metadata = {
   title: "Example Clay billing app",
@@ -17,7 +16,7 @@ export default function RootLayout({
     <html lang="en">
       <head />
       <body>
-        <Providers>{children}</Providers>
+        {children}
         <Toaster />
       </body>
     </html>

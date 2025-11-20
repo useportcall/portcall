@@ -1,45 +1,11 @@
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { NextResponse } from "next/server";
-
-export async function callPortcallApi(
-  method: "GET" | "POST",
-  path: string,
-  body?: Object
-) {
-  const url = new URL(path, process.env.PC_API_BASE_URL);
-
-  const headers = new Headers();
-  headers.set("Authorization", `Bearer ${process.env.PC_API_TOKEN}`);
-  headers.set("Content-Type", "application/json");
-
-  try {
-    const res = await fetch(url.toString(), {
-      method: method,
-      headers: headers,
-      body: body ? JSON.stringify(body) : undefined,
-    });
-
-    const data: { data: unknown } = await res.json();
-
-    return NextResponse.json(data.data, {
-      status: res.status,
-      headers: {
-        "Cache-Control": res.headers.get("Cache-Control") ?? "no-cache",
-      },
-    });
-  } catch (err) {
-    console.error("portcall fetch failed:", url.toString(), err);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 502 }
-    );
-  }
-}
 
 export async function getUserSubscription() {
   const cookieStore = await cookies();
   const userId = cookieStore.get("user_id")?.value;
+
+  console.log("Fetching subscription for user_id:", userId);
 
   if (!userId) {
     redirect("/login");

@@ -1,23 +1,33 @@
 "use client";
 
-import React from "react";
-import { useAuth } from "@/hooks/use-auth";
+import React, { useTransition } from "react";
+import { toast } from "sonner";
+import login from "../actions/login";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
-  const { login } = useAuth();
   const [email, setEmail] = React.useState("");
-  const [loading, setLoading] = React.useState(false);
+  const [isPending, startTransition] = useTransition();
+  const router = useRouter();
 
-  const handle = async (e: React.FormEvent) => {
+  const handleClick = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setLoading(true);
-    await login(email || "demo@local");
-    setLoading(false);
+
+    startTransition(async () => {
+      const result = await login({ email });
+
+      if (!result.ok) {
+        toast.error(result.message);
+        return;
+      }
+
+      router.replace("/");
+    });
   };
 
   return (
     <div className="h-screen w-screen flex items-center justify-center p-4">
-      <form onSubmit={handle} className="w-full max-w-sm">
+      <form onSubmit={handleClick} className="w-full max-w-sm">
         <label className="block mb-2">Email</label>
         <input
           className="w-full p-2 border rounded mb-4"
@@ -26,10 +36,9 @@ export default function LoginPage() {
         />
         <button
           className="w-full p-2 bg-blue-600 text-white rounded"
-          onClick={(e) => handle(e)}
-          disabled={loading}
+          disabled={isPending}
         >
-          {loading ? "Logging in..." : "Login"}
+          {isPending ? "Logging in..." : "Login"}
         </button>
       </form>
     </div>
