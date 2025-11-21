@@ -9,3 +9,15 @@ services:
       - redis
     environment:
       REDIS_ADDR: "redis:6379"
+
+  email_worker:
+    build:
+      context: ../apps/email
+    container_name: email_worker
+    restart: always
+    depends_on:
+      - redis
+      - mailpit
+    environment:
+      REDIS_ADDR: "redis:6379"
+      SMTP_SERVER: "localhost:1025"
