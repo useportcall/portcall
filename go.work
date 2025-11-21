@@ -10,6 +10,7 @@ use (
 	./apps/email
 	./apps/file
 	./apps/migrate
+	./apps/webhook
 	./libs/go/apix
 	./libs/go/authx
 	./libs/go/cryptox
