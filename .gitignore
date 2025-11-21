@@ -1,3 +1,8 @@
 # any logs folder in any directory
 
 logs/
+
+.DS_Store
+.env
+.env.development
+.rsa_private.pem
