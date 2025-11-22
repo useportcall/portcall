@@ -8,6 +8,7 @@ services:
     depends_on:
       - redis
     environment:
+      APP_ENV: "production"
       REDIS_ADDR: "redis:6379"
 
   email_worker:
@@ -19,6 +20,7 @@ services:
       - redis
       - mailpit
     environment:
+      APP_ENV: "production"
       REDIS_ADDR: "redis:6379"
       SMTP_SERVER: "localhost:1025"
 
@@ -34,4 +36,4 @@ services:
       APP_ENV: "production"
       REDIS_ADDR: "redis:6379"
       AES_ENCRYPTION_KEY: "zRBkAMS4lX9CYBLJajHF/J0p+kcIIxVIr9gR4Y1M+nM="
-      MAIN_DATABASE_URL: "postgresql://admin:adminpassword@postgres:5432/main_portcall_db?sslmode=disable"
+      DATABASE_URL: "postgresql://admin:adminpassword@postgres:5432/main_portcall_db?sslmode=disable"
