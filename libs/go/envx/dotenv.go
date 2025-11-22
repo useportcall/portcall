@@ -1,6 +1,10 @@
 package envx
 
-import "github.com/joho/godotenv"
+import (
+	"log"
+
+	"github.com/joho/godotenv"
+)
 
 func Load() {
 	var dotenv string
@@ -12,6 +16,6 @@ func Load() {
 	}
 
 	if err := godotenv.Load(dotenv); err != nil {
-		panic("Error loading .env file")
+		log.Printf("could not load %s file: %v", dotenv, err)
 	}
 }
