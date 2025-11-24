@@ -71,23 +71,38 @@ cd docker
 docker compose -f docker-compose.db.yml -f docker-compose.auth.yml -f docker-compose.tools.yml -f docker-compose.workers.yml up
 ```
 
-### 4. Frontend Apps
+### 4. Backend apps (Go)
+
+```bash
+# Dashboard API
+cd apps/dashboard
+go run main.go
+
+# Checkout API
+cd apps/checkout
+go run main.go
+
+# Public API
+cd apps/api
+go run main.go
+```
+
+### 5. Frontend Apps
+
+The dashboard and checkout frontends are proxied through each respective backend API when run by themselves. If you don't need hot reload, just run `npm run build` and access them through the same localhost port as the backend APIs.
 
 ```bash
 # Dashboard (Vite+React)
 cd apps/dashboard/frontend
 npm install && npm run dev
 
-# Example Next.js app
+# Checkout (Next.js)
+cd apps/checkout/frontend
+npm install && npm run dev
+
+# Example (Next.js)
 cd example/example-next-app
 npm install && npm run dev
-```
-
-### 5. API (Go)
-
-```bash
-cd apps/api
-go run main.go
 ```
 
 ---
@@ -107,8 +122,6 @@ go run main.go
 ## 📦 Example Apps
 
 - [`example/example-next-app`](./example/example-next-app): Next.js demo for integrating Portcall billing & entitlements
-- [`apps/checkout/frontend`](./apps/checkout/frontend): Checkout UI
-- [`apps/dashboard/frontend`](./apps/dashboard/frontend): Dashboard
 
 ---
 
