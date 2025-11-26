@@ -1,6 +1,6 @@
 import { useAuth } from "@/lib/keycloak/auth";
 import { Account } from "@/models/account";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import axios, { AxiosInstance } from "axios";
 import { useMemo } from "react";
 
@@ -21,13 +21,12 @@ export function useGetAccount() {
     return axios.create({ baseURL, headers });
   }, [token]);
 
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: ["/account"],
     queryFn: async () => {
       const result = await client!.get<{ data: Account }>("/account");
 
       return result.data;
     },
-    enabled: !!client,
   });
 }

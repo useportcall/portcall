@@ -1,7 +1,7 @@
 import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { StrictMode } from "react";
+import { StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import {
   createBrowserRouter,
@@ -43,13 +43,19 @@ const router = createBrowserRouter([
     element: (
       <>
         <SignedIn>
-          <AppProvider>
-            <OnboardGuard>
-              <Layout>
-                <Outlet />
-              </Layout>
-            </OnboardGuard>
-          </AppProvider>
+          <Suspense
+            fallback={
+              <div className="w-full h-full bg-gray-100 animate-pulse rounded" />
+            }
+          >
+            <AppProvider>
+              <OnboardGuard>
+                <Layout>
+                  <Outlet />
+                </Layout>
+              </OnboardGuard>
+            </AppProvider>
+          </Suspense>
         </SignedIn>
         <SignedOut>
           <RedirectToSignIn />

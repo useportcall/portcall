@@ -20,8 +20,6 @@ export function SubscriptionListTable() {
   const navigate = useNavigate();
   const { data: subscriptions } = useListSubscriptions();
 
-  if (!subscriptions) return <></>;
-
   if (subscriptions && !subscriptions.data.length) {
     return (
       <EmptyTable message="No subscriptions created yet." button={<></>} />

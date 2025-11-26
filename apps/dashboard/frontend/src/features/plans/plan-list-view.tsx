@@ -24,8 +24,6 @@ export default function PlanListView() {
   const [group, setGroup] = useState<string>("*");
   const { data: plans } = useListPlans(group);
 
-  if (!plans) return null;
-
   return (
     <div className="w-full p-4 lg:p-10 flex flex-col gap-6">
       <div className="flex flex-row justify-between">

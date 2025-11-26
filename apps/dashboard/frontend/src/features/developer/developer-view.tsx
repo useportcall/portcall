@@ -25,8 +25,6 @@ import { useState } from "react";
 export default function DeveloperView() {
   const { data: app } = useGetApp();
 
-  if (!app?.data) return <></>;
-
   return (
     <div className="w-full p-4 lg:p-10 flex flex-col gap-6 space-mono-regular">
       <div className="flex flex-row justify-between">

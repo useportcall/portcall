@@ -22,10 +22,6 @@ export function EditPlan() {
 
   const navigate = useNavigate();
 
-  if (!plan) {
-    return <div></div>;
-  }
-
   return (
     <div className="w-full h-full flex flex-col gap-4 p-4 overflow-auto">
       <Button

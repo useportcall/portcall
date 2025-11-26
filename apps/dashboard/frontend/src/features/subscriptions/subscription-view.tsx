@@ -15,10 +15,6 @@ export default function SubscriptionView() {
 
   const { data: subscription } = useGetSubscription(id!);
 
-  if (!subscription) {
-    return <></>;
-  }
-
   return (
     <div className="w-full h-full p-4 lg:p-10 flex flex-col gap-6">
       <div className="flex flex-row justify-between">
