@@ -7,8 +7,6 @@ import { Link } from "react-router";
 export default function HomeView() {
   const { data: account } = useGetAccount();
 
-  if (!account?.data) return <></>;
-
   return (
     <>
       <div className="w-full p-4 lg:p-10 flex flex-col gap-6">

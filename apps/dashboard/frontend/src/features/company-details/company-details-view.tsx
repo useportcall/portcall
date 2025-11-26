@@ -7,8 +7,6 @@ import { cn } from "@/lib/utils";
 export default function CompanyDetailsView() {
   const { data: company } = useGetCompany();
 
-  if (!company?.data) return null;
-
   return (
     <BaseView
       title="Company details"

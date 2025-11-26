@@ -18,11 +18,7 @@ import { Link } from "react-router-dom";
 export function InvoiceListTable() {
   const { data: invoices } = useListInvoices();
 
-  if (!invoices) {
-    return <div className="h-96 w-full bg-slate-50 animate-pulse roudned-md" />;
-  }
-
-  if (invoices && !invoices.data.length) {
+  if (!invoices.data.length) {
     return <EmptyTable message="No invoice issued yet." />;
   }
 

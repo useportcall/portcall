@@ -1,5 +1,9 @@
 import { useAuth } from "@/lib/keycloak/auth";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import axios, { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import { useApp } from "../use-app";
@@ -10,14 +14,13 @@ export function useAppQuery<T = unknown>(props: {
 }) {
   const client = useAxiosClient();
 
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: [props.path],
     queryFn: async () => {
-      const result = await client!.get<{ data: T }>(props.path);
+      const result = await client.get<{ data: T }>(props.path);
 
       return result.data;
     },
-    enabled: !!client,
   });
 }
 
@@ -55,11 +58,7 @@ export function useAxiosClient() {
   const { token } = useAuth();
   const app = useApp();
 
-  const client: AxiosInstance | null = useMemo(() => {
-    if (!app.id || !token) {
-      return null;
-    }
-
+  const client: AxiosInstance = useMemo(() => {
     const baseURL = "/api/apps/" + app.id;
 
     const headers = {

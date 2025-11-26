@@ -180,8 +180,6 @@ function Connections() {
   const { data: config } = useGetAppConfig();
   const { data: connections } = useListConnections();
 
-  if (!connections) return <div>No payment integrations made yet.</div>;
-
   if (connections && !connections.data.length) {
     return (
       <EmptyTable message="No payment integrations created yet." button={""} />

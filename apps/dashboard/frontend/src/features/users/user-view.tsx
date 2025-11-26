@@ -43,10 +43,6 @@ export default function UserView() {
   const { data: user } = useGetUser(id!);
   const navigate = useNavigate();
 
-  if (!user) {
-    return <></>;
-  }
-
   return (
     <div className="w-full h-full p-4 lg:p-10 flex flex-col gap-6">
       <div className="flex flex-row justify-between">

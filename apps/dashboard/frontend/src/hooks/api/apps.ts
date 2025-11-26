@@ -1,6 +1,10 @@
 import { useAuth } from "@/lib/keycloak/auth";
 import { App } from "@/models/app";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueryClient,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 import axios, { AxiosInstance } from "axios";
 import { useMemo } from "react";
 import { useAppQuery } from "./api";
@@ -8,14 +12,13 @@ import { useAppQuery } from "./api";
 export function useListApps() {
   const client = useClient();
 
-  return useQuery({
+  return useSuspenseQuery({
     queryKey: ["/apps"],
     queryFn: async () => {
       const result = await client!.get<{ data: App[] }>("/apps");
 
       return result.data;
     },
-    enabled: !!client,
   });
 }
 
