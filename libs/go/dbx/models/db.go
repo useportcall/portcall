@@ -127,8 +127,8 @@ type Quote struct {
 	App            App        `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	PlanID         uint       `gorm:"default:null"`
 	Plan           Plan       `gorm:"default:null;foreignKey:PlanID"`
-	UserID         uint       `gorm:"not null"`
-	User           User       `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserID         *uint      `gorm:"not null"`
+	User           *User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	PublicTitle    string     `gorm:"not null"`
 	PublicName     string     `gorm:"not null"`
 	Status         string     `gorm:"not null;default:draft"` // created, sent, accepted, declined, expired
