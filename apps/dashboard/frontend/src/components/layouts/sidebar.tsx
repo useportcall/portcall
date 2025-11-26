@@ -1,6 +1,7 @@
 import { useListApps } from "@/hooks";
 import { useApp } from "@/hooks/use-app";
 import {
+  AppWindowMac,
   Boxes,
   BriefcaseBusiness,
   Code,
@@ -24,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../ui/select";
+import * as SelectPrimitive from "@radix-ui/react-select";
 import { Separator } from "../ui/separator";
 
 export default function Sidebar() {
@@ -39,6 +41,7 @@ export default function Sidebar() {
         <div className="flex- mt-15 lg:mt-0">
           <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
             <ProjectSelect />
+            <ProjectSelectMobile />
             <Sidebaritem
               name="Home"
               to="/"
@@ -125,25 +128,57 @@ function ProjectSelect() {
   const app = useApp();
 
   return (
-    <Select
-      value={app.id || undefined}
-      onValueChange={(value) => app.setId(value)}
-    >
-      <SelectTrigger className="overflow-auto my-2">
-        <SelectValue className="" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectLabel className="text-xs text-slate-400 font-medium">
-            Apps
-          </SelectLabel>
-          {apps?.data.map((app) => (
-            <SelectItem key={app.id} value={app.id.toString()}>
-              {app.name}
-            </SelectItem>
-          ))}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+    <div className="hidden lg:block">
+      <Select
+        value={app.id || undefined}
+        onValueChange={(value) => app.setId(value)}
+      >
+        <SelectTrigger className="overflow-auto my-2">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel className="text-xs text-slate-400 font-medium">
+              Apps
+            </SelectLabel>
+            {apps?.data.map((app) => (
+              <SelectItem key={app.id} value={app.id.toString()}>
+                {app.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </div>
+  );
+}
+
+function ProjectSelectMobile() {
+  const { data: apps } = useListApps();
+  const app = useApp();
+
+  return (
+    <div className="lg:hidden">
+      <Select
+        value={app.id || undefined}
+        onValueChange={(value) => app.setId(value)}
+      >
+        <SelectPrimitive.Trigger className="overflow-auto h-9 my-2 w-full flex justify-center items-center rounded-md border border-input shadow-sm ring-offset-background data-[placeholder]:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1">
+          <AppWindowMac className="size-4" />
+        </SelectPrimitive.Trigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel className="text-xs text-slate-400 font-medium">
+              Apps
+            </SelectLabel>
+            {apps?.data.map((app) => (
+              <SelectItem key={app.id} value={app.id.toString()}>
+                {app.name}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+    </div>
   );
 }
