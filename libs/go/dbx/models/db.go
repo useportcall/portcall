@@ -122,14 +122,15 @@ type Connection struct {
 
 type Quote struct {
 	gorm.Model
-	PublicID string `gorm:"not null;uniqueIndex:idx_public_app" json:"id"`
-	AppID    uint   `gorm:"not null;uniqueIndex:idx_public_app" json:"-"`
-	App      App    `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
-	PlanID   uint   `gorm:"default:null"`
-	Plan     Plan   `gorm:"default:null;foreignKey:PlanID"`
-	UserID   uint   `gorm:"not null"`
-	User     User   `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	//
+	PublicID       string     `gorm:"not null;uniqueIndex:idx_public_app"`
+	AppID          uint       `gorm:"not null;uniqueIndex:idx_public_app"`
+	App            App        `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	PlanID         uint       `gorm:"default:null"`
+	Plan           Plan       `gorm:"default:null;foreignKey:PlanID"`
+	UserID         uint       `gorm:"not null"`
+	User           User       `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	PublicTitle    string     `gorm:"not null"`
+	PublicName     string     `gorm:"not null"`
 	Status         string     `gorm:"not null;default:draft"` // created, sent, accepted, declined, expired
 	DaysValid      int        `gorm:"not null;default:30"`    // number of days the quote is valid for
 	IssuedAt       *time.Time `gorm:"default:null"`           // when the quote was issued
