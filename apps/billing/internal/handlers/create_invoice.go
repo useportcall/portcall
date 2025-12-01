@@ -3,6 +3,7 @@ package handlers
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"time"
 
 	"github.com/useportcall/portcall/libs/go/dbx"
@@ -35,6 +36,11 @@ func CreateInvoice(c server.IContext) error {
 		return err
 	}
 
+	invoiceAppURL := os.Getenv("INVOICE_APP_URL")
+	if invoiceAppURL == "" {
+		return fmt.Errorf("INVOICE_APP_URL environment variable is not set")
+	}
+
 	publicID := dbx.GenPublicID("invoice")
 
 	invoice := &models.Invoice{
@@ -44,8 +50,8 @@ func CreateInvoice(c server.IContext) error {
 		PublicID:          publicID,
 		Status:            "pending",
 		Currency:          subscription.Currency,
-		PDFURL:            fmt.Sprintf("http://localhost:8085/invoices/%s/view", publicID), // TODO: fix
-		EmailURL:          fmt.Sprintf("http://localhost:8085/invoice-email/%s", publicID), // TODO: fix
+		PDFURL:            fmt.Sprintf("%s/invoices/%s/view", invoiceAppURL, publicID),
+		EmailURL:          fmt.Sprintf("%s/invoice-email/%s", invoiceAppURL, publicID),
 		DueBy:             time.Now().AddDate(0, 0, subscription.InvoiceDueByDays),
 		InvoiceNumber:     fmt.Sprintf("INV-%07d", count+1), // invoice number should be INV-0000001 format
 		CompanyAddressID:  company.BillingAddressID,
