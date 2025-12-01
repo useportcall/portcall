@@ -3,7 +3,8 @@ import type { Address } from "./address";
 export type User = {
   id: string;
   name: string;
-  email: string | null;
+  email: string;
+  company_title: string | null;
   created_at: string;
   updated_at: string;
   subscribed: boolean;
