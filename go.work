@@ -10,6 +10,7 @@ use (
 	./apps/email
 	./apps/file
 	./apps/migrate
+	./apps/quote
 	./apps/webhook
 	./libs/go/apix
 	./libs/go/authx
@@ -21,4 +22,5 @@ use (
 	./libs/go/qx
 	./libs/go/paymentx
 	./libs/go/routerx
+	./libs/go/storex
 )
