@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quote Submitted</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #fff;
+        color: #18181b;
+        font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .success-container {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 18px;
+        box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.07);
+        padding: 48px 36px 36px 36px;
+        width: 100%;
+        max-width: 480px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+      .success-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #18181b;
+        letter-spacing: -0.5px;
+        text-align: center;
+      }
+      .success-details {
+        font-size: 1.08rem;
+        color: #444;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .success-icon {
+        width: 64px;
+        height: 64px;
+        margin-bottom: 12px;
+        color: #22c55e;
+      }
+      .back-link {
+        margin-top: 18px;
+        color: #6366f1;
+        text-decoration: underline;
+        font-size: 1.01rem;
+        cursor: pointer;
+        transition: color 0.2s;
+      }
+      .back-link:hover {
+        color: #18181b;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="success-container">
+      <svg
+        class="success-icon"
+        fill="none"
+        viewBox="0 0 24 24"
+        stroke="currentColor"
+      >
+        <circle
+          cx="12"
+          cy="12"
+          r="10"
+          stroke="#22c55e"
+          stroke-width="2"
+          fill="#e7fbe9"
+        />
+        <path
+          stroke="#22c55e"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M8 12l2.5 2.5L16 9"
+        />
+      </svg>
+      <div class="success-title">Quote Accepted</div>
+      <div class="success-details">
+        Your quote has been accepted.<br />
+        An invoice will be sent to your email shortly.
+      </div>
+      <a href="/" class="back-link">Back to Home</a>
+    </div>
+  </body>
+</html>

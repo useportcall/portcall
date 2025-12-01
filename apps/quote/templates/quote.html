@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quote Approval</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #fff;
+        color: #18181b;
+        font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .quote-container {
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 18px;
+        box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.07);
+        padding: 48px 36px 36px 36px;
+        width: 100%;
+        max-width: 480px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+      }
+      .quote-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: #18181b;
+        letter-spacing: -0.5px;
+        text-align: center;
+      }
+      .quote-details {
+        font-size: 1.08rem;
+        color: #444;
+        margin-bottom: 12px;
+        text-align: center;
+      }
+      .signature-label {
+        font-size: 1.01rem;
+        color: #444;
+        font-weight: 500;
+        margin-bottom: 6px;
+        letter-spacing: -0.2px;
+        text-align: left;
+        width: 100%;
+      }
+      .signature-canvas {
+        border: 1.5px solid #e5e7eb;
+        border-radius: 8px;
+        background: #f6f6f7;
+        width: 100%;
+        max-width: 340px;
+        height: 120px;
+        display: block;
+        margin-bottom: 10px;
+        cursor: crosshair;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.01);
+      }
+      .clear-btn {
+        background: none;
+        border: none;
+        color: #6366f1;
+        font-size: 0.98rem;
+        cursor: pointer;
+        margin-bottom: 18px;
+        text-decoration: underline;
+        padding: 0;
+        transition: color 0.2s;
+      }
+      .clear-btn:hover {
+        color: #18181b;
+      }
+      .submit-btn {
+        width: 100%;
+        background: linear-gradient(90deg, #222 60%, #444 100%);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 14px 0;
+        font-size: 1.08rem;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        transition: background 0.2s, box-shadow 0.2s;
+        box-shadow: 0 2px 8px 0 rgba(34, 34, 34, 0.07);
+        letter-spacing: -0.2px;
+      }
+      .submit-btn:hover {
+        background: linear-gradient(90deg, #18181b 60%, #6366f1 100%);
+        box-shadow: 0 4px 16px 0 rgba(99, 102, 241, 0.1);
+      }
+    </style>
+  </head>
+  <body>
+    <form class="quote-container" method="post" action="/quotes/{{ .ID }}">
+      <div class="quote-title">Quote for Your Project</div>
+      <div class="quote-details">
+        <div><strong>Service:</strong> {{ .Service }}</div>
+        <div><strong>Valid Until:</strong> {{ .ValidUntil }}</div>
+      </div>
+      <div style="width: 100%">
+        <table
+          style="width: 100%; border-collapse: collapse; margin-bottom: 18px"
+        >
+          <thead>
+            <tr style="background: #f6f6f7">
+              <th
+                style="text-align: left; padding: 6px 8px; font-size: 1.01rem"
+              >
+                Item
+              </th>
+              <th
+                style="text-align: left; padding: 6px 8px; font-size: 1.01rem"
+              >
+                Description
+              </th>
+              <th
+                style="text-align: right; padding: 6px 8px; font-size: 1.01rem"
+              >
+                Qty
+              </th>
+              <th
+                style="text-align: right; padding: 6px 8px; font-size: 1.01rem"
+              >
+                Unit
+              </th>
+              <th
+                style="text-align: right; padding: 6px 8px; font-size: 1.01rem"
+              >
+                Type
+              </th>
+              <th
+                style="text-align: right; padding: 6px 8px; font-size: 1.01rem"
+              >
+                Total
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            {{ range .Items }}
+            <tr>
+              <td style="padding: 6px 8px">{{ .Title }}</td>
+              <td style="padding: 6px 8px">{{ .Description }}</td>
+              <td style="padding: 6px 8px; text-align: right">
+                {{ .Quantity }}
+              </td>
+              <td style="padding: 6px 8px; text-align: right">
+                {{ .UnitLabel }}
+              </td>
+              <td style="padding: 6px 8px; text-align: right">
+                {{ .PricingType }}
+              </td>
+              <td style="padding: 6px 8px; text-align: right">
+                {{ .TotalAmount }}
+              </td>
+            </tr>
+            {{ end }}
+          </tbody>
+        </table>
+        <div style="text-align: right; font-size: 1.13rem; font-weight: 600">
+          Total: {{ .Total }}
+        </div>
+      </div>
+      <!-- removed JS div100 helper, use Go template formatting instead -->
+      <div class="signature-label">Digital Signature</div>
+      <canvas id="signature" class="signature-canvas"></canvas>
+      <button type="button" class="clear-btn" onclick="clearSignature()">
+        Clear Signature
+      </button>
+      <input type="hidden" name="signatureData" id="signatureData" />
+      <button type="submit" class="submit-btn">Accept & Submit</button>
+    </form>
+    <script>
+      // Simple signature pad
+      const canvas = document.getElementById("signature");
+      const ctx = canvas.getContext("2d");
+      let drawing = false;
+      let lastX = 0;
+      let lastY = 0;
+      function resizeCanvas() {
+        // Make canvas crisp on HiDPI
+        const dpr = window.devicePixelRatio || 1;
+        canvas.width = canvas.offsetWidth * dpr;
+        canvas.height = canvas.offsetHeight * dpr;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.scale(dpr, dpr);
+        ctx.lineWidth = 4;
+        ctx.lineCap = "round";
+        ctx.strokeStyle = "#222";
+      }
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+      function startDraw(e) {
+        drawing = true;
+        [lastX, lastY] = getPos(e);
+      }
+      function endDraw() {
+        drawing = false;
+      }
+      function draw(e) {
+        if (!drawing) return;
+        const [x, y] = getPos(e);
+        ctx.beginPath();
+        ctx.moveTo(lastX, lastY);
+        ctx.lineTo(x, y);
+        ctx.stroke();
+        [lastX, lastY] = [x, y];
+      }
+      function getPos(e) {
+        if (e.touches && e.touches.length) {
+          const rect = canvas.getBoundingClientRect();
+          return [
+            e.touches[0].clientX - rect.left,
+            e.touches[0].clientY - rect.top,
+          ];
+        } else {
+          const rect = canvas.getBoundingClientRect();
+          return [e.clientX - rect.left, e.clientY - rect.top];
+        }
+      }
+      canvas.addEventListener("mousedown", startDraw);
+      canvas.addEventListener("touchstart", startDraw);
+      canvas.addEventListener("mousemove", draw);
+      canvas.addEventListener("touchmove", draw);
+      canvas.addEventListener("mouseup", endDraw);
+      canvas.addEventListener("mouseleave", endDraw);
+      canvas.addEventListener("touchend", endDraw);
+      function clearSignature() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+      }
+      // On submit, save signature as data URL
+      document.querySelector("form").addEventListener("submit", function (e) {
+        document.getElementById("signatureData").value = canvas.toDataURL();
+      });
+    </script>
+  </body>
+</html>
