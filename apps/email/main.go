@@ -14,6 +14,7 @@ func main() {
 	server.SetEmailClient(emailx.New())
 
 	server.H("send_invoice_paid_email", handlers.SendInvoicePaidEmail)
-
+	server.H("send_quote_email", handlers.SendQuoteEmail)
+	server.H("send_quote_accepted_confirmation_email", handlers.SendQuoteAcceptedConfirmationEmail)
 	server.R()
 }
