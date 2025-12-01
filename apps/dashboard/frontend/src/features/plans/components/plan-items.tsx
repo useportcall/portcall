@@ -4,8 +4,8 @@ import { Plus } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { PlanItemCard } from "./metered-feature-card";
 
-export function PlanItems() {
-  const { data: items } = useListMeteredPlanItems();
+export function PlanItems(props: { id: string }) {
+  const { data: items } = useListMeteredPlanItems({ id: props.id });
 
   return (
     <div className="h-full space-y-2 px-4 animate-fade-in">

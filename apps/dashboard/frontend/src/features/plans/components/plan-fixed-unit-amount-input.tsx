@@ -1,18 +1,23 @@
-import { useFirstFixedPlanItem, useUpdatePlanItem } from "@/hooks";
-import { Plan } from "@/models/plan";
+import {
+  useFirstFixedPlanItem,
+  useRetrievePlan,
+  useUpdatePlanItem,
+} from "@/hooks";
+import { PlanItem } from "@/models/plan-item";
 import { useMemo, useState } from "react";
 import { currencyCodetoSymbol } from "../utils";
-import { PlanItem } from "@/models/plan-item";
 
-type Props = { plan: Plan };
+type Props = { id: string };
 
-export function PlanFixedUnitAmountInput({ plan }: Props) {
+export function PlanFixedUnitAmountInput(props: Props) {
+  const { data: plan } = useRetrievePlan(props.id);
+
   const label = useMemo(
-    () => currencyCodetoSymbol(plan.currency),
-    [plan.currency]
+    () => currencyCodetoSymbol(plan.data.currency),
+    [plan.data.currency]
   );
 
-  const { planItem } = useFirstFixedPlanItem(plan.id);
+  const { planItem } = useFirstFixedPlanItem(props.id);
 
   if (!planItem) {
     return (

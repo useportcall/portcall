@@ -1,4 +1,5 @@
 import { SaveIndicator } from "@/components/save-indicator";
+import { Section } from "@/components/sections";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useRetrievePlan } from "@/hooks";
@@ -32,7 +33,7 @@ export function EditPlan() {
         <ArrowLeft className="w-4 h-4" /> Back to plans
       </Button>
       <div className="flex gap-4 w-full justify-between px-4">
-        <PlanNameInput plan={plan.data} />
+        <PlanNameInput id={id!} />
         <div className="flex flex-row justify-end gap-2">
           <SaveIndicator />
           <PublishPlanButton plan={plan.data} />
@@ -42,30 +43,21 @@ export function EditPlan() {
       <div className="grid grid-cols-1 md:grid-cols-[20rem_auto_2fr] w-full h-full">
         <div className="flex flex-col gap-6 px-2 animate-fade-in">
           <Section title="Fixed price">
-            <PlanFixedUnitAmountInput plan={plan.data} />
-            <PlanCurrencySelect plan={plan.data} />
-            <PlanIntervalSelect plan={plan.data} />
-            <PlanGroupSelect plan={plan.data} />
+            <PlanFixedUnitAmountInput id={id!} />
+            <PlanCurrencySelect id={id!} />
+            <PlanIntervalSelect id={id!} />
+            <PlanGroupSelect id={id!} />
           </Section>
-          <MutableEntitlements />
+          <MutableEntitlements id={id!} />
           <Section title="Other properties">
-            <FreeTrialComboBox plan={plan.data} />
+            <FreeTrialComboBox id={id!} />
             <BillInAdvanceSelect />
             <ProrationSelect />
           </Section>
         </div>
         <Separator orientation="vertical" className="hidden md:block" />
-        <PlanItems />
+        <PlanItems id={id!} />
       </div>
-    </div>
-  );
-}
-
-function Section(props: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="space-y-2">
-      <h2 className="text-sm text-muted-foreground px-2">{props.title}</h2>
-      <div className="space-y-2">{props.children}</div>
     </div>
   );
 }

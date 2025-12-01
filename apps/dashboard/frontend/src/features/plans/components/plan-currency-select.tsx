@@ -12,16 +12,16 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useUpdatePlan } from "@/hooks";
-import { Plan } from "@/models/plan";
+import { useRetrievePlan, useUpdatePlan } from "@/hooks";
 import { Coins } from "lucide-react";
 import { useState } from "react";
 
-export function PlanCurrencySelect({ plan }: { plan: Plan }) {
+export function PlanCurrencySelect({ id }: { id: string }) {
   const [open, setOpen] = useState(false);
   const currencies = ["USD", "EUR", "GBP", "AUD", "CAD", "JPY"];
 
-  const { mutate: updatePlan } = useUpdatePlan(plan.id);
+  const { data: plan } = useRetrievePlan(id);
+  const { mutate: updatePlan } = useUpdatePlan(id);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -33,7 +33,7 @@ export function PlanCurrencySelect({ plan }: { plan: Plan }) {
             className="w-full text-left flex justify-start"
           >
             <Coins className="h-4 w-4" />
-            {plan.currency}
+            {plan.data.currency}
           </Button>
         </div>
       </PopoverTrigger>

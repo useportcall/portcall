@@ -10,17 +10,14 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useUpdatePlan } from "@/hooks";
+import { useRetrievePlan, useUpdatePlan } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { Plan } from "@/models/plan";
 import { PopoverPortal } from "@radix-ui/react-popover";
 import { ChevronDown, Heart } from "lucide-react";
-import { useState } from "react";
 
-export function FreeTrialComboBox({ plan }: { plan: Plan }) {
-  const [value, setValue] = useState(plan.trial_period_days);
-
-  const { mutate: updatePlan } = useUpdatePlan(plan.id);
+export function FreeTrialComboBox({ id }: { id: string }) {
+  const { data: plan } = useRetrievePlan(id);
+  const { mutate: updatePlan } = useUpdatePlan(id);
 
   const values = [0, 7, 14, 30];
 
@@ -33,9 +30,14 @@ export function FreeTrialComboBox({ plan }: { plan: Plan }) {
           className="w-full text-left flex justify-between"
         >
           <span className="flex gap-2 items-center justify-start">
-            <Heart className={cn("h-4 w-4", { "text-teal-800": !!value })} />
-            {!!value && `${value} day free trial`}
-            {!value && "No free trial"}
+            <Heart
+              className={cn("h-4 w-4", {
+                "text-teal-800": !!plan.data?.trial_period_days,
+              })}
+            />
+            {!!plan.data?.trial_period_days &&
+              `${plan.data.trial_period_days} day free trial`}
+            {!plan.data?.trial_period_days && "No free trial"}
           </span>{" "}
           <ChevronDown />
         </Button>
@@ -47,7 +49,6 @@ export function FreeTrialComboBox({ plan }: { plan: Plan }) {
               placeholder="Search..."
               onBlur={(e) => {
                 if (e.target.value === "") return;
-                setValue(Number(e.target.value));
                 updatePlan({ trial_period_days: Number(e.target.value) });
               }}
             />
@@ -56,7 +57,6 @@ export function FreeTrialComboBox({ plan }: { plan: Plan }) {
                 <CommandItem
                   key={val}
                   onSelect={() => {
-                    setValue(val);
                     updatePlan({ trial_period_days: val });
                   }}
                 >

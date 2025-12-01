@@ -6,9 +6,8 @@ import { toast } from "sonner";
 
 export const PLAN_ITEMS_PATH = "/plan-items";
 
-export function useListMeteredPlanItems() {
-  const { id } = useParams();
-  const path = `${PLAN_ITEMS_PATH}?plan_id=${id}&is_metered=true`;
+export function useListMeteredPlanItems(props: { id: string }) {
+  const path = `${PLAN_ITEMS_PATH}?plan_id=${props.id}&is_metered=true`;
   const query = useAppQuery<PlanItem[]>({ path, queryKey: [path] });
 
   const data: MeteredPlanItem[] = useMemo(() => {

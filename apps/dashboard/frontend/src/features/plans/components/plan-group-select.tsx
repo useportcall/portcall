@@ -10,18 +10,23 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { useCreatePlanGroup, useListPlanGroups, useUpdatePlan } from "@/hooks";
-import { Plan } from "@/models/plan";
+import {
+  useCreatePlanGroup,
+  useListPlanGroups,
+  useRetrievePlan,
+  useUpdatePlan,
+} from "@/hooks";
 import { PopoverPortal } from "@radix-ui/react-popover";
 import { Tag } from "lucide-react";
 import React, { useState } from "react";
 
-export function PlanGroupSelect({ plan }: { plan: Plan }) {
+export function PlanGroupSelect({ id }: { id: string }) {
   const [open, setOpen] = useState(false);
 
   const { data: planGroups } = useListPlanGroups();
 
-  const updatePlan = useUpdatePlan(plan.id);
+  const { data: plan } = useRetrievePlan(id);
+  const updatePlan = useUpdatePlan(id);
 
   const createPlanGroup = useCreatePlanGroup();
 
@@ -46,7 +51,7 @@ export function PlanGroupSelect({ plan }: { plan: Plan }) {
           className="w-full text-left flex justify-start"
         >
           <Tag className="h-4 w-4" />
-          {plan.plan_group?.name || "No group"}
+          {plan.data.plan_group?.name || "No group"}
         </Button>
       </PopoverTrigger>
       <PopoverPortal>
@@ -66,7 +71,7 @@ export function PlanGroupSelect({ plan }: { plan: Plan }) {
                   ) {
                     await createPlanGroup.mutateAsync({
                       name: e.currentTarget.value,
-                      plan_id: plan.id,
+                      plan_id: plan.data.id,
                     });
                     setOpen(false);
                   }

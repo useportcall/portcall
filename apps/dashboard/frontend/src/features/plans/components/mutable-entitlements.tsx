@@ -29,9 +29,8 @@ import { useMemo, useState } from "react";
 import { useParams } from "react-router-dom";
 import { toSnakeCase } from "../utils";
 
-export default function MutableEntitlements() {
-  const { id } = useParams();
-  const { data: planFeatures } = useListBasicPlanFeatures(id!);
+export default function MutableEntitlements({ id }: { id: string }) {
+  const { data: planFeatures } = useListBasicPlanFeatures(id);
 
   if (!planFeatures?.data) return null;
 
