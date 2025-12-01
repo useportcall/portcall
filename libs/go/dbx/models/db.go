@@ -69,6 +69,7 @@ type User struct {
 	App               App      `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
 	Name              string   `gorm:"not null"`
 	Email             string   `gorm:"not null"`
+	CompanyTitle      string   `gorm:"default:null"`
 	PaymentCustomerID string   `gorm:"default:null"` // Stripe customer ID for the user
 	BillingAddressID  *uint    `gorm:"default:null"` // nullable, foreign key to the user's billing address
 	BillingAddress    *Address `gorm:"foreignKey:BillingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
@@ -131,10 +132,13 @@ type Quote struct {
 	User           *User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	PublicTitle    string     `gorm:"not null"`
 	PublicName     string     `gorm:"not null"`
+	CompanyName    string     `gorm:"default:null"`
 	Status         string     `gorm:"not null;default:draft"` // created, sent, accepted, declined, expired
 	DaysValid      int        `gorm:"not null;default:30"`    // number of days the quote is valid for
 	IssuedAt       *time.Time `gorm:"default:null"`           // when the quote was issued
 	ExpiresAt      *time.Time `gorm:"default:null"`           // when the quote expires
+	AcceptedAt     *time.Time `gorm:"default:null"`           // when the quote was accepted
+	VoidedAt       *time.Time `gorm:"default:null"`           // when the quote was declined
 	URL            *string    `gorm:"default:null"`
 	SignatureURL   *string    `gorm:"default:null"`
 	TokenHash      *string    `gorm:"default:null"`
