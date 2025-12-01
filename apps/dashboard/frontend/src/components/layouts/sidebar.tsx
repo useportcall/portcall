@@ -61,7 +61,6 @@ export default function Sidebar() {
               name="Quotes"
               to="/quotes"
               icon={<ScrollText className="h-4 w-4" />}
-              disabled
             />
             <Sidebaritem
               name="Subscriptions"
