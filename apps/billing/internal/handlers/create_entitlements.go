@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/useportcall/portcall/apps/billing/internal/utils"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/qx/server"
@@ -85,7 +86,8 @@ func CreateEntitlements(c server.IContext) error {
 			entitlement.NextResetAt = nextReset
 			entitlement.LastResetAt = &lastReset
 			entitlement.AnchorAt = &lastReset
-			entitlement.IsMetered = planItem.PricingModel != "fixed" // TODO: improve
+			entitlement.IsMetered = utils.IsPricingMetered(planItem.PricingModel)
+
 			if err := c.DB().Create(&entitlement); err != nil {
 				return err
 			}
