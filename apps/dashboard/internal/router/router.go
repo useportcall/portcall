@@ -122,6 +122,10 @@ func Init(db dbx.IORM, crypto cryptox.ICrypto, q qx.IQueue) routerx.IRouter {
 	// Quote routes
 	r.GET("/api/apps/:app_id/quotes", quote.ListQuotes)
 	r.POST("/api/apps/:app_id/quotes", quote.CreateQuote)
+	r.GET("/api/apps/:app_id/quotes/:id", quote.GetQuote)
+	r.POST("/api/apps/:app_id/quotes/:id", quote.UpdateQuote)
+	r.POST("/api/apps/:app_id/quotes/:id/send", quote.SendQuote)
+	r.POST("/api/apps/:app_id/quotes/:id/void", quote.VoidQuote)
 
 	// CheckoutSession routes
 	r.POST("/api/apps/:app_id/checkout-sessions", checkout_session.CreateCheckoutSession)
