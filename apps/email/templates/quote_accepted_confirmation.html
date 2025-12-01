@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Quote Accepted Confirmation</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        background-color: #f7f7f7;
+        margin: 0;
+        padding: 0;
+      }
+      .container {
+        background: #fff;
+        max-width: 600px;
+        margin: 40px auto;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.07);
+        padding: 32px 24px;
+      }
+      h1 {
+        color: #2d7ff9;
+        font-size: 24px;
+        margin-bottom: 16px;
+      }
+      p {
+        color: #333;
+        font-size: 16px;
+        line-height: 1.6;
+      }
+      .footer {
+        margin-top: 32px;
+        font-size: 13px;
+        color: #888;
+        text-align: center;
+      }
+      .button {
+        display: inline-block;
+        margin-top: 24px;
+        padding: 12px 28px;
+        background: #2d7ff9;
+        color: #fff;
+        border-radius: 4px;
+        text-decoration: none;
+        font-weight: bold;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Quote Accepted!</h1>
+      <p>Hi {{.RecipientName}},</p>
+      <p>
+        Thank you for accepting the quote. We have received your confirmation
+        and will begin processing your request.
+      </p>
+      <p>
+        If you have any questions or need further assistance, please reply to
+        this email or contact our support team.
+      </p>
+      <a href="{{.QuoteLink}}" class="button">View Quote Details</a>
+      <div class="footer">&copy; {{.Year}} Portcall. All rights reserved.</div>
+    </div>
+  </body>
+</html>
