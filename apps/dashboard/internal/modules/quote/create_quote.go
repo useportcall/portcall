@@ -26,6 +26,7 @@ func CreateQuote(c *routerx.Context) {
 	quote := &models.Quote{
 		PublicID:    utils.GenPublicID("quote"),
 		AppID:       c.AppID(),
+		PlanID:      plan.ID,
 		Status:      "init",
 		PublicTitle: "",
 		PublicName:  ""}
@@ -54,14 +55,15 @@ func CreateQuote(c *routerx.Context) {
 		return
 	}
 
+	quote.Plan = *plan
+
 	quote.Status = "draft"
-	if err := c.DB().Save(plan); err != nil {
-		c.ServerError("Failed to update plan status", err)
+	if err := c.DB().Save(quote); err != nil {
+		c.ServerError("Failed to update quote status", err)
 		return
 	}
 
-	response := new(apix.Plan).Set(plan)
-	response.Items = append(response.Items, *new(apix.PlanItem).Set(planItem))
+	response := new(apix.Quote).Set(quote)
 
 	c.OK(response)
 }
