@@ -33,6 +33,8 @@ import {
   SignedOut,
 } from "./lib/keycloak/auth";
 import { AppProvider } from "./components/app-provider";
+import QuoteListView from "./features/quotes/quote-list-view";
+import { QuoteView } from "./features/quotes/quote-view";
 
 const queryClient = new QueryClient();
 
@@ -107,6 +109,14 @@ const router = createBrowserRouter([
       {
         path: "/plans/:id",
         element: <EditPlan />,
+      },
+      {
+        path: "/quotes",
+        element: <QuoteListView />,
+      },
+      {
+        path: "/quotes/:id",
+        element: <QuoteView />,
       },
     ],
   },
