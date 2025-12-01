@@ -9,7 +9,7 @@ import (
 type PlanFeature struct {
 	ID        string    `json:"id"`
 	Interval  string    `json:"interval"`
-	Quota     int       `json:"quota"`
+	Quota     int64     `json:"quota"`
 	Rollover  int       `json:"rollover"`
 	Feature   any       `json:"feature"`
 	PlanItem  any       `json:"plan_item"`

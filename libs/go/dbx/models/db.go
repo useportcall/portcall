@@ -201,7 +201,7 @@ type PlanFeature struct {
 	FeatureID  uint     `gorm:"default:null;uniqueIndex:idx_plan_item_feature"`
 	Feature    Feature  `gorm:"default:null;foreignKey:FeatureID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Interval   string   `gorm:"not null;default:month"` // month, year, etc.
-	Quota      int      `gorm:"not null;default:-1"`    // -1 means unlimited, 0 means no quota
+	Quota      int64    `gorm:"not null;default:-1"`    // -1 means unlimited, 0 means no quota
 	Rollover   int      `gorm:"not null;default:0"`     // amount of quota that can be rolled over to the next period
 }
 

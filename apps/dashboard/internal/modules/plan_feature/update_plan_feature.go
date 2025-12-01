@@ -10,7 +10,7 @@ type UpdatePlanFeatureRequest struct {
 	PlanItemID string  `json:"plan_item_id"`
 	FeatureID  *string `json:"feature_id"`
 	Interval   string  `json:"interval"`
-	Quota      int     `json:"quota"`
+	Quota      int64   `json:"quota"`
 	Rollover   *int    `json:"rollover"`
 }
 

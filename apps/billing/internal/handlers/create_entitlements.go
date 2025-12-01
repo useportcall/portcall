@@ -96,7 +96,7 @@ func CreateEntitlements(c server.IContext) error {
 
 			entitlement.LastResetAt = &lastReset
 			entitlement.Interval = pf.Interval
-			entitlement.Quota = int64(pf.Quota) // TODO: align these
+			entitlement.Quota = pf.Quota
 
 			if err := c.DB().Save(entitlement); err != nil {
 				return err

@@ -15,7 +15,7 @@ type CreatePlanItemRequest struct {
 	PublicTitle       string `json:"public_title"`
 	PublicDescription string `json:"public_description"`
 	Interval          string `json:"interval"`
-	Quota             int    `json:"quota"`
+	Quota             int64  `json:"quota"`
 	Rollover          int    `json:"rollover"`
 }
 
