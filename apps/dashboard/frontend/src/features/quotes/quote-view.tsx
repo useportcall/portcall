@@ -70,8 +70,9 @@ export function QuoteView() {
         </AnimatedSuspense>
         <div className="flex flex-row justify-end gap-2">
           <SaveIndicator />
-          <VoidQuoteButton id={quote.data.id} />
           <PreviewQuoteButton id={quote.data.id} />
+          <Separator orientation="vertical" />
+          <VoidQuoteButton id={quote.data.id} />
           <SendQuoteButton id={quote.data.id} />
         </div>
       </div>

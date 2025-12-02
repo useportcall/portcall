@@ -26,6 +26,10 @@ export function SendQuoteButton(props: { id: string }) {
     return "Send";
   }, [quote]);
 
+  const isDisabled = useMemo(() => {
+    return ["accepted", "voided", "declined"].includes(quote.data.status);
+  }, [quote]);
+
   return (
     <Dialog
       open={open}
@@ -39,7 +43,9 @@ export function SendQuoteButton(props: { id: string }) {
       }}
     >
       <DialogTrigger asChild>
-        <Button size="sm">{buttonTitle}</Button>
+        <Button size="sm" disabled={isDisabled}>
+          {buttonTitle}
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -81,14 +87,16 @@ export function VoidQuoteButton(props: { id: string }) {
   const { data: quote } = useGetQuote(props.id);
   const { mutateAsync: voidQuote } = useVoidQuote(props.id);
 
+  const isDisabled = useMemo(() => {
+    return ["accepted", "voided", "declined", "draft"].includes(
+      quote.data.status
+    );
+  }, [quote]);
+
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={quote.data.status === "draft"}
-        >
+        <Button variant="outline" size="sm" disabled={isDisabled}>
           Void
         </Button>
       </DialogTrigger>
