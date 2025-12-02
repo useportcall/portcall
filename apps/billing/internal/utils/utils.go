@@ -1,6 +1,8 @@
 package utils
 
-import "github.com/useportcall/portcall/libs/go/dbx/models"
+import (
+	"github.com/useportcall/portcall/libs/go/dbx/models"
+)
 
 func IsPricingMetered(pricingModel string) bool {
 	switch pricingModel {

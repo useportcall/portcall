@@ -5,6 +5,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/useportcall/portcall/apps/billing/internal/utils"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/qx/server"
@@ -35,7 +36,10 @@ func CreateSubscription(c server.IContext) error {
 		return err
 	}
 
-	nextReset := calculateNextReset(plan.Interval)
+	err, nextReset := utils.CalculateNextReset(plan.Interval, time.Now())
+	if err != nil {
+		return err
+	}
 
 	subscription := models.Subscription{
 		PublicID:             dbx.GenPublicID("sub"),
@@ -86,18 +90,4 @@ func setRollback(dest *models.Subscription, src *models.Plan, db dbx.IORM) error
 	}
 
 	return nil
-}
-
-// TODO: fix
-func calculateNextReset(interval string) time.Time {
-	var nextReset time.Time
-	switch interval {
-	case "week":
-		nextReset = time.Now().AddDate(0, 0, 7)
-	case "month":
-		nextReset = time.Now().AddDate(0, 1, 0)
-	case "year":
-		nextReset = time.Now().AddDate(1, 0, 0)
-	}
-	return nextReset
 }
