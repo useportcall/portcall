@@ -16,6 +16,16 @@ import (
 
 func SubmitQuote(c *routerx.Context) {
 	quoteAppURL := os.Getenv("QUOTE_APP_URL")
+	if quoteAppURL == "" {
+		c.ServerError("QUOTE_APP_URL is not set", nil)
+		return
+	}
+
+	checkoutAppURL := os.Getenv("CHECKOUT_APP_URL")
+	if checkoutAppURL == "" {
+		c.ServerError("CHECKOUT_APP_URL is not set", nil)
+		return
+	}
 
 	var quote models.Quote
 	if err := c.DB().FindFirst(&quote, "public_id = ?", c.Param("id")); err != nil {
@@ -137,8 +147,8 @@ func SubmitQuote(c *routerx.Context) {
 		ExternalPublicKey:    connection.PublicKey,
 		ExternalSessionID:    sessionID,
 		ExternalProvider:     connection.Source,
-		CancelURL:            &cancelURL,   // TODO: add cancel url to body
-		RedirectURL:          &redirectURL, // TODO: add redirect url to body
+		CancelURL:            &cancelURL,
+		RedirectURL:          &redirectURL,
 		CompanyAddressID:     company.BillingAddressID,
 	}
 	if err := c.DB().Create(checkoutSession); err != nil {
@@ -147,6 +157,5 @@ func SubmitQuote(c *routerx.Context) {
 	}
 
 	// redirect to checkout view
-	checkoutAppURL := os.Getenv("CHECKOUT_APP_URL")
-	c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s?id=%s", checkoutAppURL, checkoutSession.PublicID)) // TODO: use real frontend url
+	c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s?id=%s", checkoutAppURL, checkoutSession.PublicID))
 }
