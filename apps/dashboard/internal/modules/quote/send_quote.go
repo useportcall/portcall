@@ -1,6 +1,9 @@
 package quote
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
@@ -9,6 +12,12 @@ import (
 func SendQuote(c *routerx.Context) {
 	id := c.Param("id")
 	response := new(apix.Quote)
+
+	quoteAppURL := os.Getenv("QUOTE_APP_URL")
+	if quoteAppURL == "" {
+		c.ServerError("QUOTE_APP_URL is not set", nil)
+		return
+	}
 
 	var quote models.Quote
 	if err := c.DB().GetForPublicID(c.AppID(), id, &quote); err != nil {
@@ -49,7 +58,7 @@ func SendQuote(c *routerx.Context) {
 
 	// Trigger send quote email
 	if err := c.Queue().Enqueue("send_quote_email", map[string]any{
-		"QuoteURL":     "http://localhost:8085/quotes/" + quote.PublicID, // TODO: Use actual frontend URL
+		"QuoteURL":     fmt.Sprintf("%s/quotes/%s", quoteAppURL, quote.PublicID),
 		"CompanyName":  company.Name,
 		"CustomerName": user.Name,
 	}, "email_queue"); err != nil {
