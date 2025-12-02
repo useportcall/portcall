@@ -59,3 +59,27 @@ func CalculateTotal(
 		return 0
 	}
 }
+
+func GetItemUnitAmount(si models.SubscriptionItem) int64 {
+	switch si.PricingModel {
+	case "fixed", "unit":
+		return si.UnitAmount
+	case "tiered":
+		if si.Tiers != nil && len(*si.Tiers) > 0 {
+			return int64((*si.Tiers)[0].Amount)
+		}
+		return 0
+	case "block":
+		if si.Tiers != nil && len(*si.Tiers) > 0 {
+			return int64((*si.Tiers)[0].Amount)
+		}
+		return 0
+	case "volume":
+		if si.Tiers != nil && len(*si.Tiers) > 0 {
+			return int64((*si.Tiers)[0].Amount)
+		}
+		return 0
+	default:
+		return 0
+	}
+}

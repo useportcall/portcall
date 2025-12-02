@@ -52,7 +52,7 @@ func CreateInvoiceItems(c server.IContext) error {
 			Description:        si.Description,
 			PricingModel:       si.PricingModel,
 			Total:              utils.CalculateTotal(si.PricingModel, si.UnitAmount, si.Quantity, si.Usage, si.Tiers),
-			Amount:             getItemUnitAmount(si),
+			Amount:             utils.GetItemUnitAmount(si),
 		}
 		if err := c.DB().Create(invoiceItem); err != nil {
 			return err
@@ -69,31 +69,4 @@ func CreateInvoiceItems(c server.IContext) error {
 	}
 
 	return nil
-}
-
-func getItemUnitAmount(si models.SubscriptionItem) int64 {
-	switch si.PricingModel {
-	case "fixed":
-		return si.UnitAmount
-	case "unit":
-		return si.UnitAmount
-	case "tiered":
-		if si.Tiers == nil {
-			return 0
-		}
-
-		if len(*si.Tiers) > 0 {
-			return int64((*si.Tiers)[0].Amount)
-		}
-
-		return 0 // or handle no tiers case
-	case "block":
-		// TODO: implement block pricing logic
-		return 0
-	case "volume":
-		// TODO: implement volume pricing logic
-		return 0
-	default:
-		return 0 // or handle unknown pricing model
-	}
 }
