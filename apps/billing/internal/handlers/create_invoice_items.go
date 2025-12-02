@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 
+	"github.com/useportcall/portcall/apps/billing/internal/utils"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/qx/server"
@@ -50,7 +51,7 @@ func CreateInvoiceItems(c server.IContext) error {
 			Title:              si.Title,
 			Description:        si.Description,
 			PricingModel:       si.PricingModel,
-			Total:              calculateTotal(si.PricingModel, si.UnitAmount, si.Quantity, si.Usage),
+			Total:              utils.CalculateTotal(si.PricingModel, si.UnitAmount, si.Quantity, si.Usage, si.Tiers),
 			Amount:             getItemUnitAmount(si),
 		}
 		if err := c.DB().Create(invoiceItem); err != nil {
@@ -68,32 +69,6 @@ func CreateInvoiceItems(c server.IContext) error {
 	}
 
 	return nil
-}
-
-// TODO: look into more robust way to calculate large totals
-func calculateTotal(pricingModel string, unitAmount int64, quantity int32, usage uint) int64 {
-	switch pricingModel {
-	case "fixed":
-		return int64(unitAmount) * int64(quantity)
-	case "unit":
-		return int64(unitAmount) * int64(usage) * int64(quantity)
-	case "tiered":
-		// for _, tier := range price.TieredPricing.Tiers {
-		// 	if tier.End == nil || *tier.End >= usage {
-		// 		return int64(tier.Amount) * int64(quantity) * int64(usage)
-		// 	}
-		// }
-
-		return 0 //TODO: or handle the case where no tier matches
-	case "block":
-		// TODO: implement block pricing logic
-		return 0
-	case "volume":
-		// TODO: implement volume pricing logic
-		return 0
-	default:
-		return 0 // TODO: or handle unknown pricing model
-	}
 }
 
 func getItemUnitAmount(si models.SubscriptionItem) int64 {
