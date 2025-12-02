@@ -80,8 +80,8 @@ export default function OrderSummary({
           <div className="flex flex-col gap-2 w-full">
             <p className="font-medium">Features</p>
             <ul>
-              {!plan.features.length && <li>No features included</li>}
-              {plan?.features.map((feature) => (
+              {!plan?.features?.length && <li>No features included</li>}
+              {plan?.features?.map((feature) => (
                 <li key={feature.id}>
                   <span className="flex gap-1 justify-start items-center">
                     <span className="w-4 h-4">
