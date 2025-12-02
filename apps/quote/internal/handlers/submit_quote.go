@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -14,6 +15,8 @@ import (
 )
 
 func SubmitQuote(c *routerx.Context) {
+	quoteAppURL := os.Getenv("QUOTE_APP_URL")
+
 	var quote models.Quote
 	if err := c.DB().FindFirst(&quote, "public_id = ?", c.Param("id")); err != nil {
 		c.String(http.StatusNotFound, "quote not found")
@@ -63,10 +66,17 @@ func SubmitQuote(c *routerx.Context) {
 	}
 
 	if !quote.DirectCheckout {
+		quote.Status = "accepted"
+
+		if err := c.DB().Save(&quote); err != nil {
+			c.ServerError("error saving quote with signature", err)
+			return
+		}
+
 		// send quote accepted confirmation email
 		if err := c.Queue().Enqueue("send_quote_accepted_confirmation_email", map[string]any{
 			"RecipientName": user.Name,
-			"QuoteLink":     fmt.Sprintf("http://localhost:8010/quotes/%s", quote.PublicID),
+			"QuoteLink":     fmt.Sprintf("%s/quotes/%s", quoteAppURL, quote.PublicID),
 			"Year":          time.Now().Year(),
 		}, "email_queue"); err != nil {
 			c.ServerError("error enqueueing quote accepted confirmation email", err)
@@ -78,7 +88,7 @@ func SubmitQuote(c *routerx.Context) {
 	}
 
 	var config models.AppConfig
-	if err := c.DB().FindFirst(&config, "app_id = ?", c.AppID()); err != nil {
+	if err := c.DB().FindFirst(&config, "app_id = ?", quote.AppID); err != nil {
 		c.ServerError("error retrieving app config for app", err)
 	}
 
@@ -114,19 +124,22 @@ func SubmitQuote(c *routerx.Context) {
 		return
 	}
 
+	cancelURL := fmt.Sprintf("%s/quotes/%s/cancel", quoteAppURL, quote.PublicID)
+	redirectURL := fmt.Sprintf("%s/quotes/%s/success", quoteAppURL, quote.PublicID)
+
 	checkoutSession := &models.CheckoutSession{
 		PublicID:             dbx.GenPublicID("cs"),
 		ExpiresAt:            time.Now().Add(time.Hour * 24 * 2),
-		AppID:                c.AppID(),
+		AppID:                quote.AppID,
 		UserID:               user.ID,
 		PlanID:               plan.ID,
 		ExternalClientSecret: clientSecret,
 		ExternalPublicKey:    connection.PublicKey,
 		ExternalSessionID:    sessionID,
 		ExternalProvider:     connection.Source,
-		// CancelURL:            &body.CancelURL, // TODO: add cancel url to body
-		// RedirectURL:          &body.RedirectURL, // TODO: add redirect url to body
-		CompanyAddressID: company.BillingAddressID,
+		CancelURL:            &cancelURL,   // TODO: add cancel url to body
+		RedirectURL:          &redirectURL, // TODO: add redirect url to body
+		CompanyAddressID:     company.BillingAddressID,
 	}
 	if err := c.DB().Create(checkoutSession); err != nil {
 		c.ServerError("error creating checkout session", err)
@@ -134,5 +147,6 @@ func SubmitQuote(c *routerx.Context) {
 	}
 
 	// redirect to checkout view
-	c.Redirect(http.StatusSeeOther, fmt.Sprintf("http://localhost:8010?id=%s", checkoutSession.PublicID)) // TODO: use real frontend url
+	checkoutAppURL := os.Getenv("CHECKOUT_APP_URL")
+	c.Redirect(http.StatusSeeOther, fmt.Sprintf("%s?id=%s", checkoutAppURL, checkoutSession.PublicID)) // TODO: use real frontend url
 }
