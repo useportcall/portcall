@@ -132,7 +132,7 @@ function ProjectSelect() {
         value={app.id || undefined}
         onValueChange={(value) => app.setId(value)}
       >
-        <SelectTrigger className="overflow-auto my-2">
+        <SelectTrigger className="my-2">
           <SelectValue />
         </SelectTrigger>
         <SelectContent>
