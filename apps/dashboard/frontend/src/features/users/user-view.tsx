@@ -32,15 +32,13 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@radix-ui/react-tooltip";
-import { ArrowLeft, Loader2 } from "lucide-react";
+import { ArrowLeft, Edit, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { UserInvoices } from "./components/user-invoices";
 import { Address } from "@/models/address";
 
 export default function UserView() {
-  const { id } = useParams();
-  const { data: user } = useGetUser(id!);
   const navigate = useNavigate();
 
   return (
@@ -251,13 +249,18 @@ function UserEntitlements() {
   const { id } = useParams();
   const { data: entitlements } = useListBasicEntitlements({ userId: id! });
 
+  console.log(entitlements);
+
   if (!entitlements) {
     return <></>;
   }
 
   return (
     <div className="space-y-4">
-      <h2 className="text-xl font-semibold">Entitlements</h2>
+      <div className="flex flex-row justify-between items-center">
+        <h2 className="text-xl font-semibold">Entitlements</h2>
+        <EditUserEntitlements />
+      </div>
       <p className="text-sm text-slate-400">
         See and manage features this user is entitled to based on their
         subscription.
@@ -266,11 +269,41 @@ function UserEntitlements() {
         {!entitlements.data.length && <p>-</p>}
         {entitlements.data.map((entitlement) => (
           <Badge variant={"outline"} key={entitlement.id}>
-            {entitlement.feature}
+            {entitlement.id}
           </Badge>
         ))}
       </div>
     </div>
+  );
+}
+
+function EditUserEntitlements() {
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="size-[22px] rounded-md hover:bg-slate-100"
+        >
+          <Edit className="" />
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="lg:min-w-2xl h-96">
+        <DialogHeader>
+          <DialogTitle>Edit Entitlements</DialogTitle>
+          <DialogDescription>
+            Modify the entitlements for this user.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <DialogClose>
+            <Button variant="outline">Cancel</Button>
+          </DialogClose>
+          <Button>Save Changes</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
