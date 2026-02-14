@@ -1,6 +1,8 @@
 package account
 
 import (
+	"strings"
+
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
@@ -19,13 +21,8 @@ func GetAccount(c *routerx.Context) {
 
 		account.Email = claims.Email
 
-		if claims.GivenName != nil {
-			account.FirstName = *claims.GivenName
-		}
-
-		if claims.FamilyName != nil {
-			account.LastName = *claims.FamilyName
-		}
+		account.FirstName = claimValue(claims.GivenName)
+		account.LastName = claimValue(claims.FamilyName)
 
 		if err := c.DB().Create(account); err != nil {
 			c.ServerError("Internal server error", err)
@@ -33,5 +30,34 @@ func GetAccount(c *routerx.Context) {
 		}
 	}
 
+	givenName := claimValue(claims.GivenName)
+	familyName := claimValue(claims.FamilyName)
+
+	shouldUpdate := false
+	if account.FirstName == "" && givenName != "" {
+		account.FirstName = givenName
+		shouldUpdate = true
+	}
+
+	if account.LastName == "" && familyName != "" {
+		account.LastName = familyName
+		shouldUpdate = true
+	}
+
+	if shouldUpdate {
+		if err := c.DB().Save(account); err != nil {
+			c.ServerError("Internal server error", err)
+			return
+		}
+	}
+
 	c.OK(new(apix.Account).Set(account))
+}
+
+func claimValue(value *string) string {
+	if value == nil {
+		return ""
+	}
+
+	return strings.TrimSpace(*value)
 }

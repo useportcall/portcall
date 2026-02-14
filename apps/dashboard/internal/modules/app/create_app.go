@@ -1,27 +1,36 @@
 package app
 
 import (
-	"github.com/useportcall/portcall/apps/dashboard/internal/utils"
+	"log"
+
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
 func CreateApp(c *routerx.Context) {
-	// find account for auth email, TODO: abstract FindOrCreate?
 	var account models.Account
 	if err := c.DB().FindFirst(&account, "email = ?", c.AuthEmail()); err != nil {
-		if dbx.IsRecordNotFoundError(err) {
-			account = models.Account{}
-			account.Email = c.AuthEmail()
-			if err := c.DB().Create(&account); err != nil {
-				c.ServerError("Failed to create account", err)
-				return
-			}
-		} else {
+		if !dbx.IsRecordNotFoundError(err) {
 			c.ServerError("Failed to find account", err)
 			return
 		}
+		account.Email = c.AuthEmail()
+		if err := c.DB().Create(&account); err != nil {
+			c.ServerError("Failed to create account", err)
+			return
+		}
+		log.Printf("[ACCOUNT_CREATED] account_id=%d source=dashboard_create_app", account.ID)
+	}
+
+	var count int64
+	if err := c.DB().Count(&count, &models.App{}, "account_id = ?", account.ID); err != nil {
+		c.ServerError("Failed to check existing apps", err)
+		return
+	}
+	if count > 0 {
+		c.BadRequest("You can only create one project")
+		return
 	}
 
 	var body CreateAppRequest
@@ -29,67 +38,37 @@ func CreateApp(c *routerx.Context) {
 		c.BadRequest("Invalid request body")
 		return
 	}
-
 	if body.Name == "" {
 		c.BadRequest("App name is required")
 		return
 	}
 
-	app := new(models.App)
-	app.PublicID = utils.GenPublicID("app")
-	app.AccountID = account.ID
-	app.Name = body.Name
-	app.PublicApiKey = utils.GenPublicID("pk")
-	if err := c.DB().Create(app); err != nil {
+	var result App
+	var appsToRegister []*models.App
+	if err := c.DB().Txn(func(txn dbx.IORM) error {
+		testApp, err := createAppInstance(txn, account.ID, body.Name, false)
+		if err != nil {
+			return err
+		}
+		liveApp, err := createAppInstance(txn, account.ID, body.Name, true)
+		if err != nil {
+			return err
+		}
+		appsToRegister = append(appsToRegister, testApp, liveApp)
+		result = *new(App).Set(testApp)
+		return nil
+	}); err != nil {
 		c.ServerError("Failed to create app", err)
 		return
 	}
 
-	// TODO: explore async job for setup tasks
-
-	// company address
-	address := new(models.Address)
-	address.AppID = app.ID
-	address.Line1 = "123 Main St"
-	address.City = "Anytown"
-	address.State = "CA"
-	address.PostalCode = "12345"
-	address.Country = "USA"
-	if err := c.DB().Create(address); err != nil {
-		c.ServerError("Failed to create address", err)
-		return
+	sendAccountSignupNotification(account.Email, body.Name, appsToRegister)
+	for _, app := range appsToRegister {
+		log.Printf("Enqueueing df registration for app %s", app.PublicID)
+		if err := c.Queue().Enqueue("df_create_user", map[string]any{"app_id": app.ID}, "billing_queue"); err != nil {
+			log.Printf("Error enqueueing df_create_user for app %s: %v", app.PublicID, err)
+		}
 	}
 
-	// company
-	company := new(models.Company)
-	company.AppID = app.ID
-	company.BillingAddressID = address.ID
-	company.Name = "Default Company"
-	company.Email = "default@example.com"
-	company.VATNumber = "123456789"
-	if err := c.DB().Create(company); err != nil {
-		c.ServerError("Failed to create company", err)
-		return
-	}
-
-	// connection
-	connection := new(models.Connection)
-	connection.AppID = app.ID
-	connection.Source = "local"
-	connection.Name = "Local Payment Provider"
-	if err := c.DB().Create(connection); err != nil {
-		c.ServerError("Failed to create connection", err)
-		return
-	}
-
-	// app config
-	appConfig := new(models.AppConfig)
-	appConfig.AppID = app.ID
-	appConfig.DefaultConnectionID = connection.ID
-	if err := c.DB().Create(appConfig); err != nil {
-		c.ServerError("Failed to create app config", err)
-		return
-	}
-
-	c.OK(new(App).Set(app))
+	c.OK(result)
 }

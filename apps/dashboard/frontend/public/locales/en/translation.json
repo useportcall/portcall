@@ -1,0 +1,466 @@
+{
+  "welcome": "Welcome to Portcall Dashboard",
+  "language": "Language",
+  "english": "English",
+  "japanese": "Japanese",
+  "common": {
+    "cancel": "Cancel",
+    "close": "Close",
+    "loading": "Loading...",
+    "processing": "Processing...",
+    "saving": "Saving..."
+  },
+  "app_selector": {
+    "aria_label": "App selector",
+    "placeholder": "Select an app",
+    "apps_label": "Apps",
+    "live": "Live",
+    "test": "Test",
+    "create_title": "Create a new app",
+    "create_description": "Enter a name for your new app to get started.",
+    "create_placeholder": "My new app",
+    "creating": "Creating...",
+    "create_action": "Create app",
+    "create_option": "Create new app"
+  },
+  "home": {
+    "greeting": "Hey {{name}}!",
+    "greeting_anon": "Hey there!",
+    "subtitle": "Manage plans, users, subscriptions, and billing with live data.",
+    "stats": {
+      "users": "Users",
+      "users_meta": "{{count}} with subscriptions",
+      "plans": "Plans",
+      "plans_meta": "Plans available to subscribe",
+      "subscriptions": "Subscriptions",
+      "subscriptions_meta": "{{count}} currently active",
+      "health": "Health",
+      "health_meta": "Active subscription rate"
+    },
+    "recent_users": "Recent users",
+    "recent_subscriptions": "Recent subscriptions",
+    "no_users": "No users yet.",
+    "no_subscriptions": "No subscriptions yet.",
+    "quick_start": {
+      "title": "Quick start panel",
+      "plans": "Add or manage plans",
+      "users": "Add or manage users",
+      "company": "Add your company details",
+      "docs": "Explore our docs"
+    }
+  },
+  "sidebar": {
+    "home": "Home",
+    "users": "Users",
+    "plans": "Plans",
+    "quotes": "Quotes",
+    "subscriptions": "Subscriptions",
+    "invoices": "Invoices",
+    "company": "Company details",
+    "integrations": "Payment integrations",
+    "developer": "Developer",
+    "billing": "Billing",
+    "expand": "Expand sidebar",
+    "collapse": "Collapse sidebar"
+  },
+  "views": {
+    "error": {
+      "title": "Oops! Something went wrong.",
+      "description": "Sorry, an unexpected error has occurred."
+    },
+    "invoices": {
+      "title": "Invoices",
+      "description": "Review and manage issued invoices here.",
+      "table": {
+        "empty": "No invoice issued yet.",
+        "no_results": "No invoices match these filters.",
+        "search": "Search invoice, recipient email, or user ID...",
+        "status_filter_label": "Status",
+        "from_date_label": "Issued from",
+        "to_date_label": "Issued to",
+        "filter_all": "All statuses",
+        "reset_filters": "Reset",
+        "invoice_number": "Invoice number",
+        "total": "Total",
+        "customer": "Customer",
+        "status": "Status",
+        "issued": "Issued",
+        "view_invoice": "View invoice",
+        "pdf": "PDF",
+        "previous": "Previous",
+        "next": "Next",
+        "rows_per_page": "Rows per page",
+        "page": "Page {{page}} of {{totalPages}} ({{total}} invoices)"
+      }
+    },
+    "subscriptions": {
+      "title": "Subscriptions",
+      "description": "Review and manage subscriptions here.",
+      "table": {
+        "empty": "No subscriptions created yet.",
+        "no_results": "No subscriptions match this search.",
+        "search": "Find subscription by user email...",
+        "status_filter_label": "Status",
+        "filter_all": "All statuses",
+        "user": "User",
+        "plan": "Plan",
+        "status": "Status",
+        "created": "Created",
+        "next_reset": "Next reset",
+        "cancel": "Cancel subscription",
+        "previous": "Previous",
+        "next": "Next",
+        "rows_per_page": "Rows per page",
+        "page": "Page {{page}} of {{totalPages}} ({{total}} subscriptions)"
+      }
+    },
+    "subscription": {
+      "back": "Back to subscriptions",
+      "heading": "Subscription for {{email}}",
+      "description": "Find more details about this subscription here.",
+      "summary": {
+        "title": "Current Subscription",
+        "subscription_id": "Subscription ID",
+        "related_plan": "Related plan",
+        "status": "Subscription status",
+        "next_billing_date": "Next billing date"
+      },
+      "billing_meters": {
+        "title": "Current Billing Period Usage",
+        "description": "Track metered feature usage and projected costs until the next billing date.",
+        "projected_total": "Projected Total",
+        "empty": "No metered features for this subscription."
+      },
+      "invoices": {
+        "title": "Invoices for this subscription",
+        "empty": "No invoices tied to this subscription issued yet."
+      }
+    },
+    "users": {
+      "title": "Users",
+      "description": "Manage all your users' plans & entitlements here.",
+      "table": {
+        "search": "Search by email or name...",
+        "email": "Email",
+        "name": "Name",
+        "status": "Status",
+        "payment": "Payment",
+        "subscription_filter": "Subscription",
+        "payment_filter": "Payment method",
+        "subscription_filter_label": "Subscription status",
+        "payment_filter_label": "Payment method on file",
+        "subscription_option_all": "Any subscription state",
+        "subscription_option_true": "Has active subscription",
+        "subscription_option_false": "No active subscription",
+        "payment_option_all": "Any payment method state",
+        "payment_option_true": "Payment method added",
+        "payment_option_false": "No payment method",
+        "reset_filters": "Reset",
+        "filter_value_all": "All",
+        "filter_value_true": "Yes",
+        "filter_value_false": "No",
+        "previous": "Previous",
+        "next": "Next",
+        "rows_per_page": "Rows per page",
+        "page": "Page {{page}} of {{totalPages}} ({{total}} users)",
+        "empty": "No users added yet."
+      },
+      "create": {
+        "title": "Add new user",
+        "description": "Connect an existing user using their email address.",
+        "action": "Add user",
+        "email": "Email",
+        "email_placeholder": "Add email"
+      }
+    },
+    "user": {
+      "back": "Back to users",
+      "sections": {
+        "info": "User Information"
+      },
+      "fields": {
+        "email": "Email",
+        "name": "Name",
+        "name_placeholder": "Add name...",
+        "billing_address": "Billing address",
+        "billing_address_empty": "No billing address added."
+      },
+      "subscription": {
+        "title": "Current Subscription",
+        "no_active": "No active subscription",
+        "id": "Subscription ID",
+        "status": "Subscription status",
+        "reset_date": "Reset date",
+        "manage": "Manage subscription",
+        "subscribe_action": "Subscribe to Plan",
+        "subscribe_title": "Subscribe User to Plan",
+        "subscribe_description": "Select a plan to subscribe this user to.",
+        "search_plans": "Search plans...",
+        "no_plans_found": "No plans found",
+        "no_plans_hint": "Create a plan in the Plans section first",
+        "subscribe_confirm": "Subscribe",
+        "cancel_action": "Cancel Subscription",
+        "cancel_title": "Cancel Subscription",
+        "cancel_description": "Are you sure you want to cancel this user's subscription?",
+        "cancel_no": "No",
+        "cancel_yes": "Yes, cancel",
+        "apply_discount_soon": "Apply discount (coming soon!)",
+        "change_plan_soon": "Change plan (coming soon!)"
+      },
+      "payment_link": {
+        "open_button": "Create Payment Link",
+        "title": "Create Payment Link",
+        "description": "Generate a shareable checkout link for this user.",
+        "plan_label": "Plan",
+        "plan_placeholder": "Select a published plan",
+        "expires_label": "Expires in (days)",
+        "share_url": "Share this URL:",
+        "create_button": "Create link",
+        "done_button": "Done"
+      },
+      "payment_health": {
+        "title": "Payment health",
+        "subscription_label": "Subscription",
+        "latest_invoice_label": "Latest invoice",
+        "invoice_none": "none",
+        "no_invoices_label": "No invoices yet",
+        "no_invoices_hint": "No collection attempts have been recorded for this user.",
+        "collection_failed_label": "Collection failed",
+        "collection_failed_hint": "Payment retries are exhausted. Update payment details and resume billing.",
+        "action_required_label": "Action required",
+        "action_required_hint": "Recent payment failed and retries are in progress.",
+        "upcoming_charge_label": "Upcoming charge",
+        "upcoming_charge_hint": "Invoice is open and waiting for collection.",
+        "healthy_label": "Healthy",
+        "healthy_hint": "Most recent invoice was collected successfully."
+      },
+      "entitlements": {
+        "title": "Entitlements",
+        "description": "Features this user is entitled to based on their subscription.",
+        "empty": "No entitlements"
+      },
+      "metered_features": {
+        "title": "Metered features",
+        "description": "Usage-based features with quotas and limits.",
+        "empty": "No metered features",
+        "used": "{{count}} used",
+        "resets": "Resets: {{date}}"
+      },
+      "billing_meters": {
+        "title": "Billing Meters",
+        "description": "Track metered feature usage and manage billing for this period.",
+        "projected_cost": "Projected Cost",
+        "empty": "No metered billing for this user.",
+        "set": "Set",
+        "click_to_edit": "Click to edit",
+        "reset_title": "Reset Billing Meter",
+        "reset_description": "Reset usage to zero? This changes billing for the current period.",
+        "reset_confirm": "Reset to Zero",
+        "pricing_per_unit": "{{amount}} per unit",
+        "pricing_tiered": "tiered pricing",
+        "pricing_block": "block pricing",
+        "pricing_volume": "volume pricing"
+      },
+      "invoices": {
+        "title": "User Invoices",
+        "empty": "No invoices issued for this user yet."
+      }
+    },
+    "plans": {
+      "title": "Plans",
+      "description": "Manage existing plans or add new plans here.",
+      "empty": "No plans found.",
+      "table": {
+        "name": "Name",
+        "group": "Group",
+        "fixed_charge": "Fixed charge",
+        "status": "Status",
+        "previous": "Previous",
+        "next": "Next",
+        "rows_per_page": "Rows per page",
+        "page": "Page {{page}} of {{totalPages}} ({{total}} plans)"
+      }
+    },
+    "plan": {
+      "back": "Back to plans",
+      "loading": "Loading plan...",
+      "sections": {
+        "fixed_price": "Fixed price",
+        "other": "Other properties"
+      }
+    },
+    "quotes": {
+      "title": "Quotes",
+      "description": "Manage existing quotes or add new quotes here.",
+      "empty": "No quotes found.",
+      "table": {
+        "name": "Name",
+        "status": "Status",
+        "status_filter_label": "Status",
+        "filter_all": "All statuses",
+        "fixed_charge": "Fixed charge",
+        "previous": "Previous",
+        "next": "Next",
+        "rows_per_page": "Rows per page",
+        "page": "Page {{page}} of {{totalPages}} ({{total}} quotes)"
+      }
+    },
+    "quote": {
+      "back": "Back to quotes"
+    },
+    "company": {
+      "title": "Company details",
+      "description": "Review company details here.",
+      "sections": {
+        "branding": "Branding",
+        "general": "General information",
+        "address": "Registered business address",
+        "tax": "VAT / sales tax information",
+        "contact": "Contact details"
+      },
+      "fields": {
+        "registered_name": "Registered business name",
+        "dba": "Doing business as (DBA)",
+        "vat": "VAT number",
+        "first_name": "First name",
+        "last_name": "Last name",
+        "phone": "Contact phone number"
+      },
+      "placeholders": {
+        "company_name": "Company name",
+        "optional": "Optional"
+      },
+      "address": {
+        "line1": "Address line 1",
+        "line2": "Address line 2",
+        "city": "City",
+        "state": "State",
+        "postal_code": "Postal code",
+        "country": "Country"
+      }
+    },
+    "integrations": {
+      "title": "Payment Integrations",
+      "description": "Connect payment providers to accept payments from your customers.",
+      "connected_providers": "Connected Providers"
+    },
+    "developer": {
+      "title": "Developer",
+      "public_key": "Public key",
+      "secret_keys": "Secret keys",
+      "secret_key_number": "Secret key #{{index}}",
+      "disable": "Disable",
+      "disabled": "Disabled",
+      "create_secret": "Create new secret key",
+      "secret_created_title": "API secret created",
+      "secret_created_description": "Copy and store this key somewhere safe. Once this message is closed you won't be able to see this key again."
+    },
+    "usage": {
+      "title": "Billing",
+      "description_live": "Monitor your resource usage and manage your plan",
+      "description_test": "Monitor your resource usage and plan limits",
+      "quotas": {
+        "users": {
+          "title": "Users",
+          "description": "Total users created in your app"
+        },
+        "subscriptions": {
+          "title": "Subscriptions",
+          "description": "Active subscriptions for your users"
+        },
+        "unlimited": "Unlimited",
+        "of": "of {{count}}",
+        "exceeded": "Quota exceeded - please upgrade your plan",
+        "approaching": "Approaching limit - {{count}} remaining"
+      },
+      "messages": {
+        "upgrade_success_title": "Upgrade successful!",
+        "upgrade_success_body": "Your plan has been upgraded to Pro. Changes may take a few seconds to propagate.",
+        "upgrade_cancelled": "Upgrade was cancelled. You can try again anytime.",
+        "downgrade_scheduled_title": "Downgrade scheduled.",
+        "downgrade_scheduled_body": "Your plan will change to Free at your next billing cycle.",
+        "downgrade_complete_title": "Downgrade complete.",
+        "downgrade_complete_body": "Your plan has been changed to Free. Changes may take a few seconds to propagate.",
+        "refresh": "Refresh page"
+      },
+      "current_plan": {
+        "title": "Current Plan",
+        "pro_description": "Unlimited usage for your growing business",
+        "free_description": "Perfect for getting started with Portcall",
+        "pro_badge": "Pro",
+        "active_badge": "Active",
+        "upgrade_title": "Upgrade to Pro",
+        "upgrade_description": "Get unlimited users and subscriptions for $49/month",
+        "upgrade_action": "Upgrade",
+        "upgrade_failed": "Failed to start upgrade. Please try again.",
+        "refresh_upgrade": "Please refresh the page to enable upgrade options.",
+        "downgrade_title": "Downgrade to Free",
+        "downgrade_description": "Switch back to the free tier with limited usage",
+        "downgrade_action": "Downgrade",
+        "downgrade_failed": "Failed to downgrade. Please try again."
+      },
+      "pending": {
+        "next_cycle": "Next billing cycle:",
+        "badge": "Pending change",
+        "dialog_title": "Scheduled Plan Change",
+        "dialog_description": "Your subscription has a scheduled change that will take effect at the next billing cycle.",
+        "current_plan": "Current Plan",
+        "scheduled_plan": "Scheduled Plan",
+        "effective": "Effective",
+        "impact_title": "What will change:"
+      },
+      "upgrade_dialog": {
+        "title": "Confirm Upgrade",
+        "description": "Are you sure you want to upgrade to the Pro tier? You will be redirected to complete payment.",
+        "after_title": "After upgrading:",
+        "after_users": "Unlimited users",
+        "after_subscriptions": "Unlimited subscriptions",
+        "after_support": "Priority support",
+        "after_price": "$49/month billed monthly",
+        "confirm": "Confirm Upgrade"
+      },
+      "downgrade_dialog": {
+        "title": "Confirm Downgrade",
+        "description": "Are you sure you want to downgrade to the Free tier? This will reduce your quota limits for users and subscriptions.",
+        "after_title": "After downgrading:",
+        "after_users": "Your user limit will be reduced",
+        "after_subscriptions": "Your subscription limit will be reduced",
+        "after_data": "Existing data will not be deleted",
+        "after_upgrade_again": "You can upgrade again at any time",
+        "confirm": "Confirm Downgrade"
+      },
+      "address": {
+        "title": "Billing Address",
+        "description": "Address used for invoices and billing",
+        "add_title": "Add Billing Address",
+        "edit_title": "Edit Billing Address",
+        "dialog_description": "This address will be used for your invoices and billing communications.",
+        "save_action": "Save Address",
+        "empty": "No billing address added yet.",
+        "fields": {
+          "line1": "Address Line 1 *",
+          "line2": "Address Line 2",
+          "line2_placeholder": "Apt, Suite, etc. (optional)",
+          "city": "City *",
+          "state": "State / Province",
+          "postal_code": "Postal Code *",
+          "country": "Country *",
+          "country_placeholder": "United States"
+        }
+      },
+      "invoices": {
+        "title": "Invoices",
+        "description": "View and download your billing invoices",
+        "empty": "No invoices yet",
+        "table": {
+          "invoice": "Invoice",
+          "amount": "Amount",
+          "status": "Status",
+          "date": "Date",
+          "actions": "Actions",
+          "view": "View"
+        }
+      }
+    }
+  }
+}

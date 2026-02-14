@@ -1,122 +1,76 @@
 import EmptyTable from "@/components/empty-table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { TablePagination } from "@/components/table/table-pagination";
 import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import { Table, TableBody, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { useClientPagination } from "@/hooks/use-client-pagination";
 import { useListInvoices } from "@/hooks/api/invoices";
-import { cn } from "@/lib/utils";
-import { Eye } from "lucide-react";
-import { Link } from "react-router-dom";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { InvoiceListFilters } from "./invoice-list-filters";
+import { matchesInvoice } from "./invoice-list-match";
+import { InvoiceListRow } from "./invoice-list-row";
 
 export function InvoiceListTable() {
+  const { t, i18n } = useTranslation();
+  const [status, setStatus] = useState("all");
   const { data: invoices } = useListInvoices();
+  const filtered = useMemo(
+    () => invoices.data.filter((invoice) => matchesInvoice(invoice, status)),
+    [invoices.data, status],
+  );
+  const pagination = useClientPagination(filtered, 20);
 
-  if (!invoices.data.length) {
-    return <EmptyTable message="No invoice issued yet." />;
-  }
+  if (!invoices.data.length) return <EmptyTable message={t("views.invoices.table.empty")} />;
 
   return (
-    <Card className="p-2 animate-fade-in">
+    <Card data-testid="invoice-table" className="p-2 animate-fade-in space-y-2">
+      <InvoiceListFilters
+        status={status}
+        onStatusChange={(value) => (setStatus(value), pagination.resetPage())}
+        t={t}
+      />
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Invoice number</TableHead>
-            <TableHead>Total</TableHead>
-            <TableHead>Customer</TableHead>
-            <TableHead>Status</TableHead>
-            <TableHead>Issued</TableHead>
+            <TableHead>{t("views.invoices.table.invoice_number")}</TableHead>
+            <TableHead>{t("views.invoices.table.total")}</TableHead>
+            <TableHead>{t("views.invoices.table.customer")}</TableHead>
+            <TableHead>{t("views.invoices.table.status")}</TableHead>
+            <TableHead>{t("views.invoices.table.issued")}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {invoices.data.map((invoice) => (
-            <TableRow key={invoice.id}>
-              <TableCell className="truncate whitespace-nowrap overflow-ellipsis">
-                <div>
-                  <h4 className="font-semibold overflow-ellipsis">
-                    {invoice.invoice_number}
-                  </h4>
-                </div>
-              </TableCell>
-              <TableCell className="truncate whitespace-nowrap overflow-ellipsis">
-                {((invoice.total ?? 0) / 100).toLocaleString("en-US", {
-                  currency: invoice.currency,
-                  style: "currency",
-                })}
-              </TableCell>
-              <TableCell className="truncate whitespace-nowrap overflow-ellipsis">
-                <Link
-                  to={`/users/${invoice.recipient_id}`}
-                  target="_blank"
-                  className="flex flex-col"
-                >
-                  <span> {invoice.recipient_email}</span>
-                  <span className="text-xs text-slate-500 italic">
-                    {invoice.recipient_id}
-                  </span>
-                </Link>
-              </TableCell>
-
-              <TableCell className="truncate whitespace-nowrap overflow-ellipsis">
-                <Badge
-                  className={cn(
-                    invoice.status == "paid"
-                      ? "bg-emerald-400/50 text-emerald-800"
-                      : "bg-none"
-                  )}
-                >
-                  {invoice.status}
-                </Badge>
-              </TableCell>
-              <TableCell className="truncate whitespace-nowrap overflow-ellipsis">
-                {/* should be dd/mm/yyyy hh:mm */}
-                {new Date(invoice.created_at).toLocaleString("en-GB", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                })}
-              </TableCell>
-
-              <TableCell align="right">
-                <div className="flex gap-2 justify-end">
-                  {/* <InvoiceEmail invoice={invoice} /> */}
-                  {/* <a href={invoice.email_url} target="_blank">
-                    <Badge
-                      className={cn(
-                        "bg-teal-800 cursor-pointer flex gap-2 w-fit",
-                        {
-                          "bg-teal-800/20": !invoice.email_url,
-                        }
-                      )}
-                    >
-                      <span>email</span> <Mail className="size-3" />
-                    </Badge>
-                  </a> */}
-                  {!!invoice.pdf_url && (
-                    <a href={invoice.pdf_url} target="_blank">
-                      <Badge
-                        variant={"outline"}
-                        className="cursor-pointer flex gap-2 w-fit"
-                      >
-                        <span>View invoice</span> <Eye className="size-3" />
-                      </Badge>
-                    </a>
-                  )}
-                  {!invoice.pdf_url && <Button disabled>PDF</Button>}
-                </div>
-              </TableCell>
-            </TableRow>
+          {pagination.pagedItems.map((invoice) => (
+            <InvoiceListRow
+              key={invoice.id}
+              invoice={invoice}
+              locale={i18n.language}
+              viewInvoiceLabel={t("views.invoices.table.view_invoice")}
+              pdfLabel={t("views.invoices.table.pdf")}
+            />
           ))}
         </TableBody>
       </Table>
+      {!!filtered.length && (
+        <TablePagination
+          page={pagination.page}
+          totalPages={pagination.totalPages}
+          onPrevious={pagination.onPrevious}
+          onNext={pagination.onNext}
+          rowsPerPage={pagination.rowsPerPage}
+          rowsPerPageOptions={[10, 20, 50]}
+          onRowsPerPageChange={pagination.onRowsPerPageChange}
+          previousLabel={t("views.invoices.table.previous")}
+          nextLabel={t("views.invoices.table.next")}
+          rowsPerPageLabel={t("views.invoices.table.rows_per_page")}
+          pageLabel={t("views.invoices.table.page", {
+            page: pagination.page,
+            totalPages: pagination.totalPages,
+            total: pagination.total,
+          })}
+        />
+      )}
+      {!filtered.length && <EmptyTable message={t("views.invoices.table.no_results")} />}
     </Card>
   );
 }

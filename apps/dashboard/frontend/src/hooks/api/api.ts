@@ -1,4 +1,5 @@
 import { useAuth } from "@/lib/keycloak/auth";
+import { getKeycloak } from "@/lib/keycloak/keycloak";
 import {
   useMutation,
   useQueryClient,
@@ -26,12 +27,13 @@ export function useAppQuery<T = unknown>(props: {
 
 export function useAppMutation<T, V = unknown>(props: {
   method: "post" | "delete";
+  contentType?: "multipart/form-data";
   path: string;
   invalidate: string | string[];
   onSuccess?: (arg0: { data: V }) => void;
   onError?: () => void;
 }) {
-  const client = useAxiosClient();
+  const client = useAxiosClient({ contentType: props.contentType });
   const queryClient = useQueryClient();
 
   return useMutation({
@@ -54,20 +56,47 @@ export function useAppMutation<T, V = unknown>(props: {
   });
 }
 
-export function useAxiosClient() {
-  const { token } = useAuth();
+export function useAxiosClient(options?: {
+  contentType?: "multipart/form-data";
+}) {
+  const { token, login } = useAuth();
   const app = useApp();
 
   const client: AxiosInstance = useMemo(() => {
+    const env = (window as any).__ENV__ || {};
+    const isE2E = !!env.E2E_MODE;
     const baseURL = "/api/apps/" + app.id;
 
-    const headers = {
-      Authorization: `Bearer ${token}`,
-      "Content-Type": "application/json",
+    const headers: Record<string, string> = {
+      "Content-Type": options?.contentType || "application/json",
     };
+    if (isE2E) {
+      headers["X-Admin-API-Key"] = env.E2E_ADMIN_KEY || "";
+      headers["X-Target-App-ID"] = String(env.E2E_APP_ID || app.id);
+    } else {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
 
-    return axios.create({ baseURL, headers });
-  }, [app.id, token]);
+    const instance = axios.create({ baseURL, headers });
+    if (!isE2E) {
+      instance.interceptors.request.use(
+        async (config) => {
+          try {
+            const kc = await getKeycloak();
+            await kc.updateToken(5);
+            config.headers.Authorization = `Bearer ${kc.token}`;
+          } catch (error) {
+            login();
+            throw error;
+          }
+          return config;
+        },
+        (error) => Promise.reject(error),
+      );
+    }
+
+    return instance;
+  }, [app.id, token, options?.contentType, login]);
 
   return client;
 }

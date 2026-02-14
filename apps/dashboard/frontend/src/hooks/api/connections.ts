@@ -1,10 +1,12 @@
 import { toast } from "sonner";
 import { useAppMutation, useAppQuery } from "./api";
 
-type Connection = {
+export type Connection = {
   id: string;
   name: string;
-  source: "local" | "stripe";
+  source: "local" | "stripe" | "braintree";
+  public_key?: string;
+  webhook_url?: string;
   created_at: string;
 };
 

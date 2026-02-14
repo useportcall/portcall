@@ -10,7 +10,7 @@ export default function EmptyTable({
 }) {
   return (
     <Card className="w-full flex flex-col justify-center items-center p-10 gap-4">
-      <p className="text-sm text-slate-400">{message}</p>
+      <p className="text-sm text-muted-foreground">{message}</p>
       {button}
     </Card>
   );

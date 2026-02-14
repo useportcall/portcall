@@ -1,122 +1,82 @@
 import EmptyTable from "@/components/empty-table";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useListUsers } from "@/hooks";
-import { cn } from "@/lib/utils";
+import { useListUsersPaginated } from "@/hooks";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { CreateUser } from "./create-user";
-import { Badge } from "@/components/ui/badge";
-import { Input } from "@/components/ui/input";
+import { UsersFilters, type UserFilterOption } from "./users-filters";
+import { UsersTableCard } from "./users-table-card";
 
 export function UsersTable() {
+  const { t } = useTranslation();
   const [search, setSearch] = useState("");
+  const [subscribed, setSubscribed] = useState<UserFilterOption>("all");
+  const [paymentMethod, setPaymentMethod] = useState<UserFilterOption>("all");
+  const [page, setPage] = useState(1);
+  const [limit, setLimit] = useState(20);
 
-  const { data: users } = useListUsers({ email: search });
-
-  const navigate = useNavigate();
+  const { data, isFetching } = useListUsersPaginated({
+    search,
+    subscribed,
+    paymentMethodAdded: paymentMethod,
+    page,
+    limit,
+  });
+  const users = data?.data.users ?? [];
+  const currentPage = data?.data.page ?? page;
+  const totalPages = data?.data.total_pages ?? 1;
+  const total = data?.data.total ?? 0;
 
   return (
     <>
-      <div className="flex justify-between">
-        <SearchOrAddUser
-          key="searchbox"
-          // count={users?.data.length ?? 0}
-          value={search}
-          onChange={setSearch}
+      <div className="flex flex-wrap items-start gap-2 justify-between">
+        <UsersFilters
+          search={search}
+          subscription={subscribed}
+          paymentMethod={paymentMethod}
+          onSearchChange={(value) => {
+            setSearch(value);
+            setPage(1);
+          }}
+          onSubscriptionChange={(value) => {
+            setSubscribed(value);
+            setPage(1);
+          }}
+          onPaymentMethodChange={(value) => {
+            setPaymentMethod(value);
+            setPage(1);
+          }}
+          onReset={() => {
+            setSearch("");
+            setSubscribed("all");
+            setPaymentMethod("all");
+            setLimit(20);
+            setPage(1);
+          }}
+          t={t}
         />
         <CreateUser />
       </div>
 
-      {!!users?.data.length && (
-        <Card className="p-2 rounded-xl animate-fade-in">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-80">Email</TableHead>
-                <TableHead className="w-48">Name</TableHead>
-                <TableHead className="w-40">Status</TableHead>
-                {/* <TableHead className="w-40">Billing</TableHead>
-              <TableHead className="w-40">Payments</TableHead> */}
-                <TableHead></TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody className="">
-              {users?.data.map((user) => (
-                <TableRow key={user.id} className="">
-                  <TableCell className="w-20 py-1">
-                    <div>
-                      <h4 className="font-semibold overflow-ellipsis">
-                        {user.email}
-                      </h4>
-                      <span className="text-xs text-slate-500 italic">
-                        {user.id}
-                      </span>
-                    </div>
-                  </TableCell>
-                  <TableCell className="py-1">
-                    <span>{user.name}</span>
-                  </TableCell>
-                  <TableCell className="py-1">
-                    <Badge
-                      variant={"outline"}
-                      className={cn(
-                        user.subscribed
-                          ? "bg-emerald-400/50 text-emerald-800 border-none"
-                          : ""
-                      )}
-                    >
-                      {user.subscribed ? "Active" : "No subscription"}
-                    </Badge>
-                  </TableCell>
-                  <TableCell align="right" className="right py-1">
-                    <Button
-                      onClick={() => navigate(`/users/${user.id}`)}
-                      className="text-xs px-3 py-1"
-                      variant="outline"
-                    >
-                      Manage
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
-        </Card>
+      {!!users.length && (
+        <UsersTableCard
+          users={users}
+          page={currentPage}
+          totalPages={totalPages}
+          total={total}
+          limit={limit}
+          onPrevious={() => setPage((p) => Math.max(1, p - 1))}
+          onNext={() => setPage((p) => p + 1)}
+          onLimitChange={(value) => {
+            setLimit(value);
+            setPage(1);
+          }}
+          t={t}
+        />
       )}
-      {!users?.data.length && (
-        <EmptyTable message="No users added yet." button={""} />
+      {isFetching && <p className="text-xs text-muted-foreground px-1">{t("common.loading")}</p>}
+      {!users.length && !isFetching && (
+        <EmptyTable message={t("views.users.table.empty")} button={""} />
       )}
     </>
-  );
-}
-
-function SearchOrAddUser({
-  // count,
-  value,
-  onChange,
-}: {
-  // count: number;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div className="relative flex items-center gap-2 w-full max-w-xs">
-      <Input
-        type="text"
-        placeholder="Find user by email..."
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className=""
-      />
-    </div>
   );
 }

@@ -11,7 +11,7 @@ import { Control, FieldValues, Path } from "react-hook-form";
 import { CountryDropdown } from "../../../components/country-dropdown";
 
 export default function CountryFormInput<T extends FieldValues>(props: {
-  control: Control<T, any>;
+  control: Control<T>;
   name: Path<T>;
   title: string;
   description: string;
@@ -27,14 +27,14 @@ export default function CountryFormInput<T extends FieldValues>(props: {
         <FormItem
           className={cn(
             "space-y-2 flex flex-col",
-            props.hidden ? "hidden" : ""
+            props.hidden ? "hidden" : "",
           )}
         >
           <div className="space-y-2 flex flex-col">
-            <FormLabel className="text-sm font-medium text-slate-800">
+            <FormLabel className="text-sm font-medium text-foreground">
               {props.title}
             </FormLabel>
-            <FormDescription className="text-xs text-slate-400">
+            <FormDescription className="text-xs text-muted-foreground">
               {props.description}
             </FormDescription>
           </div>

@@ -1,17 +1,19 @@
-import { useUpdatePlan } from "@/hooks";
+import { useRetrievePlan, useUpdatePlan } from "@/hooks";
 import { cn } from "@/lib/utils";
-import { Plan } from "@/models/plan";
 
-export function PlanNameInput({ plan }: { plan: Plan }) {
-  const { mutateAsync } = useUpdatePlan(plan.id);
+export function PlanNameInput(props: { id: string }) {
+  const { data: plan } = useRetrievePlan(props.id);
+  const { mutateAsync } = useUpdatePlan(props.id);
+  if (!plan?.data) return <input placeholder="Plan Name" className="font-semibold text-2xl outline-none w-full text-muted-foreground" disabled />;
 
   return (
     <input
-      defaultValue={plan.name}
+      data-testid="plan-name-input"
+      defaultValue={plan.data.name}
       placeholder="Plan Name"
       className={cn(
         "font-semibold text-2xl outline-none w-full",
-        plan.name.length ? "text-black" : "text-muted-foreground"
+        plan.data.name.length ? "text-black" : "text-muted-foreground",
       )}
       onBlur={(e) => {
         if (e.target.value.length > 0) {

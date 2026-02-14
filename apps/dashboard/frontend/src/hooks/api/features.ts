@@ -1,4 +1,4 @@
-import { Feature } from "@/models/feature";
+import { CreateFeatureRequest, Feature } from "@/models/feature";
 import { useParams } from "react-router-dom";
 import { useAppQuery, useAppMutation } from "./api";
 import { toast } from "sonner";
@@ -13,7 +13,7 @@ export function useListFeatures(props: { isMetered: boolean }) {
 
 export function useCreateFeature(props: { isMetered: boolean }) {
   const { id } = useParams();
-  return useAppMutation<any, any>({
+  return useAppMutation<CreateFeatureRequest, Feature>({
     method: "post",
     path: "/features",
     invalidate: [
@@ -26,7 +26,7 @@ export function useCreateFeature(props: { isMetered: boolean }) {
 
 export function useCreateBasicFeature() {
   const { id } = useParams();
-  return useAppMutation<any, any>({
+  return useAppMutation<CreateFeatureRequest, Feature>({
     method: "post",
     path: "/features",
     invalidate: [

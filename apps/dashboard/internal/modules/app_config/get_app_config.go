@@ -13,5 +13,15 @@ func GetAppConfig(c *routerx.Context) {
 		return
 	}
 
+	if appConfig.DefaultConnectionID != 0 {
+		var defaultConnection models.Connection
+		if err := c.DB().FindForID(appConfig.DefaultConnectionID, &defaultConnection); err != nil {
+			c.ServerError("Failed to get default connection", err)
+			return
+		}
+
+		appConfig.DefaultConnection = defaultConnection
+	}
+
 	c.OK(new(apix.AppConfig).Set(&appConfig))
 }

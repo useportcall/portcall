@@ -7,8 +7,12 @@ import { useMemo } from "react";
 
 export default function MutableMeteredRollover(props: {
   planFeature: PlanFeature;
+  planId: string;
 }) {
-  const { mutate } = useUpdatePlanFeatureForPlanItem(props.planFeature.id);
+  const { mutate } = useUpdatePlanFeatureForPlanItem(
+    props.planFeature.id,
+    props.planId
+  );
 
   const title = useMemo(() => {
     return toRolloverTitle(props.planFeature.rollover);
@@ -22,14 +26,19 @@ export default function MutableMeteredRollover(props: {
       }}
     >
       <SelectTrigger asChild>
-        <button className="cursor-pointer font-medium text-sm self-center hover:bg-accent w-16 overflow-hidden text-ellipsis whitespace-nowrap rounded px-1 py-0.5 flex items-center justify-between">
+        <button
+          type="button"
+          data-testid="metered-rollover-button"
+          aria-label="Metered rollover"
+          className="cursor-pointer text-sm w-16 overflow-hidden text-ellipsis whitespace-nowrap rounded py-1 flex items-center justify-between"
+        >
           {title}
           <ChevronDown className="size-3" />
         </button>
       </SelectTrigger>
       <SelectContent>
-        <SelectItem value="0">no</SelectItem>
-        <SelectItem value="-1">yes</SelectItem>
+        <SelectItem value="0">No</SelectItem>
+        <SelectItem value="-1">Yes</SelectItem>
       </SelectContent>
     </Select>
   );

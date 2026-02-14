@@ -14,6 +14,9 @@ export interface Plan {
   plan_group: any;
   features: any[];
   metered_features: any[];
+  plan_group_id: string | null;
+  discount_pct: number;
+  discount_qty: number;
 }
 
 export interface UpdatePlanRequest {

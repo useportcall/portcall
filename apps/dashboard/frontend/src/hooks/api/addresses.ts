@@ -3,7 +3,7 @@ import { useAppMutation } from "./api";
 import { Address } from "@/models/address";
 
 export function useUpdateAddress(id: string) {
-  return useAppMutation<any, Address>({
+  return useAppMutation<Partial<Address>, Address>({
     method: "post",
     path: "/addresses/" + id,
     invalidate: ["/company"],

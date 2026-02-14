@@ -11,20 +11,22 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Plan } from "@/models/plan";
+import { useRetrievePlan, useUpdatePlan } from "@/hooks";
 import { Hourglass } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toIntervalText } from "../utils";
-import { useUpdatePlan } from "@/hooks";
 
-export function PlanIntervalSelect({ plan }: { plan: Plan }) {
+export function PlanIntervalSelect({ id }: { id: string }) {
   const [open, setOpen] = useState(false);
-  const [value, setValue] = useState<string>(plan.interval);
   const intervals = ["month", "year", "no_reset"];
 
-  const { mutate } = useUpdatePlan(plan.id);
+  const { data: plan } = useRetrievePlan(id);
+  const { mutate } = useUpdatePlan(id);
 
-  const label = useMemo(() => toIntervalText(value), [value]);
+  const label = useMemo(
+    () => toIntervalText(plan?.data?.interval || "month"),
+    [plan?.data?.interval]
+  );
 
   return (
     <div>
@@ -35,6 +37,7 @@ export function PlanIntervalSelect({ plan }: { plan: Plan }) {
               variant="ghost"
               size="sm"
               className="w-full text-left flex justify-start"
+              disabled={!plan?.data}
             >
               <Hourglass className="h-4 w-4" />
               {label}
@@ -52,7 +55,6 @@ export function PlanIntervalSelect({ plan }: { plan: Plan }) {
                   <CommandItem
                     key={interval}
                     onSelect={() => {
-                      setValue(interval);
                       setOpen(false);
                       mutate({ interval });
                     }}

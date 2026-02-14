@@ -1,149 +1,113 @@
 import EmptyTable from "@/components/empty-table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { TablePagination } from "@/components/table/table-pagination";
 import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { useClientPagination } from "@/hooks/use-client-pagination";
 import { useListSubscriptions } from "@/hooks";
-import { cn } from "@/lib/utils";
-import { Plus } from "lucide-react";
+import { useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
+import { SubscriptionListRow } from "./subscription-list-row";
+import { SubscriptionListToolbar } from "./subscription-list-toolbar";
 
 export function SubscriptionListTable() {
+  const { t, i18n } = useTranslation();
   const navigate = useNavigate();
   const { data: subscriptions } = useListSubscriptions();
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
 
-  if (subscriptions && !subscriptions.data.length) {
-    return (
-      <EmptyTable message="No subscriptions created yet." button={<></>} />
-    );
+  const filtered = useMemo(() => {
+    const query = search.trim().toLowerCase();
+    return subscriptions.data.filter((subscription) => {
+      const statusMatch = status === "all" || subscription.status.toLowerCase() === status;
+      if (!statusMatch) return false;
+      if (!query) return true;
+      const email = subscription.user?.email?.toLowerCase() || "";
+      const userId = subscription.user?.id?.toLowerCase() || "";
+      const planName = subscription.plan?.name?.toLowerCase() || "";
+      return [email, userId, planName, subscription.status.toLowerCase()].some((value) => value.includes(query));
+    });
+  }, [subscriptions.data, search, status]);
+  const pagination = useClientPagination(filtered, 20);
+
+  if (!subscriptions.data.length) {
+    return <EmptyTable message={t("views.subscriptions.table.empty")} button={<></>} />;
   }
 
   return (
     <>
-      <div className="flex w-full items-start justify-between">
-        <div className="relative flex items-center gap-2 w-full max-w-xs">
-          {/* TODO: [MAYBE FOR LATER] Add function to search for subscription using user email */}
-          <Input
-            type="text"
-            placeholder="Find subscription by user email..."
-            value=""
-            onChange={() => {}}
-            className=""
-          />
-        </div>
-        <Button size={"sm"} variant={"outline"} disabled>
-          <Plus />
-          Create subscription (coming soon!)
-        </Button>
-      </div>
-
+      <SubscriptionListToolbar
+        search={search}
+        status={status}
+        onSearchChange={(value) => {
+          setSearch(value);
+          pagination.resetPage();
+        }}
+        onStatusChange={(value) => {
+          setStatus(value);
+          pagination.resetPage();
+        }}
+        searchPlaceholder={t("views.subscriptions.table.search")}
+        statusLabel={t("views.subscriptions.table.status_filter_label")}
+        allStatusesLabel={t("views.subscriptions.table.filter_all")}
+      />
       <Card className="p-2 animate-fade-in">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead className="">User</TableHead>
-              <TableHead className="">Plan</TableHead>
-              <TableHead className="">Status</TableHead>
-              <TableHead className="">Created</TableHead>
-              <TableHead className="">Next reset</TableHead>
-              <TableHead className=""></TableHead>
+              <TableHead>{t("views.subscriptions.table.user")}</TableHead>
+              <TableHead>{t("views.subscriptions.table.plan")}</TableHead>
+              <TableHead>{t("views.subscriptions.table.status")}</TableHead>
+              <TableHead>{t("views.subscriptions.table.created")}</TableHead>
+              <TableHead>{t("views.subscriptions.table.next_reset")}</TableHead>
+              <TableHead>ID</TableHead>
+              <TableHead />
             </TableRow>
           </TableHeader>
-          <TableBody className="">
-            {subscriptions.data.map((subscription) => (
-              <TableRow
-                className=""
-                // onClick={() => navigate("/subscriptions/" + subscription.id)}
+          <TableBody>
+            {pagination.pagedItems.map((subscription) => (
+              <SubscriptionListRow
                 key={subscription.id}
-              >
-                <TableCell className="w-20 py-1">
-                  <div>
-                    <h4 className="font-semibold overflow-ellipsis">
-                      {subscription.user.email}
-                    </h4>
-                    <span className="text-xs text-slate-500 italic">
-                      {subscription.user.id}
-                    </span>
-                  </div>
-                </TableCell>
-                <TableCell className="max-w-20 truncate whitespace-nowrap overflow-ellipsis">
-                  <div className="flex flex-col">
-                    <Badge className="w-fit" variant={"outline"}>
-                      {subscription.plan.name}
-                    </Badge>
-                    {/* <span className="text-xs text-slate-500 italic">
-                    {subscription.plan.id}
-                  </span> */}
-                  </div>
-                </TableCell>
-                <TableCell className="max-w-20 truncate whitespace-nowrap overflow-ellipsis">
-                  <Badge
-                    variant={"outline"}
-                    className={cn(
-                      subscription.status == "active"
-                        ? "bg-emerald-400/50 text-emerald-800 border-none"
-                        : ""
-                    )}
-                  >
-                    {subscription.status}
-                  </Badge>
-                </TableCell>
-                <TableCell className="max-w-20 truncate whitespace-nowrap overflow-ellipsis">
-                  {new Date(subscription.created_at).toLocaleDateString(
-                    "en-US",
-                    {
-                      year: "2-digit",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                      hour12: false,
-                    }
-                  )}
-                </TableCell>
-                <TableCell className="max-w-20 truncate whitespace-nowrap overflow-ellipsis">
-                  {subscription.next_reset_at
-                    ? new Date(subscription.next_reset_at).toLocaleDateString(
-                        "en-US",
-                        {
-                          year: "2-digit",
-                          month: "2-digit",
-                          day: "2-digit",
-                          hour: "2-digit",
-                          minute: "2-digit",
-                          hour12: false,
-                        }
-                      )
-                    : ""}
-                </TableCell>
-                <TableCell align="right" className="right py-1">
-                  <Button
-                    onClick={() =>
-                      navigate(`/subscriptions/${subscription.id}`)
-                    }
-                    className="text-xs px-3 py-1"
-                    variant="outline"
-                  >
-                    View details
-                  </Button>
-                </TableCell>
-              </TableRow>
+                subscription={subscription}
+                locale={i18n.language}
+                onNavigate={() => navigate(`/subscriptions/${subscription.id}`)}
+                actions={[
+                  {
+                    label: t("views.subscriptions.table.cancel"),
+                    disabled: subscription.status !== "active",
+                  },
+                ]}
+              />
             ))}
           </TableBody>
         </Table>
-        {subscriptions?.data.length === 0 && (
-          <div className="w-full flex flex-col justify-center items-center p-10 gap-4">
-            <p className="text-sm text-slate-400">No subscriptions found.</p>
-          </div>
+        {!!filtered.length && (
+          <TablePagination
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            onPrevious={pagination.onPrevious}
+            onNext={pagination.onNext}
+            rowsPerPage={pagination.rowsPerPage}
+            rowsPerPageOptions={[10, 20, 50]}
+            onRowsPerPageChange={pagination.onRowsPerPageChange}
+            previousLabel={t("views.subscriptions.table.previous")}
+            nextLabel={t("views.subscriptions.table.next")}
+            rowsPerPageLabel={t("views.subscriptions.table.rows_per_page")}
+            pageLabel={t("views.subscriptions.table.page", {
+              page: pagination.page,
+              totalPages: pagination.totalPages,
+              total: pagination.total,
+            })}
+          />
         )}
+        {!filtered.length && <EmptyTable message={t("views.subscriptions.table.no_results")} button={<></>} />}
       </Card>
     </>
   );

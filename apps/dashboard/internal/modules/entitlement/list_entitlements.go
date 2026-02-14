@@ -2,6 +2,7 @@ package entitlement
 
 import (
 	"github.com/useportcall/portcall/libs/go/apix"
+	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -12,6 +13,10 @@ func ListEntitlements(c *routerx.Context) {
 
 	var user models.User
 	if err := c.DB().GetForPublicID(c.AppID(), userID, &user); err != nil {
+		if dbx.IsRecordNotFoundError(err) {
+			c.NotFound("User not found")
+			return
+		}
 		c.ServerError("Failed to find user for entitlements", err)
 		return
 	}

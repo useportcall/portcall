@@ -1,15 +1,55 @@
 package company
 
 import (
+	"encoding/json"
+	"fmt"
+	"io"
+	"log"
+	"net/http"
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
+type UpdateCompanyRequest struct {
+	Name             *string `json:"name"`
+	Alias            *string `json:"alias"`
+	FirstName        *string `json:"first_name"`
+	LastName         *string `json:"last_name"`
+	Email            *string `json:"email"`
+	Phone            *string `json:"phone"`
+	VATNumber        *string `json:"vat_number"`
+	BusinessCategory *string `json:"business_category"`
+	RemoveLogo       *bool   `json:"remove_logo"`
+}
+
+func isAllowedImageType(contentType string) bool {
+	allowed := map[string]bool{
+		"image/jpeg": true,
+		"image/png":  true,
+		"image/gif":  true,
+		"image/webp": true,
+	}
+	return allowed[contentType]
+}
+
 func UpsertCompany(c *routerx.Context) {
-	var body UpdateCompanyRequest
-	if err := c.ShouldBindJSON(&body); err != nil {
-		c.BadRequest("Invalid request body")
+
+	// Parse multipart form (limit to e.g., 2 MB total)
+	if err := c.Request.ParseMultipartForm(2 << 20); err != nil {
+		log.Println("Error parsing multipart form:", err)
+		c.BadRequest("Failed to parse form")
+		return
+	}
+
+	// Get JSON data part
+	jsonPart := c.PostForm("data")
+	if jsonPart == "" {
+		c.BadRequest("Missing data JSON")
 		return
 	}
 
@@ -17,6 +57,69 @@ func UpsertCompany(c *routerx.Context) {
 	if err := c.DB().FindFirstForAppID(c.AppID(), &company); err != nil {
 		c.NotFound("Company not found")
 		return
+	}
+
+	var body UpdateCompanyRequest
+	if err := json.Unmarshal([]byte(jsonPart), &body); err != nil {
+		c.BadRequest("Invalid JSON in data field")
+		return
+	}
+
+	// Handle logo removal request
+	if body.RemoveLogo != nil && *body.RemoveLogo && company.IconLogoURL != "" {
+		log.Printf("Removing logo for company")
+		// Note: We could delete the old file from S3 here, but for simplicity we just clear the URL
+		company.IconLogoURL = ""
+	}
+
+	// Handle optional logo upload
+	file, header, err := c.Request.FormFile("logo")
+	if err == nil { // File provided
+		defer file.Close()
+
+		log.Printf("Received logo upload: %s (%d bytes)", header.Filename, header.Size)
+
+		// Validate: small image, allowed types/sizes
+		if header.Size > 2<<20 { // e.g., max 2MB
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Image too large"})
+			return
+		}
+
+		log.Printf("Image content type: %s", header.Header.Get("Content-Type"))
+
+		if !isAllowedImageType(header.Header.Get("Content-Type")) {
+			c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid image type"})
+			return
+		}
+
+		// Generate unique filename
+		filename := uuid.New().String()
+
+		imgBytes, err := io.ReadAll(file)
+		if err != nil {
+			c.ServerError("Failed to read image file", err)
+			return
+		}
+
+		// Save the image to the icon logos bucket
+		if err := c.Store().PutInIconLogoBucket(filename, imgBytes, c); err != nil {
+			c.ServerError("Failed to save icon logo image", err)
+			return
+		}
+
+		// Generate accessible URL using DigitalOcean Spaces CDN
+		// The bucket is public-read, so we can use the direct Spaces URL
+		s3Endpoint := os.Getenv("S3_ENDPOINT")
+		if s3Endpoint != "" {
+			// Remove https:// prefix and construct the bucket URL
+			// For DigitalOcean Spaces: https://bucket-name.region.digitaloceanspaces.com/key
+			company.IconLogoURL = fmt.Sprintf("%s/%s/%s.png", s3Endpoint, "icon-logos", filename)
+		} else {
+			// Fallback to FILE_API_URL if S3_ENDPOINT is not set
+			company.IconLogoURL = fmt.Sprintf("%s/icon-logos/%s.png", os.Getenv("FILE_API_URL"), filename)
+		}
+
+		log.Printf("Generated icon logo URL: %s", company.IconLogoURL)
 	}
 
 	if body.Name != nil {
@@ -57,15 +160,4 @@ func UpsertCompany(c *routerx.Context) {
 	}
 
 	c.OK(new(apix.Company).Set(&company))
-}
-
-type UpdateCompanyRequest struct {
-	Name             *string `json:"name"`
-	Alias            *string `json:"alias"`
-	FirstName        *string `json:"first_name"`
-	LastName         *string `json:"last_name"`
-	Email            *string `json:"email"`
-	Phone            *string `json:"phone"`
-	VATNumber        *string `json:"vat_number"`
-	BusinessCategory *string `json:"business_category"`
 }

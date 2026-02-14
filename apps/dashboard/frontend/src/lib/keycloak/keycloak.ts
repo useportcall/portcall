@@ -2,18 +2,39 @@
 import Keycloak, { KeycloakInitOptions } from "keycloak-js";
 
 // Reuse across HMR/StrictMode
-const g = globalThis as any;
+type KeycloakGlobals = typeof globalThis & {
+  __kc?: Keycloak;
+  __kcInitPromise?: Promise<boolean> | null;
+};
+const g = globalThis as KeycloakGlobals;
 
-g.__kc ??= new Keycloak({
-  url: "http://localhost:8080", // TODO: move to env
-  realm: "dev",
-  clientId: "portcall",
-});
+// Initialize Keycloak instance lazily after config is loaded
+let keycloakInstance: Keycloak | null = null;
 
-export const kc: Keycloak = g.__kc;
+export async function getKeycloak(): Promise<Keycloak> {
+  if (keycloakInstance) {
+    return keycloakInstance;
+  }
+
+  // Fetch runtime config from backend
+  const response = await fetch("/api/config");
+  const config = await response.json();
+  const keycloakUrl =
+    config.data?.keycloak_url ||
+    import.meta.env.VITE_KEYCLOAK_URL ||
+    "http://localhost:8090";
+
+  keycloakInstance = new Keycloak({
+    url: keycloakUrl,
+    realm: "dev",
+    clientId: "portcall",
+  });
+
+  return keycloakInstance;
+}
 
 // Cache the single init() promise so subsequent calls reuse it
-export function initKeycloak(opts?: KeycloakInitOptions) {
+export async function initKeycloak(opts?: KeycloakInitOptions) {
   if (g.__kcInitPromise) return g.__kcInitPromise as Promise<boolean>;
 
   const defaults: KeycloakInitOptions = {
@@ -22,7 +43,10 @@ export function initKeycloak(opts?: KeycloakInitOptions) {
     checkLoginIframe: false,
   };
 
-  g.__kcInitPromise = kc.init({ ...defaults, ...opts }).catch((err: any) => {
+  const kc = await getKeycloak();
+  g.__kc = kc;
+
+  g.__kcInitPromise = kc.init({ ...defaults, ...opts }).catch((err: unknown) => {
     // reset cache if init failed so you can retry
     g.__kcInitPromise = null;
     throw err;
@@ -32,8 +56,9 @@ export function initKeycloak(opts?: KeycloakInitOptions) {
 }
 
 // Optional: start one refresh interval (also memoized)
-export function startTokenRefresh() {
+export async function startTokenRefresh(onFail?: () => void) {
   console.log("Starting Keycloak token refresh...");
+  const kc = await getKeycloak();
 
   const interval = setInterval(async () => {
     try {
@@ -43,8 +68,9 @@ export function startTokenRefresh() {
     } catch {
       // if refresh fails, let your app trigger login when needed
       console.warn(
-        "Keycloak token refresh failed, user may need to log in again."
+        "Keycloak token refresh failed, user may need to log in again.",
       );
+      onFail?.();
     }
   }, 30_000);
 

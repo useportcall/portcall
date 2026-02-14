@@ -1,6 +1,7 @@
 package plan_item
 
 import (
+	quotemodule "github.com/useportcall/portcall/apps/dashboard/internal/modules/quote"
 	"github.com/useportcall/portcall/apps/dashboard/internal/utils"
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx"
@@ -14,8 +15,9 @@ type CreatePlanItemRequest struct {
 	UnitAmount        int64  `json:"unit_amount"`
 	PublicTitle       string `json:"public_title"`
 	PublicDescription string `json:"public_description"`
-	Interval          string `json:"interval"`
-	Quota             int    `json:"quota"`
+	Interval          string `json:"interval"`       // billing interval: inherit (from plan), week, month, year
+	IntervalCount     int    `json:"interval_count"` // number of intervals for the billing cycle
+	Quota             int64  `json:"quota"`
 	Rollover          int    `json:"rollover"`
 }
 
@@ -34,6 +36,15 @@ func CreatePlanItem(c *routerx.Context) {
 	var plan models.Plan
 	if err := c.DB().GetForPublicID(c.AppID(), body.PlanID, &plan); err != nil {
 		c.NotFound("Plan not found")
+		return
+	}
+	locked, err := quotemodule.HasLockedQuoteForPlan(c, plan.ID)
+	if err != nil {
+		c.ServerError("Failed to validate quote state", err)
+		return
+	}
+	if locked {
+		c.BadRequest("Plan item cannot be added after quote is issued")
 		return
 	}
 
@@ -67,15 +78,18 @@ func CreatePlanItem(c *routerx.Context) {
 		Maximum:           nil,
 		PublicTitle:       body.PublicTitle,
 		PublicDescription: body.PublicDescription,
+		Interval:          getItemInterval(body.Interval),
+		IntervalCount:     getIntervalCount(body.IntervalCount),
 	}
 	if err := c.DB().Create(planItem); err != nil {
 		c.ServerError("Failed to create plan item", err)
 		return
 	}
 
-	interval := plan.Interval
-	if i := body.Interval; interval != "" {
-		interval = i
+	// For plan features, use inherit if no specific interval provided
+	featureInterval := plan.Interval
+	if body.Interval != "" {
+		featureInterval = body.Interval
 	}
 
 	planFeature := models.PlanFeature{
@@ -84,7 +98,7 @@ func CreatePlanItem(c *routerx.Context) {
 		AppID:      plan.AppID,
 		FeatureID:  feature.ID,
 		PlanItemID: planItem.ID,
-		Interval:   interval,
+		Interval:   featureInterval,
 		Quota:      body.Quota,
 		Rollover:   body.Rollover,
 	}
@@ -94,4 +108,20 @@ func CreatePlanItem(c *routerx.Context) {
 	}
 
 	c.OK(new(apix.PlanItem).Set(planItem))
+}
+
+// getItemInterval returns the interval or default to "inherit"
+func getItemInterval(interval string) string {
+	if interval == "" {
+		return "inherit"
+	}
+	return interval
+}
+
+// getIntervalCount returns the interval count or default to 1
+func getIntervalCount(count int) int {
+	if count <= 0 {
+		return 1
+	}
+	return count
 }

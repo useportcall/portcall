@@ -12,12 +12,19 @@ func GetUserSubscription(c *routerx.Context) {
 
 	var user models.User
 	if err := c.DB().GetForPublicID(c.AppID(), userID, &user); err != nil {
+		if dbx.IsRecordNotFoundError(err) {
+			c.NotFound("User not found")
+			return
+		}
 		c.ServerError("Failed to get user", err)
 		return
 	}
 
 	var subscription models.Subscription
-	if err := c.DB().FindFirst(&subscription, "app_id = ? AND user_id = ? AND status = 'active'", c.AppID(), user.ID); err != nil {
+	if err := c.DB().FindFirst(&subscription,
+		"app_id = ? AND user_id = ? AND status IN (?, ?)",
+		c.AppID(), user.ID, "active", "past_due",
+	); err != nil {
 		if dbx.IsRecordNotFoundError(err) {
 			c.OK(nil)
 			return

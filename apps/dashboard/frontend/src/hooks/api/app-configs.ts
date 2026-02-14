@@ -1,7 +1,7 @@
 import { toast } from "sonner";
 import { useAppMutation, useAppQuery } from "./api";
 
-type AppConfig = {
+export type AppConfig = {
   default_connection: string;
 };
 

@@ -10,8 +10,9 @@ export function useGetCompany() {
 }
 
 export function useUpdateCompany() {
-  return useAppMutation<Partial<Company>, Company>({
+  return useAppMutation<Partial<FormData>, Company>({
     method: "post",
+    contentType: "multipart/form-data",
     path: "/company",
     invalidate: ["/company"],
     onSuccess: () => {

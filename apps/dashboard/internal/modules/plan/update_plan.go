@@ -3,6 +3,7 @@ package plan
 import (
 	"strings"
 
+	quotemodule "github.com/useportcall/portcall/apps/dashboard/internal/modules/quote"
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
@@ -15,6 +16,7 @@ type UpdatePlanRequest struct {
 	Interval        string `json:"interval"`
 	IntervalCount   *int   `json:"interval_count"`
 	PlanGroupID     string `json:"plan_group_id"`
+	DiscountPct     *int   `json:"discount_pct"`
 }
 
 func UpdatePlan(c *routerx.Context) {
@@ -29,6 +31,15 @@ func UpdatePlan(c *routerx.Context) {
 	plan := &models.Plan{}
 	if err := c.DB().GetForPublicID(c.AppID(), id, plan); err != nil {
 		c.NotFound("Plan not found")
+		return
+	}
+	locked, err := quotemodule.HasLockedQuoteForPlan(c, plan.ID)
+	if err != nil {
+		c.ServerError("Failed to validate quote state", err)
+		return
+	}
+	if locked {
+		c.BadRequest("Plan cannot be edited after quote is issued")
 		return
 	}
 
@@ -57,6 +68,11 @@ func UpdatePlan(c *routerx.Context) {
 			return
 		}
 		plan.PlanGroupID = &planGroup.ID
+	}
+
+	if body.DiscountPct != nil {
+		plan.DiscountPct = *body.DiscountPct
+		plan.DiscountQty = 1
 	}
 
 	if err := c.DB().Save(plan); err != nil {

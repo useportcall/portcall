@@ -7,7 +7,8 @@ import (
 )
 
 type UpdateUserRequest struct {
-	Name string `json:"name" binding:"required"`
+	Name         *string `json:"name"`
+	CompanyTitle *string `json:"company_title"`
 }
 
 func UpdateUser(c *routerx.Context) {
@@ -25,7 +26,14 @@ func UpdateUser(c *routerx.Context) {
 		return
 	}
 
-	user.Name = body.Name
+	if body.Name != nil {
+		user.Name = *body.Name
+	}
+
+	if body.CompanyTitle != nil {
+		user.CompanyTitle = *body.CompanyTitle
+	}
+
 	if err := c.DB().Save(&user); err != nil {
 		c.ServerError("Failed to save user", err)
 		return

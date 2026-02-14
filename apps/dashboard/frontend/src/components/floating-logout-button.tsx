@@ -8,7 +8,7 @@ export default function FloatingLogoutButton() {
   return (
     <Button
       variant="ghost"
-      className="absolute bottom-10 cursor-pointer hover:text-cyan-800 text-slate-800"
+      className="absolute bottom-10 cursor-pointer hover:text-cyan-800 text-foreground"
       onClick={() => {
         logout();
       }}

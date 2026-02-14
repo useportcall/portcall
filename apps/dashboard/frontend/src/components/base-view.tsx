@@ -19,7 +19,7 @@ export function BaseView({
         <div className="flex flex-col space-y-8">
           <div className="flex flex-col justify-start space-y-2">
             <p className="text-lg md:text-xl font-semibold">{title}</p>
-            <p className="text-sm text-slate-400">{description}</p>
+            <p className="text-sm text-muted-foreground">{description}</p>
           </div>
         </div>
         <div>{actions}</div>
@@ -42,7 +42,7 @@ export function BaseSection({
     <>
       <Separator />
       <div className="flex justify-between">
-        <h4 className="text-slate-400 text-sm">{title}</h4>
+        <h4 className="text-muted-foreground text-sm">{title}</h4>
         {actions}
       </div>
       <div className="flex flex-col gap-4">{children}</div>
@@ -63,7 +63,7 @@ export function LabeledInput({
   return (
     <div className="w-full flex flex-col gap-2 justify-start items-start">
       <Label htmlFor={id}>{label}</Label>
-      <p className="text-xs text-slate-400">{helperText}</p>
+      <p className="text-xs text-muted-foreground">{helperText}</p>
       <Input id={id} {...props} />
     </div>
   );

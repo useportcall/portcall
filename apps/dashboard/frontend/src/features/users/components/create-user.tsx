@@ -14,6 +14,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Plus } from "lucide-react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import z from "zod";
 
 export const schema = z.object({
@@ -21,6 +23,8 @@ export const schema = z.object({
 });
 
 export function CreateUser() {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
   const { mutateAsync, isPending } = useCreateUser();
 
   const [showForm, setShowForm] = useState(false);
@@ -34,32 +38,33 @@ export function CreateUser() {
   return (
     <Dialog open={showForm} onOpenChange={setShowForm}>
       <DialogTrigger asChild>
-        <Button size={"sm"} variant={"outline"}>
+        <Button data-testid="add-user-button" size={"sm"} variant={"outline"}>
           <Plus />
-          Add user
+          {t("views.users.create.action")}
         </Button>
       </DialogTrigger>
       <DialogContent className="flex flex-col gap-4">
         <DialogHeader>
-          <DialogTitle>Add new user</DialogTitle>
+          <DialogTitle>{t("views.users.create.title")}</DialogTitle>
           <DialogDescription>
-            Connect an existing user using their email address.
+            {t("views.users.create.description")}
           </DialogDescription>
         </DialogHeader>
         <form
           onSubmit={form.handleSubmit(async (fields) => {
             const result = await mutateAsync({ email: fields.email });
-
-            window.location.href = `/users/${result.data.id}`;
+            // Navigate immediately without closing the dialog first
+            navigate(`/users/${result.data.id}`);
           })}
           className="w-full flex flex-col gap-4"
         >
           <BaseSection title="">
             <LabeledInput
+              data-testid="create-user-email-input"
               autoFocus
               id="email"
-              label="Email"
-              placeholder="Add email"
+              label={t("views.users.create.email")}
+              placeholder={t("views.users.create.email_placeholder")}
               className="font-semibold outline-none w-full"
               helperText=""
               {...form.register("email")}
@@ -71,10 +76,14 @@ export function CreateUser() {
               variant="ghost"
               onClick={() => setShowForm(false)}
             >
-              Cancel
+              {t("common.cancel")}
             </Button>
-            <Button size="sm" disabled={isPending}>
-              Add user
+            <Button
+              data-testid="create-user-submit"
+              size="sm"
+              disabled={isPending}
+            >
+              {t("views.users.create.action")}
               {isPending && <Loader2 className="size-4 animate-spin" />}
             </Button>
           </div>

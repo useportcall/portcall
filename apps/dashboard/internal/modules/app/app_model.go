@@ -7,11 +7,13 @@ import (
 )
 
 type App struct {
-	ID           string    `json:"id"`
-	Name         string    `json:"name"`
-	PublicAPIKey string    `json:"public_api_key"`
-	CreatedAt    time.Time `json:"created_at"`
-	UpdatedAt    time.Time `json:"updated_at"`
+	ID            string    `json:"id"`
+	Name          string    `json:"name"`
+	PublicAPIKey  string    `json:"public_api_key"`
+	IsLive        bool      `json:"is_live"`
+	BillingExempt bool      `json:"billing_exempt"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 func (a *App) Set(app *models.App) *App {
@@ -20,6 +22,8 @@ func (a *App) Set(app *models.App) *App {
 	a.CreatedAt = app.CreatedAt
 	a.UpdatedAt = app.UpdatedAt
 	a.PublicAPIKey = app.PublicApiKey
+	a.IsLive = app.IsLive
+	a.BillingExempt = app.BillingExempt
 	return a
 }
 

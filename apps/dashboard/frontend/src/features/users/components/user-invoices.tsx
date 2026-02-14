@@ -1,9 +1,11 @@
 import EmptyTable from "@/components/empty-table";
 import { Badge } from "@/components/ui/badge";
 import { useListInvoices } from "@/hooks";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
 export function UserInvoices() {
+  const { t, i18n } = useTranslation();
   const { id } = useParams();
   const { data: invoices } = useListInvoices({ userId: id! });
 
@@ -13,11 +15,11 @@ export function UserInvoices() {
 
   return (
     <div className="space-y-4 ">
-      <h2 className="text-xl font-semibold">User Invoices</h2>
+      <h2 className="text-xl font-semibold">{t("views.user.invoices.title")}</h2>
       <div className="space-y-4">
         {!invoices.data.length && (
           <EmptyTable
-            message="No invoices issued for this user yet."
+            message={t("views.user.invoices.empty")}
             button={""}
           />
         )}
@@ -30,7 +32,7 @@ export function UserInvoices() {
                 </h3>
                 {!!invoice.total && (
                   <span className="text-sm">
-                    {(invoice.total / 100).toLocaleString("en-US", {
+                    {(invoice.total / 100).toLocaleString(i18n.language || "en-US", {
                       currency: "USD",
                       style: "currency",
                     })}

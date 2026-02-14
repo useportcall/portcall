@@ -1,30 +1,27 @@
 import { Plan } from "@/models/plan";
+import { toast } from "sonner";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAppQuery, useAppMutation } from "./api";
-import { toast } from "sonner";
+import { useAppMutation, useAppQuery } from "./api";
 
 const PLANS_PATH = "/plans";
 
-export function useCreatePlan() {
+function usePlanNavigate() {
   const navigate = useNavigate();
+  return (id: string) => navigate(`${PLANS_PATH}/${id}`);
+}
 
+export function useCreatePlan() {
+  const goToPlan = usePlanNavigate();
   return useAppMutation<unknown, Plan>({
     method: "post",
     path: PLANS_PATH,
     invalidate: [PLANS_PATH],
     onSuccess: (result) => {
-      toast("Plan created", {
-        description: "The plan has been successfully created.",
-      });
-
-      navigate(`${PLANS_PATH}/${result.data.id}`);
+      toast("Plan created", { description: "The plan has been successfully created." });
+      goToPlan(result.data.id);
     },
-    onError: () => {
-      toast("Failed to create plan", {
-        description: "Please try again later.",
-      });
-    },
+    onError: () => toast("Failed to create plan", { description: "Please try again later." }),
   });
 }
 
@@ -34,56 +31,43 @@ export function useRetrievePlan(planId: string) {
 }
 
 export function useListPlans(group: string) {
-  const query = useMemo(
-    () => (group === "*" ? "" : `?group=${group}`),
-    [group]
-  );
+  const query = useMemo(() => (group === "*" ? "" : `?group=${group}`), [group]);
   const path = PLANS_PATH + query;
   return useAppQuery<Plan[]>({ path, queryKey: [path] });
 }
 
 export function usePublishPlan(planId: string) {
-  return useAppMutation<any, any>({
-    method: "post",
-    path: `${PLANS_PATH}/${planId}/publish`,
-    invalidate: `${PLANS_PATH}/${planId}`,
-    onError: () => toast("Failed to publish plan"),
-  });
+  return useAppMutation({ method: "post", path: `${PLANS_PATH}/${planId}/publish`, invalidate: `${PLANS_PATH}/${planId}`, onError: () => toast("Failed to publish plan") });
 }
 
 export function useDuplicatePlan(planId: string) {
-  const navigate = useNavigate();
-
-  return useAppMutation<any, any>({
+  const goToPlan = usePlanNavigate();
+  return useAppMutation({
     method: "post",
     path: `${PLANS_PATH}/${planId}/duplicate`,
     invalidate: PLANS_PATH,
-    onSuccess: (result) => {
-      toast("Plan duplicated", {
-        description: "The plan was successfully duplicated.",
-      });
-
-      navigate(`${PLANS_PATH}/${result.data.id}`);
+    onSuccess: (result: any) => {
+      toast("Plan duplicated", { description: "The plan was successfully duplicated." });
+      goToPlan(result.data.id);
     },
     onError: () => toast("Failed to duplicate plan"),
   });
 }
 
-export function useDeletePlan(planId: string) {
-  return useAppMutation<any, any>({
-    method: "delete",
-    path: `${PLANS_PATH}/${planId}`,
+export function useCopyPlan(planId: string) {
+  return useAppMutation<{ target_app_id: string }, any>({
+    method: "post",
+    path: `${PLANS_PATH}/${planId}/copy`,
     invalidate: PLANS_PATH,
-    onSuccess: () => toast("Plan deleted"),
-    onError: () => toast("Failed to delete plan"),
+    onSuccess: () => toast("Plan copied", { description: "The plan was successfully copied to the target app." }),
+    onError: () => toast("Failed to copy plan", { description: "Please try again later." }),
   });
 }
 
+export function useDeletePlan(planId: string) {
+  return useAppMutation({ method: "delete", path: `${PLANS_PATH}/${planId}`, invalidate: PLANS_PATH, onSuccess: () => toast("Plan deleted"), onError: () => toast("Failed to delete plan") });
+}
+
 export function useUpdatePlan(planId: string) {
-  return useAppMutation<any, any>({
-    method: "post",
-    path: `${PLANS_PATH}/${planId}`,
-    invalidate: `${PLANS_PATH}/${planId}`,
-    onError: () => toast("Failed to update plan"),
-  });
+  return useAppMutation<Partial<Plan>, Plan>({ method: "post", path: `${PLANS_PATH}/${planId}`, invalidate: `${PLANS_PATH}/${planId}`, onError: () => toast("Failed to update plan") });
 }

@@ -37,7 +37,11 @@ export default function OnboardGuard({ children }: { children: ReactNode }) {
   }
 
   if (!apps) {
-    return <></>;
+    return (
+      <div className="auth-transition-screen" role="status" aria-live="polite">
+        <div className="auth-transition-card">Loading workspace...</div>
+      </div>
+    );
   }
 
   if (apps.data.length) {

@@ -7,6 +7,7 @@ export function CreatePlanButton() {
 
   return (
     <Button
+      data-testid="create-plan-button"
       size="sm"
       variant="outline"
       onClick={() => {

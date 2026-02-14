@@ -10,6 +10,7 @@ import (
 type CreatePlanFeatureRequest struct {
 	FeatureID string `json:"feature_id"`
 	PlanID    string `json:"plan_id"`
+	Interval  string `json:"interval"`
 }
 
 func CreatePlanFeature(c *routerx.Context) {
@@ -47,13 +48,18 @@ func CreatePlanFeature(c *routerx.Context) {
 		return
 	}
 
+	interval := body.Interval
+	if body.Interval != "" {
+		interval = plan.Interval
+	}
+
 	planFeature := &models.PlanFeature{
 		PublicID:   dbx.GenPublicID("pf"),
 		AppID:      c.AppID(),
 		PlanID:     plan.ID,
 		PlanItemID: planItem.ID,
 		FeatureID:  feature.ID,
-		Interval:   plan.Interval,
+		Interval:   interval,
 		Quota:      -1,
 	}
 	if err := c.DB().Create(planFeature); err != nil {

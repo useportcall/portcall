@@ -41,7 +41,7 @@ export function SaveIndicator() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="self-center text-sm text-slate-400 font-medium"
+          className="self-center text-sm text-muted-foreground font-medium"
         >
           Saved.
         </motion.div>

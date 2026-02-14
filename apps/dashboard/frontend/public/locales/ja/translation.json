@@ -1,0 +1,466 @@
+{
+  "welcome": "Portcall ダッシュボードへようこそ",
+  "language": "言語",
+  "english": "英語",
+  "japanese": "日本語",
+  "common": {
+    "cancel": "キャンセル",
+    "close": "閉じる",
+    "loading": "読み込み中...",
+    "processing": "処理中...",
+    "saving": "保存中..."
+  },
+  "app_selector": {
+    "aria_label": "アプリ選択",
+    "placeholder": "アプリを選択",
+    "apps_label": "アプリ",
+    "live": "本番",
+    "test": "テスト",
+    "create_title": "新しいアプリを作成",
+    "create_description": "開始するために新しいアプリ名を入力してください。",
+    "create_placeholder": "新しいアプリ名",
+    "creating": "作成中...",
+    "create_action": "アプリを作成",
+    "create_option": "新しいアプリを作成"
+  },
+  "home": {
+    "greeting": "ようこそ、{{name}}さん！",
+    "greeting_anon": "ようこそ！",
+    "subtitle": "プラン、ユーザー、サブスクリプション、請求をライブデータで管理します。",
+    "stats": {
+      "users": "ユーザー",
+      "users_meta": "サブスクリプション契約数: {{count}}",
+      "plans": "プラン",
+      "plans_meta": "契約可能なプラン",
+      "subscriptions": "サブスクリプション",
+      "subscriptions_meta": "現在のアクティブ数: {{count}}",
+      "health": "健全性",
+      "health_meta": "アクティブなサブスクリプション率"
+    },
+    "recent_users": "最近のユーザー",
+    "recent_subscriptions": "最近のサブスクリプション",
+    "no_users": "ユーザーはまだいません。",
+    "no_subscriptions": "サブスクリプションはまだありません。",
+    "quick_start": {
+      "title": "クイックスタート",
+      "plans": "プランを追加または管理",
+      "users": "ユーザーを追加または管理",
+      "company": "会社情報を追加",
+      "docs": "ドキュメントを見る"
+    }
+  },
+  "sidebar": {
+    "home": "ホーム",
+    "users": "ユーザー",
+    "plans": "プラン",
+    "quotes": "見積もり",
+    "subscriptions": "サブスクリプション",
+    "invoices": "請求書",
+    "company": "会社情報",
+    "integrations": "支払い連携",
+    "developer": "開発者",
+    "billing": "請求",
+    "expand": "サイドバーを展開",
+    "collapse": "サイドバーを折りたたむ"
+  },
+  "views": {
+    "error": {
+      "title": "問題が発生しました。",
+      "description": "予期しないエラーが発生しました。"
+    },
+    "invoices": {
+      "title": "請求書",
+      "description": "発行済み請求書を確認・管理できます。",
+      "table": {
+        "empty": "請求書はまだ発行されていません。",
+        "no_results": "条件に一致する請求書がありません。",
+        "search": "請求番号、メール、ユーザーIDで検索...",
+        "status_filter_label": "ステータス",
+        "from_date_label": "発行日（開始）",
+        "to_date_label": "発行日（終了）",
+        "filter_all": "すべてのステータス",
+        "reset_filters": "リセット",
+        "invoice_number": "請求書番号",
+        "total": "合計",
+        "customer": "顧客",
+        "status": "ステータス",
+        "issued": "発行日",
+        "view_invoice": "請求書を表示",
+        "pdf": "PDF",
+        "previous": "前へ",
+        "next": "次へ",
+        "rows_per_page": "1ページの件数",
+        "page": "{{total}}件中 {{page}} / {{totalPages}} ページ"
+      }
+    },
+    "subscriptions": {
+      "title": "サブスクリプション",
+      "description": "サブスクリプションを確認・管理できます。",
+      "table": {
+        "empty": "サブスクリプションはまだ作成されていません。",
+        "no_results": "検索条件に一致するサブスクリプションがありません。",
+        "search": "ユーザーのメールで検索...",
+        "status_filter_label": "ステータス",
+        "filter_all": "すべてのステータス",
+        "user": "ユーザー",
+        "plan": "プラン",
+        "status": "ステータス",
+        "created": "作成日",
+        "next_reset": "次回リセット",
+        "cancel": "サブスクリプションを解約",
+        "previous": "前へ",
+        "next": "次へ",
+        "rows_per_page": "1ページの件数",
+        "page": "{{total}}件中 {{page}} / {{totalPages}} ページ"
+      }
+    },
+    "subscription": {
+      "back": "サブスクリプション一覧へ戻る",
+      "heading": "{{email}} のサブスクリプション",
+      "description": "このサブスクリプションの詳細を確認できます。",
+      "summary": {
+        "title": "現在のサブスクリプション",
+        "subscription_id": "サブスクリプションID",
+        "related_plan": "関連プラン",
+        "status": "サブスクリプション状態",
+        "next_billing_date": "次回請求日"
+      },
+      "billing_meters": {
+        "title": "現在の請求期間の利用状況",
+        "description": "次回請求日までの従量課金機能の利用量と予測コストを確認できます。",
+        "projected_total": "予測合計",
+        "empty": "このサブスクリプションに従量課金機能はありません。"
+      },
+      "invoices": {
+        "title": "このサブスクリプションの請求書",
+        "empty": "このサブスクリプションに紐づく請求書はまだありません。"
+      }
+    },
+    "users": {
+      "title": "ユーザー",
+      "description": "ユーザーのプランと権限を管理できます。",
+      "table": {
+        "search": "メールまたは名前で検索...",
+        "email": "メール",
+        "name": "名前",
+        "status": "ステータス",
+        "payment": "支払い",
+        "subscription_filter": "サブスク",
+        "payment_filter": "支払い方法",
+        "subscription_filter_label": "サブスクリプション状態",
+        "payment_filter_label": "支払い方法の登録",
+        "subscription_option_all": "すべての状態",
+        "subscription_option_true": "有効なサブスクあり",
+        "subscription_option_false": "有効なサブスクなし",
+        "payment_option_all": "すべての状態",
+        "payment_option_true": "支払い方法あり",
+        "payment_option_false": "支払い方法なし",
+        "reset_filters": "リセット",
+        "filter_value_all": "すべて",
+        "filter_value_true": "あり",
+        "filter_value_false": "なし",
+        "previous": "前へ",
+        "next": "次へ",
+        "rows_per_page": "1ページの件数",
+        "page": "{{total}}人中 {{page}} / {{totalPages}} ページ",
+        "empty": "ユーザーはまだ追加されていません。"
+      },
+      "create": {
+        "title": "ユーザーを追加",
+        "description": "メールアドレスで既存ユーザーを紐付けます。",
+        "action": "ユーザーを追加",
+        "email": "メール",
+        "email_placeholder": "メールを入力"
+      }
+    },
+    "user": {
+      "back": "ユーザー一覧へ戻る",
+      "sections": {
+        "info": "ユーザー情報"
+      },
+      "fields": {
+        "email": "メール",
+        "name": "名前",
+        "name_placeholder": "名前を追加...",
+        "billing_address": "請求先住所",
+        "billing_address_empty": "請求先住所が未設定です。"
+      },
+      "subscription": {
+        "title": "現在のサブスクリプション",
+        "no_active": "有効なサブスクリプションはありません",
+        "id": "サブスクリプションID",
+        "status": "サブスクリプション状態",
+        "reset_date": "リセット日",
+        "manage": "サブスクリプション管理",
+        "subscribe_action": "プランに登録",
+        "subscribe_title": "ユーザーをプランに登録",
+        "subscribe_description": "このユーザーを登録するプランを選択してください。",
+        "search_plans": "プランを検索...",
+        "no_plans_found": "プランが見つかりません",
+        "no_plans_hint": "先にプラン画面でプランを作成してください",
+        "subscribe_confirm": "登録する",
+        "cancel_action": "サブスクリプションを解約",
+        "cancel_title": "サブスクリプションを解約",
+        "cancel_description": "このユーザーのサブスクリプションを解約してもよろしいですか？",
+        "cancel_no": "いいえ",
+        "cancel_yes": "はい、解約する",
+        "apply_discount_soon": "割引を適用（近日対応）",
+        "change_plan_soon": "プラン変更（近日対応）"
+      },
+      "payment_link": {
+        "open_button": "支払いリンクを作成",
+        "title": "支払いリンクを作成",
+        "description": "このユーザー向けの共有チェックアウトリンクを生成します。",
+        "plan_label": "プラン",
+        "plan_placeholder": "公開済みプランを選択",
+        "expires_label": "有効期限（日）",
+        "share_url": "このURLを共有:",
+        "create_button": "リンクを作成",
+        "done_button": "完了"
+      },
+      "payment_health": {
+        "title": "支払い状態",
+        "subscription_label": "サブスクリプション",
+        "latest_invoice_label": "最新の請求書",
+        "invoice_none": "なし",
+        "no_invoices_label": "請求書はまだありません",
+        "no_invoices_hint": "このユーザーの請求処理履歴はまだありません。",
+        "collection_failed_label": "回収失敗",
+        "collection_failed_hint": "支払い再試行が上限に達しました。支払い情報を更新して再開してください。",
+        "action_required_label": "対応が必要",
+        "action_required_hint": "最近の支払いが失敗し、再試行中です。",
+        "upcoming_charge_label": "請求予定",
+        "upcoming_charge_hint": "請求書は未回収のままです。",
+        "healthy_label": "正常",
+        "healthy_hint": "直近の請求は正常に回収されました。"
+      },
+      "entitlements": {
+        "title": "権限",
+        "description": "このユーザーがサブスクリプションに基づいて利用できる機能です。",
+        "empty": "権限はありません"
+      },
+      "metered_features": {
+        "title": "従量課金機能",
+        "description": "使用量ベースの機能（上限・割当あり）。",
+        "empty": "従量課金機能はありません",
+        "used": "{{count}} 使用済み",
+        "resets": "リセット: {{date}}"
+      },
+      "billing_meters": {
+        "title": "請求メーター",
+        "description": "この期間の従量課金利用を確認・管理できます。",
+        "projected_cost": "予測コスト",
+        "empty": "このユーザーの従量課金はありません。",
+        "set": "設定",
+        "click_to_edit": "クリックして編集",
+        "reset_title": "請求メーターをリセット",
+        "reset_description": "使用量を0にリセットしますか？この期間の請求に影響します。",
+        "reset_confirm": "0にリセット",
+        "pricing_per_unit": "{{amount}} / 単位",
+        "pricing_tiered": "段階課金",
+        "pricing_block": "ブロック課金",
+        "pricing_volume": "ボリューム課金"
+      },
+      "invoices": {
+        "title": "ユーザー請求書",
+        "empty": "このユーザー向けの請求書はまだありません。"
+      }
+    },
+    "plans": {
+      "title": "プラン",
+      "description": "既存プランの管理や新規プラン追加ができます。",
+      "empty": "プランが見つかりません。",
+      "table": {
+        "name": "名前",
+        "group": "グループ",
+        "fixed_charge": "固定料金",
+        "status": "ステータス",
+        "previous": "前へ",
+        "next": "次へ",
+        "rows_per_page": "1ページの件数",
+        "page": "{{total}}件中 {{page}} / {{totalPages}} ページ"
+      }
+    },
+    "plan": {
+      "back": "プラン一覧へ戻る",
+      "loading": "プランを読み込み中...",
+      "sections": {
+        "fixed_price": "固定料金",
+        "other": "その他の設定"
+      }
+    },
+    "quotes": {
+      "title": "見積もり",
+      "description": "既存見積もりの管理や新規見積もり作成ができます。",
+      "empty": "見積もりが見つかりません。",
+      "table": {
+        "name": "名前",
+        "status": "ステータス",
+        "status_filter_label": "ステータス",
+        "filter_all": "すべてのステータス",
+        "fixed_charge": "固定料金",
+        "previous": "前へ",
+        "next": "次へ",
+        "rows_per_page": "1ページの件数",
+        "page": "{{total}}件中 {{page}} / {{totalPages}} ページ"
+      }
+    },
+    "quote": {
+      "back": "見積もり一覧へ戻る"
+    },
+    "company": {
+      "title": "会社情報",
+      "description": "会社情報を確認・更新できます。",
+      "sections": {
+        "branding": "ブランド",
+        "general": "基本情報",
+        "address": "登記住所",
+        "tax": "VAT / 消費税情報",
+        "contact": "連絡先"
+      },
+      "fields": {
+        "registered_name": "登記上の会社名",
+        "dba": "屋号（DBA）",
+        "vat": "VAT番号",
+        "first_name": "名",
+        "last_name": "姓",
+        "phone": "連絡先電話番号"
+      },
+      "placeholders": {
+        "company_name": "会社名",
+        "optional": "任意"
+      },
+      "address": {
+        "line1": "住所1",
+        "line2": "住所2",
+        "city": "市区町村",
+        "state": "都道府県",
+        "postal_code": "郵便番号",
+        "country": "国"
+      }
+    },
+    "integrations": {
+      "title": "決済連携",
+      "description": "決済プロバイダーを接続して顧客からの支払いを受け付けます。",
+      "connected_providers": "接続済みプロバイダー"
+    },
+    "developer": {
+      "title": "開発者",
+      "public_key": "公開キー",
+      "secret_keys": "シークレットキー",
+      "secret_key_number": "シークレットキー #{{index}}",
+      "disable": "無効化",
+      "disabled": "無効",
+      "create_secret": "新しいシークレットキーを作成",
+      "secret_created_title": "APIシークレットを作成しました",
+      "secret_created_description": "このキーを安全な場所にコピーして保存してください。このメッセージを閉じると再表示できません。"
+    },
+    "usage": {
+      "title": "請求",
+      "description_live": "リソース使用量を監視し、プランを管理します",
+      "description_test": "リソース使用量とプラン上限を監視します",
+      "quotas": {
+        "users": {
+          "title": "ユーザー",
+          "description": "アプリで作成されたユーザー総数"
+        },
+        "subscriptions": {
+          "title": "サブスクリプション",
+          "description": "ユーザーの有効なサブスクリプション"
+        },
+        "unlimited": "無制限",
+        "of": "上限 {{count}}",
+        "exceeded": "上限を超えています。プランをアップグレードしてください",
+        "approaching": "上限間近です。残り {{count}}"
+      },
+      "messages": {
+        "upgrade_success_title": "アップグレード成功！",
+        "upgrade_success_body": "プランはProに更新されました。反映まで数秒かかる場合があります。",
+        "upgrade_cancelled": "アップグレードはキャンセルされました。いつでも再試行できます。",
+        "downgrade_scheduled_title": "ダウングレードを予約しました。",
+        "downgrade_scheduled_body": "次回請求サイクルでFreeに変更されます。",
+        "downgrade_complete_title": "ダウングレード完了。",
+        "downgrade_complete_body": "プランはFreeに変更されました。反映まで数秒かかる場合があります。",
+        "refresh": "ページを再読み込み"
+      },
+      "current_plan": {
+        "title": "現在のプラン",
+        "pro_description": "成長中のビジネス向けに無制限で利用可能",
+        "free_description": "Portcallを始めるのに最適",
+        "pro_badge": "Pro",
+        "active_badge": "有効",
+        "upgrade_title": "Proへアップグレード",
+        "upgrade_description": "月額49ドルでユーザー数・サブスクリプション数が無制限",
+        "upgrade_action": "アップグレード",
+        "upgrade_failed": "アップグレード開始に失敗しました。再試行してください。",
+        "refresh_upgrade": "アップグレードを有効化するにはページを再読み込みしてください。",
+        "downgrade_title": "Freeへダウングレード",
+        "downgrade_description": "制限付きの無料プランに戻します",
+        "downgrade_action": "ダウングレード",
+        "downgrade_failed": "ダウングレードに失敗しました。再試行してください。"
+      },
+      "pending": {
+        "next_cycle": "次回請求サイクル:",
+        "badge": "変更予定",
+        "dialog_title": "予定されたプラン変更",
+        "dialog_description": "次回請求サイクルで適用される変更が設定されています。",
+        "current_plan": "現在のプラン",
+        "scheduled_plan": "予定プラン",
+        "effective": "適用日",
+        "impact_title": "変更内容:"
+      },
+      "upgrade_dialog": {
+        "title": "アップグレード確認",
+        "description": "Proプランへアップグレードしますか？支払い完了のためリダイレクトされます。",
+        "after_title": "アップグレード後:",
+        "after_users": "ユーザー数無制限",
+        "after_subscriptions": "サブスクリプション数無制限",
+        "after_support": "優先サポート",
+        "after_price": "月額49ドル（毎月請求）",
+        "confirm": "アップグレードを確定"
+      },
+      "downgrade_dialog": {
+        "title": "ダウングレード確認",
+        "description": "Freeプランへダウングレードしますか？ユーザーとサブスクリプションの上限が下がります。",
+        "after_title": "ダウングレード後:",
+        "after_users": "ユーザー上限が下がります",
+        "after_subscriptions": "サブスクリプション上限が下がります",
+        "after_data": "既存データは削除されません",
+        "after_upgrade_again": "いつでも再アップグレードできます",
+        "confirm": "ダウングレードを確定"
+      },
+      "address": {
+        "title": "請求先住所",
+        "description": "請求書と請求連絡で使用される住所",
+        "add_title": "請求先住所を追加",
+        "edit_title": "請求先住所を編集",
+        "dialog_description": "この住所は請求書と請求関連の連絡に使用されます。",
+        "save_action": "住所を保存",
+        "empty": "請求先住所はまだ登録されていません。",
+        "fields": {
+          "line1": "住所1 *",
+          "line2": "住所2",
+          "line2_placeholder": "建物名・部屋番号など（任意）",
+          "city": "市区町村 *",
+          "state": "都道府県",
+          "postal_code": "郵便番号 *",
+          "country": "国 *",
+          "country_placeholder": "日本"
+        }
+      },
+      "invoices": {
+        "title": "請求書",
+        "description": "請求書の表示とダウンロード",
+        "empty": "請求書はまだありません",
+        "table": {
+          "invoice": "請求書",
+          "amount": "金額",
+          "status": "ステータス",
+          "date": "日付",
+          "actions": "操作",
+          "view": "表示"
+        }
+      }
+    }
+  }
+}

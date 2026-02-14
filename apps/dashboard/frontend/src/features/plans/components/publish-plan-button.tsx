@@ -45,7 +45,9 @@ export function PublishPlanButton({ plan }: { plan: Plan }) {
   return (
     <Dialog>
       <DialogTrigger asChild>
-        <Button size="sm">Save and publish</Button>
+        <Button size="sm" data-testid="publish-plan-button">
+          Save and publish
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -60,6 +62,7 @@ export function PublishPlanButton({ plan }: { plan: Plan }) {
             <Button variant="outline">Cancel</Button>
           </DialogClose>
           <Button
+            data-testid="confirm-publish-button"
             onClick={async () => {
               await publish({});
               setOpen(true);

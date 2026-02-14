@@ -1,6 +1,7 @@
 package plan_item
 
 import (
+	quotemodule "github.com/useportcall/portcall/apps/dashboard/internal/modules/quote"
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
@@ -15,6 +16,8 @@ type UpdatePlanItemRequest struct {
 	Maximum           *int          `json:"maximum"`
 	PublicTitle       string        `json:"public_title"`
 	PublicDescription string        `json:"public_description"`
+	Interval          string        `json:"interval"`       // billing interval: inherit, week, month, year
+	IntervalCount     *int          `json:"interval_count"` // number of intervals for the billing cycle
 }
 
 func UpdatePlanItem(c *routerx.Context) {
@@ -30,12 +33,32 @@ func UpdatePlanItem(c *routerx.Context) {
 		c.NotFound("Plan item not found")
 		return
 	}
+	locked, err := quotemodule.HasLockedQuoteForPlan(c, planItem.PlanID)
+	if err != nil {
+		c.ServerError("Failed to validate quote state", err)
+		return
+	}
+	if locked {
+		c.BadRequest("Plan item cannot be edited after quote is issued")
+		return
+	}
 
 	if body.PricingModel != "" {
 		if body.PricingModel == "fixed" {
 			c.BadRequest("cannot change pricing model for fixed plan item")
 			return
 		}
+
+		if body.PricingModel != "unit" && (planItem.Tiers == nil || len(*planItem.Tiers) == 0) {
+			tiers := []models.Tier{}
+			tiers = append(tiers, models.Tier{
+				Start:  0,
+				End:    -1,
+				Amount: 1000,
+			})
+			planItem.Tiers = &tiers
+		}
+
 		planItem.PricingModel = body.PricingModel
 	}
 
@@ -65,6 +88,22 @@ func UpdatePlanItem(c *routerx.Context) {
 
 	if body.PublicDescription != "" {
 		planItem.PublicDescription = body.PublicDescription
+	}
+
+	// Update billing interval for the plan item
+	if body.Interval != "" {
+		// Validate interval value
+		switch body.Interval {
+		case "inherit", "week", "month", "year":
+			planItem.Interval = body.Interval
+		default:
+			c.BadRequest("invalid interval: must be inherit, week, month, or year")
+			return
+		}
+	}
+
+	if body.IntervalCount != nil && *body.IntervalCount > 0 {
+		planItem.IntervalCount = *body.IntervalCount
 	}
 
 	if (planItem.Tiers == nil || len(*planItem.Tiers) == 0) && planItem.PricingModel == "tiered" {

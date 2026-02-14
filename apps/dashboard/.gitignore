@@ -1,0 +1,14 @@
+# Environment and secrets
+.env
+.env.*
+.envs
+.envs.*
+!.env.example
+!.envs.example
+
+# Build/runtime artifacts
+dashboard
+*.log
+logs/
+frontend/dist/
+frontend/node_modules/

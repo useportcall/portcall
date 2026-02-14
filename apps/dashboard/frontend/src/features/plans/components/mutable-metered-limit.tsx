@@ -1,3 +1,4 @@
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -7,74 +8,61 @@ import {
 import { useUpdatePlanFeatureForPlanItem } from "@/hooks";
 import { PlanFeature } from "@/models/plan-feature";
 import { useState } from "react";
+import {
+  getQuotaTitle,
+  parseQuotaInput,
+  sanitizeQuotaInput,
+} from "./mutable-metered-limit-utils";
 
 export default function MutableMeteredLimit({
   planFeature,
+  planId,
 }: {
   planFeature: PlanFeature;
+  planId: string;
 }) {
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState<string>("");
 
   const { mutate: updatePlanFeature } = useUpdatePlanFeatureForPlanItem(
-    planFeature.id
+    planFeature.id,
+    planId
   );
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <button className="cursor-pointer text-sm font-medium w-16">
-          {planFeature.quota === -1 && "no limit"}
-          {!planFeature.quota && "no limit"}
-          {planFeature.quota &&
-            planFeature.quota > 0 &&
-            planFeature.quota.toLocaleString("en-US", {
-              style: "decimal",
-            })}
+        <button
+          type="button"
+          data-testid="metered-limit-button"
+          aria-label="Metered limit"
+          className="cursor-pointer text-sm w-16 py-1 text-start"
+          onClick={() => setValue(planFeature.quota > 0 ? String(planFeature.quota) : "")}
+        >
+          {getQuotaTitle(planFeature.quota)}
         </button>
       </PopoverTrigger>
-      <PopoverContent>
-        <input
+      <PopoverContent className="p-0">
+        <Input
+          data-testid="metered-limit-input"
+          aria-label="Metered limit input"
           type="text"
           placeholder="100"
           value={value}
           onChange={(e) => {
-            if (e.target.value === "-") {
-              setValue("-");
-              return;
-            }
-
-            if (e.target.value === "") {
-              setValue("");
-              return;
-            }
-
-            const numValue = Number(e.target.value);
-
-            if (isNaN(numValue)) {
-              return;
-            }
-
-            setValue(numValue.toFixed(0));
+            const next = sanitizeQuotaInput(e.target.value);
+            if (next === null) return;
+            setValue(next);
           }}
-          className="outline-none"
           onBlur={(e) => {
-            let numValue: null | number = parseInt(e.target.value);
-            if (isNaN(numValue)) {
-              numValue = -1;
-            }
-
+            const numValue = parseQuotaInput(e.target.value);
             updatePlanFeature({ quota: numValue });
           }}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
               e.preventDefault();
 
-              let numValue: null | number = parseInt(value);
-              if (isNaN(numValue)) {
-                numValue = -1;
-              }
-
+              const numValue = parseQuotaInput(value);
               setValue(numValue.toString());
               updatePlanFeature({ quota: numValue });
               setOpen(false);

@@ -1,18 +1,19 @@
 package address
 
 import (
+	quotemodule "github.com/useportcall/portcall/apps/dashboard/internal/modules/quote"
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
 type UpdateAddressRequest struct {
-	Line1      string `json:"line1"`
-	Line2      string `json:"line2"`
-	City       string `json:"city"`
-	State      string `json:"state"`
-	PostalCode string `json:"postal_code"`
-	Country    string `json:"country"`
+	Line1      *string `json:"line1"`
+	Line2      *string `json:"line2"`
+	City       *string `json:"city"`
+	State      *string `json:"state"`
+	PostalCode *string `json:"postal_code"`
+	Country    *string `json:"country"`
 }
 
 func UpdateAddress(c *routerx.Context) {
@@ -29,29 +30,38 @@ func UpdateAddress(c *routerx.Context) {
 		c.NotFound("Address not found")
 		return
 	}
-
-	if body.Line1 != "" {
-		address.Line1 = body.Line1
+	locked, err := quotemodule.HasLockedQuoteForAddress(c, address.ID)
+	if err != nil {
+		c.ServerError("Failed to validate quote state", err)
+		return
+	}
+	if locked {
+		c.BadRequest("Address cannot be edited after quote is issued")
+		return
 	}
 
-	if body.Line2 != "" {
-		address.Line2 = body.Line2
+	if body.Line1 != nil {
+		address.Line1 = *body.Line1
 	}
 
-	if body.City != "" {
-		address.City = body.City
+	if body.Line2 != nil {
+		address.Line2 = *body.Line2
 	}
 
-	if body.State != "" {
-		address.State = body.State
+	if body.City != nil {
+		address.City = *body.City
 	}
 
-	if body.PostalCode != "" {
-		address.PostalCode = body.PostalCode
+	if body.State != nil {
+		address.State = *body.State
 	}
 
-	if body.Country != "" {
-		address.Country = body.Country
+	if body.PostalCode != nil {
+		address.PostalCode = *body.PostalCode
+	}
+
+	if body.Country != nil {
+		address.Country = *body.Country
 	}
 
 	if err := c.DB().Save(&address); err != nil {

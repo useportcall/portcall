@@ -36,6 +36,7 @@ func CreateSecret(c *routerx.Context) {
 	secret.PublicID = publicID
 	secret.AppID = c.AppID()
 	secret.KeyHash = hash
+	secret.KeyType = "api_key"
 
 	if err := c.DB().Create(secret); err != nil {
 		c.ServerError("Failed to create secret", err)

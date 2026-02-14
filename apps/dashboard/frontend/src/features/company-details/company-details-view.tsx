@@ -1,208 +1,33 @@
-import { BaseSection, BaseView, LabeledInput } from "@/components/base-view";
-import { SaveIndicator } from "@/components/save-indicator";
-import { useGetCompany, useUpdateCompany } from "@/hooks";
-import { useUpdateAddress } from "@/hooks/api/addresses";
-import { cn } from "@/lib/utils";
+import { BaseSection, BaseView } from "@/components/base-view";
+import { useGetCompany } from "@/hooks";
+import { MutableBillingAddressInput } from "./components/mutable-billing-address-input";
+import { MutableCompanyField } from "./components/mutable-company-field";
+import { CompanyLogoInput } from "./components/company-logo-input";
+import { useTranslation } from "react-i18next";
 
 export default function CompanyDetailsView() {
+  const { t } = useTranslation();
   const { data: company } = useGetCompany();
+  const c = company.data;
 
   return (
-    <BaseView
-      title="Company details"
-      description="Review company details here."
-      actions={<SaveIndicator />}
-    >
-      <BaseSection title="General information">
-        <MutableCompanyName company={company.data} />
-        <MutableBusinessAlias company={company.data} />
-      </BaseSection>
-      <BaseSection title="Registered business address">
-        <MutableBillingAddressInput
-          prop="line1"
-          address={company.data.billing_address}
-          placeholder="Address line 1"
-        />
-        <MutableBillingAddressInput
-          prop="line2"
-          address={company.data.billing_address}
-          placeholder="Address line 2"
-        />
-        <MutableBillingAddressInput
-          prop="city"
-          address={company.data.billing_address}
-          placeholder="City"
-        />
-        <MutableBillingAddressInput
-          prop="state"
-          address={company.data.billing_address}
-          placeholder="State"
-        />
-        <MutableBillingAddressInput
-          prop="postal_code"
-          address={company.data.billing_address}
-          placeholder="Postal code"
-        />
-        <MutableBillingAddressInput
-          prop="country"
-          address={company.data.billing_address}
-          placeholder="Country"
-        />
-      </BaseSection>
-      <BaseSection title="VAT / sales tax information">
-        <MutableVatNumber company={company.data} />
-      </BaseSection>
-      <BaseSection title="Contact details">
-        <MutableFirstName company={company.data} />
-        <MutableLastName company={company.data} />
-        <MutablePhoneNumber company={company.data} />
-      </BaseSection>
+    <BaseView title={t("views.company.title")} description={t("views.company.description")}>
+      <BaseSection title={t("views.company.sections.branding")}><CompanyLogoInput /></BaseSection>
+      <BaseSection title={t("views.company.sections.general")}><MutableCompanyField id="company_name" label={t("views.company.fields.registered_name")} defaultValue={c.name || ""} placeholder={t("views.company.placeholders.company_name")} payloadKey="name" /><MutableCompanyField id="business_alias" label={t("views.company.fields.dba")} defaultValue={c.alias || ""} placeholder={t("views.company.placeholders.optional")} payloadKey="alias" /></BaseSection>
+      <BaseSection title={t("views.company.sections.address")}>{(["line1", "line2", "city", "state", "postal_code", "country"] as const).map((prop) => <MutableBillingAddressInput key={prop} prop={prop} address={c.billing_address} placeholder={placeholderForAddress(prop, t)} />)}</BaseSection>
+      <BaseSection title={t("views.company.sections.tax")}><MutableCompanyField id="vat_number" label={t("views.company.fields.vat")} defaultValue={c.vat_number || ""} placeholder="GB1234567" payloadKey="vat_number" /></BaseSection>
+      <BaseSection title={t("views.company.sections.contact")}><MutableCompanyField id="first_name" label={t("views.company.fields.first_name")} defaultValue={c.first_name || ""} placeholder={t("views.company.fields.first_name")} payloadKey="first_name" /><MutableCompanyField id="last_name" label={t("views.company.fields.last_name")} defaultValue={c.last_name || ""} placeholder={t("views.company.fields.last_name")} payloadKey="last_name" /><MutableCompanyField id="phone_number" label={t("views.company.fields.phone")} defaultValue={c.phone || ""} placeholder="+44 1234 567890" payloadKey="phone_number" /></BaseSection>
     </BaseView>
   );
 }
 
-function MutableCompanyName({ company }: { company: any }) {
-  const { mutateAsync: updateCompany } = useUpdateCompany();
-
-  return (
-    <LabeledInput
-      id="company_name"
-      label="Registered business name"
-      defaultValue={company?.name || ""}
-      placeholder="Company name"
-      helperText=""
-      className={cn(" text-lg outline-none w-96")}
-      onBlur={(e) => {
-        if (e.target.value.length > 0) {
-          updateCompany({ name: e.target.value });
-        }
-      }}
-    />
-  );
-}
-
-function MutableBusinessAlias({ company }: { company: any }) {
-  const { mutateAsync: updateCompany } = useUpdateCompany();
-
-  return (
-    <LabeledInput
-      id="business_alias"
-      helperText=""
-      label="Doing business as (DBA)"
-      defaultValue={company?.alias || ""}
-      placeholder="Optional"
-      className={cn("text-lg outline-none w-96")}
-      onBlur={(e) => {
-        if (e.target.value.length > 0) {
-          updateCompany({ alias: e.target.value });
-        }
-      }}
-    />
-  );
-}
-
-function MutableVatNumber({ company }: { company: any }) {
-  const { mutateAsync: updateCompany } = useUpdateCompany();
-
-  return (
-    <LabeledInput
-      id="vat_number"
-      helperText=""
-      label="VAT number"
-      defaultValue={company?.vat_number || ""}
-      placeholder="GB1234567"
-      className={cn("text-lg outline-none w-96")}
-      onBlur={(e) => {
-        if (e.target.value.length > 0) {
-          updateCompany({ vat_number: e.target.value });
-        }
-      }}
-    />
-  );
-}
-
-function MutableFirstName({ company }: { company: any }) {
-  const { mutateAsync: updateCompany } = useUpdateCompany();
-
-  return (
-    <LabeledInput
-      id="first_name"
-      helperText=""
-      label="First name"
-      defaultValue={company?.first_name || ""}
-      placeholder="First name"
-      className={cn(" text-lg outline-none w-96")}
-      onBlur={(e) => {
-        if (e.target.value.length > 0) {
-          updateCompany({ first_name: e.target.value });
-        }
-      }}
-    />
-  );
-}
-
-function MutableLastName({ company }: { company: any }) {
-  const { mutateAsync: updateCompany } = useUpdateCompany();
-
-  return (
-    <LabeledInput
-      id="last_name"
-      label="Last name"
-      helperText=""
-      defaultValue={company?.last_name || ""}
-      placeholder="Last name"
-      className={cn(" text-lg outline-none w-96")}
-      onBlur={(e) => {
-        if (e.target.value.length > 0) {
-          updateCompany({ last_name: e.target.value });
-        }
-      }}
-    />
-  );
-}
-function MutablePhoneNumber({ company }: { company: any }) {
-  const { mutateAsync: updateCompany } = useUpdateCompany();
-
-  return (
-    <LabeledInput
-      id="phone_number"
-      helperText=""
-      label="Contact phone number"
-      defaultValue={company?.phone || ""}
-      placeholder="+44 1234 567890"
-      className={cn(" text-lg outline-none w-96")}
-      onBlur={(e) => {
-        if (e.target.value.length > 0) {
-          updateCompany({ phone: e.target.value });
-        }
-      }}
-    />
-  );
-}
-
-function MutableBillingAddressInput({
-  prop,
-  address,
-  placeholder,
-}: {
-  prop: string;
-  address: any;
-  placeholder: string;
-}) {
-  const { mutateAsync } = useUpdateAddress(address.id);
-
-  return (
-    <LabeledInput
-      id={prop}
-      helperText=""
-      label={placeholder}
-      defaultValue={address[prop] || ""}
-      placeholder={placeholder}
-      className={cn("text-lg outline-none w-96")}
-      onBlur={(e) => {
-        if (e.target.value === address[prop]) return;
-        mutateAsync({ [prop]: e.target.value });
-      }}
-    />
-  );
+function placeholderForAddress(prop: "line1" | "line2" | "city" | "state" | "postal_code" | "country", t: (k: string) => string) {
+  switch (prop) {
+    case "line1": return t("views.company.address.line1");
+    case "line2": return t("views.company.address.line2");
+    case "city": return t("views.company.address.city");
+    case "state": return t("views.company.address.state");
+    case "postal_code": return t("views.company.address.postal_code");
+    case "country": return t("views.company.address.country");
+  }
 }

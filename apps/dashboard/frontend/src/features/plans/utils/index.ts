@@ -30,12 +30,12 @@ export function currencyCodetoSymbol(code: string): string {
 export function toSnakeCase(str: string): string {
   return (
     str
+      .trim()
       .replace(/([a-z0-9])([A-Z])/g, "$1_$2") // camelCase or PascalCase → snake_case
-      .replace(/[\s\-]+/g, "_") // spaces and hyphens → underscores
+      .replace(/[\s-]+/g, "_") // spaces and hyphens → underscores
       .replace(/__+/g, "_") // collapse multiple underscores
       // replace / with underscore
-      .replace(/[\/\\]+/g, "_")
-      .trim()
+      .replace(/[/\\]+/g, "_")
       .toLowerCase()
   );
 }

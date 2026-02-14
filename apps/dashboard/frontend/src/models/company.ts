@@ -9,8 +9,9 @@ export type Company = {
   phone: string;
   vat_number: string;
   business_category: string;
-  billing_address: Address | null;
+  billing_address: Address;
   shipping_address: Address | null;
   created_at: string;
   updated_at: string;
+  icon_logo_url: string | null;
 };

@@ -16,7 +16,7 @@ export default function CopyButton({ text }: { text: string }) {
 
   return (
     <button onClick={onClick} className="flex justify-center items-center">
-      <Copy className="w-4 h-4 hover:text-slate-500 active:text-slate-300" />
+      <Copy className="w-4 h-4 hover:text-muted-foreground active:text-muted-foreground/70" />
     </button>
   );
 }
