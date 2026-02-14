@@ -1,3 +1,4 @@
+import I18nProvider from "@/components/i18n-provider";
 import ReactQueryProvider from "@/components/react-query-provider";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
@@ -28,7 +29,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-slate-50`}
       >
-        <ReactQueryProvider>{children}</ReactQueryProvider>
+        <I18nProvider>
+          <ReactQueryProvider>{children}</ReactQueryProvider>
+        </I18nProvider>
       </body>
     </html>
   );

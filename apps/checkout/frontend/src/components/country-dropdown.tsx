@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 import { ChevronDown, CheckIcon, Globe } from "lucide-react";
 import { CircleFlag } from "react-circle-flags";
 import { countries } from "country-data-list";
+import { useTranslation } from "react-i18next";
 
 export interface Country {
   alpha2: string;
@@ -43,26 +44,27 @@ const CountryDropdownComponent = (
   {
     options = countries.all.filter(
       (country: Country) =>
-        country.emoji && country.status !== "deleted" && country.ioc !== "PRK"
+        country.emoji && country.status !== "deleted" && country.ioc !== "PRK",
     ),
     onChange,
     defaultValue,
     disabled = false,
-    placeholder = "Select a country",
+    placeholder,
     slim = false,
     ...props
   }: CountryDropdownProps,
-  ref: React.ForwardedRef<HTMLButtonElement>
+  ref: React.ForwardedRef<HTMLButtonElement>,
 ) => {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState<Country | undefined>(
-    undefined
+    undefined,
   );
 
   useEffect(() => {
     if (defaultValue) {
       const initialCountry = options.find(
-        (country) => country.alpha2 === defaultValue
+        (country) => country.alpha2 === defaultValue,
       );
       if (initialCountry) {
         setSelectedCountry(initialCountry);
@@ -78,19 +80,19 @@ const CountryDropdownComponent = (
 
   const handleSelect = useCallback(
     (country: Country) => {
-      console.log("🌍 CountryDropdown value: ", country);
       setSelectedCountry(country);
       onChange?.(country);
       setOpen(false);
     },
-    [onChange]
+    [onChange],
   );
 
   const triggerClasses = cn(
     "flex h-9 w-full items-center justify-between whitespace-nowrap rounded-md border border-input bg-transparent px-3 py-2 text-sm shadow-xs ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
     slim === true && "w-20",
-    "bg-white"
+    "bg-white",
   );
+  const resolvedPlaceholder = placeholder || t("form.select_country");
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -117,11 +119,7 @@ const CountryDropdownComponent = (
           </div>
         ) : (
           <span>
-            {slim === false ? (
-              placeholder || setSelectedCountry.name
-            ) : (
-              <Globe size={20} />
-            )}
+            {slim === false ? resolvedPlaceholder : <Globe size={20} />}
           </span>
         )}
         <ChevronDown size={16} />
@@ -135,16 +133,16 @@ const CountryDropdownComponent = (
         <Command className="w-full max-h-[200px] sm:max-h-[270px]">
           <CommandList>
             <div className="sticky top-0 z-10 bg-popover">
-              <CommandInput placeholder="Search country..." />
+              <CommandInput placeholder={t("form.search_country")} />
             </div>
-            <CommandEmpty>No country found.</CommandEmpty>
+            <CommandEmpty>{t("form.no_country_found")}</CommandEmpty>
             <CommandGroup>
               {options
                 .filter((x) => x.name)
-                .map((option, key: number) => (
+                .map((option) => (
                   <CommandItem
                     className="flex items-center w-full gap-2"
-                    key={key}
+                    key={option.alpha2}
                     onSelect={() => handleSelect(option)}
                   >
                     <div className="flex flex-grow w-0 space-x-2 overflow-hidden">
@@ -163,7 +161,7 @@ const CountryDropdownComponent = (
                         "ml-auto h-4 w-4 shrink-0",
                         option.name === selectedCountry?.name
                           ? "opacity-100"
-                          : "opacity-0"
+                          : "opacity-0",
                       )}
                     />
                   </CommandItem>

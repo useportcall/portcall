@@ -1,25 +1,24 @@
 package checkout_session
 
 import (
-	"fmt"
-	"os"
-
 	"github.com/useportcall/portcall/libs/go/apix"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
-func GetCheckoutSession(c *routerx.Context) {
-	sessionID := c.Param("id")
+func GetCheckoutSession(c *routerx.Context, checkoutSession *models.CheckoutSession) {
 
-	var checkoutSession models.CheckoutSession
-	if err := c.DB().FindFirst(&checkoutSession, "public_id = ?", sessionID); err != nil {
-		c.NotFound("checkout session not found")
+	if err := c.DB().FindForID(checkoutSession.UserID, &checkoutSession.User); err != nil {
+		c.ServerError("internal server error", err)
+		return
+	}
+	if err := c.DB().FindForID(checkoutSession.PlanID, &checkoutSession.Plan); err != nil {
+		c.ServerError("internal server error", err)
 		return
 	}
 
-	response := new(apix.CheckoutSession).Set(&checkoutSession)
-	response.URL = fmt.Sprintf("%s/%s", os.Getenv("CHECKOUT_URL"), checkoutSession.PublicID)
+	response := new(apix.CheckoutSession).Set(checkoutSession)
+	response.ExternalSessionID = ""
 
 	if checkoutSession.BillingAddressID != nil {
 		var billingAddress models.Address
@@ -31,34 +30,32 @@ func GetCheckoutSession(c *routerx.Context) {
 		response.BillingAddress.Set(&billingAddress)
 	}
 
-	var companyAddress models.Address
-	if err := c.DB().FindForID(checkoutSession.CompanyAddressID, &companyAddress); err != nil {
-		c.ServerError("internal server error", err)
-		return
+	// Company address is optional - only load if set
+	if checkoutSession.CompanyAddressID != nil && *checkoutSession.CompanyAddressID > 0 {
+		var companyAddress models.Address
+		if err := c.DB().FindForID(*checkoutSession.CompanyAddressID, &companyAddress); err != nil {
+			c.ServerError("internal server error", err)
+			return
+		}
+		response.CompanyAddress = &apix.Address{}
+		response.CompanyAddress.Set(&companyAddress)
 	}
-	response.CompanyAddress = &apix.Address{}
-	response.CompanyAddress.Set(&companyAddress)
 
-	// company
+	// company - optional
 	var company models.Company
 	if err := c.DB().FindFirst(&company, "app_id = ?", checkoutSession.AppID); err != nil {
-		c.ServerError("internal server error", err)
-		return
-	}
-	response.Company = &apix.Company{}
-	response.Company.Set(&company)
-
-	var dbPlan *models.Plan
-	if err := c.DB().FindForID(checkoutSession.PlanID, &dbPlan); err != nil {
-		c.ServerError("internal server error", err)
-		return
+		// Company is optional, don't fail
+	} else {
+		response.Company = &apix.Company{}
+		response.Company.Set(&company)
 	}
 
+	plan := &checkoutSession.Plan
 	response.Plan = &apix.Plan{}
-	response.Plan.Set(dbPlan)
+	response.Plan.Set(plan)
 
 	var planItems []models.PlanItem
-	if err := c.DB().List(&planItems, "plan_id = ?", dbPlan.ID); err != nil {
+	if err := c.DB().List(&planItems, "plan_id = ?", plan.ID); err != nil {
 		c.ServerError("internal server error", err)
 		return
 	}
@@ -69,39 +66,9 @@ func GetCheckoutSession(c *routerx.Context) {
 		response.Plan.Items = append(response.Plan.Items, planItem)
 	}
 
-	var planFeatures []models.PlanFeature
-	if err := c.DB().List(&planFeatures, "plan_id = ?", dbPlan.ID); err != nil {
+	if err := loadPlanFeatures(c.DB(), plan.ID, planItems, response.Plan); err != nil {
 		c.ServerError("internal server error", err)
 		return
-	}
-
-	for _, pf := range planFeatures {
-		var feature models.Feature
-		if err := c.DB().FindForID(pf.FeatureID, &feature); err != nil {
-			c.ServerError("internal server error", err)
-			return
-		}
-
-		if feature.IsMetered {
-			res := apix.PlanFeature{}
-			res.Set(&pf)
-			res.Feature = apix.Feature{ID: feature.PublicID, IsMetered: feature.IsMetered}
-
-			// find plan item
-			planItem := apix.PlanItem{}
-			for _, item := range planItems {
-				if item.ID == pf.PlanItemID {
-					planItem.Set(&item)
-					res.PlanItem = &planItem
-					break
-				}
-			}
-
-			response.Plan.MeteredFeatures = append(response.Plan.MeteredFeatures, res)
-		} else {
-			res := apix.Feature{ID: feature.PublicID, IsMetered: feature.IsMetered}
-			response.Plan.Features = append(response.Plan.Features, res)
-		}
 	}
 
 	c.OK(response)

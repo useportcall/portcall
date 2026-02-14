@@ -19,9 +19,18 @@ func main() {
 		log.Fatal("PORT environment variable not set")
 	}
 
-	db := dbx.New()
-	crypto := cryptox.New()
-	q := qx.New()
+	db, err := dbx.New()
+	if err != nil {
+		log.Fatalf("failed to init db: %v", err)
+	}
+	crypto, err := cryptox.New()
+	if err != nil {
+		log.Fatalf("failed to init crypto: %v", err)
+	}
+	q, err := qx.New()
+	if err != nil {
+		log.Fatalf("failed to init queue: %v", err)
+	}
 
 	router := router.Init(db, crypto, q)
 

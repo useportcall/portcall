@@ -1,11 +1,14 @@
 import { FormControl, FormItem, FormLabel } from "@/components/ui/form";
 import { CardElement } from "@stripe/react-stripe-js";
+import { useTranslation } from "react-i18next";
 
 export function CheckoutInput() {
+  const { t } = useTranslation();
+
   return (
     <div>
       <FormItem className="w-full flex-2 relative">
-        <FormLabel>Card defails</FormLabel>
+        <FormLabel>{t("form.card_details")}</FormLabel>
         <FormControl className="min-h-9">
           <CardElement
             options={{

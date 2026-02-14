@@ -1,0 +1,86 @@
+{
+    "checkout": "Checkout",
+    "language": "Language",
+    "language_option_english": "English",
+    "language_option_japanese": "Japanese",
+    "pay_now": "Pay Now",
+    "powered_by": "Powered by Portcall",
+    "unsupported_payment_provider": "Unsupported payment provider",
+    "form": {
+        "card_details": "Card details",
+        "billing_details": "Billing details",
+        "country_territory": "Country/territory",
+        "select_country": "Select country",
+        "search_country": "Search country...",
+        "no_country_found": "No country found.",
+        "address_line_1": "Address line 1",
+        "address_line_1_placeholder": "1 Oxford Street",
+        "address_line_2": "Address line 2",
+        "postal_code": "Postal Code",
+        "postal_code_placeholder": "WC1A 1NU",
+        "city": "City",
+        "city_placeholder": "London",
+        "cvc": "CVC",
+        "taxes": "Taxes"
+    },
+    "submit": {
+        "pay": "Pay {{total}}",
+        "processing": "Processing...",
+        "payment_successful": "Payment successful!"
+    },
+    "validation": {
+        "line1_required": "Address line 1 is required",
+        "city_required": "City is required",
+        "postal_code_required": "Postal code is required",
+        "country_required": "Country is required"
+    },
+    "order_summary": {
+        "title": "Order Summary",
+        "recurs": "Recurs {{interval}}",
+        "then": "Then",
+        "starting_on": "starting on {{date}}",
+        "unknown_interval": "Unknown",
+        "what_you_get": "Here's what you get:",
+        "features": "Features",
+        "no_features": "No features included",
+        "metered_features": "Metered features",
+        "no_metered": "No metered features included",
+        "unlimited": "Unlimited",
+        "limit": "Limit: {{quota}} {{interval}}",
+        "pay_today": "Pay {{amount}} today",
+        "starting_at": "starting at {{value}} / {{unit}}",
+        "free": "free",
+        "unit": "unit"
+    },
+    "intervals": {
+        "day": "Daily",
+        "week": "Weekly",
+        "month": "Monthly",
+        "year": "Yearly",
+        "per_day": "per day",
+        "per_week": "per week",
+        "per_month": "per month",
+        "per_year": "per year"
+    },
+    "payment_details": "Payment details",
+    "payment_description": "Complete your subscription by providing your payment details",
+    "test_mode": {
+        "autofill_button": "Autofill test details"
+    },
+    "subtotal": "Subtotal",
+    "total_due": "Total due",
+    "success": {
+        "title": "Payment Successful!",
+        "message": "Thank you for your subscription. Your payment has been processed successfully.",
+        "whats_next": "What's Next?",
+        "confirmation_email": "You'll receive a confirmation email shortly with your subscription details.",
+        "return_dashboard": "Return to Dashboard"
+    },
+    "error": {
+        "invalid_link": "Invalid checkout link.",
+        "loading": "Loading...",
+        "session_error": "Unable to load checkout session.",
+        "save_billing_address": "Failed to save billing address. Please try again.",
+        "payment_failed_retry": "Payment failed. Please try again."
+    }
+}

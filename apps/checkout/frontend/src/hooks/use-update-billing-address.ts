@@ -1,7 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
+import { CheckoutSessionCredentials } from "./checkout-session-params";
 
-export function useUpdateBillingAddress() {
+export function useUpdateBillingAddress(
+  credentials: CheckoutSessionCredentials | null,
+) {
   return useMutation({
     mutationFn: async (address: {
       line1: string;
@@ -11,16 +14,18 @@ export function useUpdateBillingAddress() {
       postal_code: string;
       country: string;
     }) => {
-      const id = new URLSearchParams(window.location.search).get("id");
-
-      if (!id) {
-        throw new Error("missing checkout session id");
+      if (!credentials) {
+        throw new Error("missing checkout session credentials");
       }
 
-      const url = "/api/checkout-sessions/" + id + "/address";
+      const url = "/api/checkout-sessions/" + credentials.id + "/address";
 
       const { data } = await axios.post(url, address, {
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Checkout-Session-Token": credentials.token,
+          "Cache-Control": "no-store",
+        },
       });
 
       return data.data;

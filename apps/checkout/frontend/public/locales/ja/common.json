@@ -1,0 +1,86 @@
+{
+    "checkout": "お支払い",
+    "language": "言語",
+    "language_option_english": "英語",
+    "language_option_japanese": "日本語",
+    "pay_now": "今すぐ支払う",
+    "powered_by": "Portcall 提供",
+    "unsupported_payment_provider": "未対応の決済プロバイダです",
+    "form": {
+        "card_details": "カード情報",
+        "billing_details": "請求先情報",
+        "country_territory": "国/地域",
+        "select_country": "国を選択",
+        "search_country": "国を検索...",
+        "no_country_found": "該当する国が見つかりません。",
+        "address_line_1": "住所1",
+        "address_line_1_placeholder": "渋谷1-2-3",
+        "address_line_2": "住所2",
+        "postal_code": "郵便番号",
+        "postal_code_placeholder": "150-0002",
+        "city": "市区町村",
+        "city_placeholder": "渋谷区",
+        "cvc": "CVC",
+        "taxes": "税金"
+    },
+    "submit": {
+        "pay": "{{total}} を支払う",
+        "processing": "処理中...",
+        "payment_successful": "支払いが完了しました！"
+    },
+    "validation": {
+        "line1_required": "住所1は必須です",
+        "city_required": "市区町村は必須です",
+        "postal_code_required": "郵便番号は必須です",
+        "country_required": "国/地域は必須です"
+    },
+    "order_summary": {
+        "title": "注文概要",
+        "recurs": "{{interval}}ごとに更新",
+        "then": "その後",
+        "starting_on": "{{date}}から",
+        "unknown_interval": "不明",
+        "what_you_get": "含まれる内容:",
+        "features": "機能",
+        "no_features": "機能は含まれていません",
+        "metered_features": "従量課金機能",
+        "no_metered": "従量課金機能は含まれていません",
+        "unlimited": "無制限",
+        "limit": "上限: {{quota}} {{interval}}",
+        "pay_today": "本日のお支払い: {{amount}}",
+        "starting_at": "{{value}} / {{unit}} から",
+        "free": "無料",
+        "unit": "単位"
+    },
+    "intervals": {
+        "day": "毎日",
+        "week": "毎週",
+        "month": "毎月",
+        "year": "毎年",
+        "per_day": "/日",
+        "per_week": "/週",
+        "per_month": "/月",
+        "per_year": "/年"
+    },
+    "payment_details": "お支払い詳細",
+    "payment_description": "お支払い情報を入力してサブスクリプションを完了してください",
+    "test_mode": {
+        "autofill_button": "テスト情報を自動入力"
+    },
+    "subtotal": "小計",
+    "total_due": "合計金額",
+    "success": {
+        "title": "お支払い完了！",
+        "message": "サブスクリプションのご登録ありがとうございます。お支払いが正常に処理されました。",
+        "whats_next": "次のステップ",
+        "confirmation_email": "サブスクリプションの詳細を記載した確認メールをまもなくお送りします。",
+        "return_dashboard": "ダッシュボードに戻る"
+    },
+    "error": {
+        "invalid_link": "無効なチェックアウトリンクです。",
+        "loading": "読み込み中...",
+        "session_error": "チェックアウトセッションを読み込めませんでした。",
+        "save_billing_address": "請求先住所を保存できませんでした。もう一度お試しください。",
+        "payment_failed_retry": "支払いに失敗しました。もう一度お試しください。"
+    }
+}
