@@ -3,6 +3,7 @@ package emailx
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"log"
 	"net/smtp"
 	"os"
@@ -10,6 +11,9 @@ import (
 )
 
 func SendTemplateEmail(payload []byte, tmplFileName, subject, from string, to []string) error {
+	if len(to) == 0 {
+		return fmt.Errorf("recipient list is empty")
+	}
 	var body any
 	if err := json.Unmarshal(payload, &body); err != nil {
 		return err
@@ -17,12 +21,12 @@ func SendTemplateEmail(payload []byte, tmplFileName, subject, from string, to []
 
 	tmpl, err := template.ParseFiles(tmplFileName)
 	if err != nil {
-		log.Fatal("failed to parse template:", err)
+		return fmt.Errorf("failed to parse template: %w", err)
 	}
 
 	var htmlContentBuf bytes.Buffer
 	if err := tmpl.Execute(&htmlContentBuf, body); err != nil {
-		log.Fatal("failed to execute template:", err)
+		return fmt.Errorf("failed to execute template: %w", err)
 	}
 	htmlContent := htmlContentBuf.String()
 
@@ -37,8 +41,12 @@ func SendTemplateEmail(payload []byte, tmplFileName, subject, from string, to []
 		"\r\n")
 
 	// No auth, no TLS; MailHog/MailDev accept this by default
-	if err := smtp.SendMail(os.Getenv("SMTP_SERVER"), nil, from, to, msg); err != nil {
-		log.Fatal(err)
+	smtpServer := os.Getenv("SMTP_SERVER")
+	if smtpServer == "" {
+		return fmt.Errorf("SMTP_SERVER environment variable is not set")
+	}
+	if err := smtp.SendMail(smtpServer, nil, from, to, msg); err != nil {
+		return err
 	}
 
 	log.Println("Email sent")

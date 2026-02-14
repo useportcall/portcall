@@ -7,7 +7,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"log"
 	"os"
 )
 
@@ -21,18 +20,24 @@ type crypto struct {
 	key []byte
 }
 
-func New() ICrypto {
+func New() (ICrypto, error) { return NewFromEnv() }
+
+func NewFromEnv() (ICrypto, error) {
 	b64key := os.Getenv("AES_ENCRYPTION_KEY")
 	if b64key == "" {
-		log.Fatal("AES_ENCRYPTION_KEY environment variable not set")
+		return nil, fmt.Errorf("AES_ENCRYPTION_KEY environment variable not set")
 	}
 
+	return NewFromBase64Key(b64key)
+}
+
+func NewFromBase64Key(b64key string) (ICrypto, error) {
 	key, err := base64.StdEncoding.DecodeString(b64key)
 	if err != nil {
-		log.Fatalf("failed to encrypt restricted key: %v", err)
+		return nil, fmt.Errorf("failed to decode AES_ENCRYPTION_KEY: %w", err)
 	}
 
-	return &crypto{key: key}
+	return &crypto{key: key}, nil
 }
 
 // Encrypts the plaintext API key using AES-GCM

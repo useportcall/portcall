@@ -5,10 +5,65 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"time"
 )
 
 type postmarkEmailClient struct {
 	apiKey string
+}
+
+// PostmarkWebhookType represents the type of webhook event
+type PostmarkWebhookType string
+
+const (
+	PostmarkTypeBounce             PostmarkWebhookType = "Bounce"
+	PostmarkTypeSpamComplaint      PostmarkWebhookType = "SpamComplaint"
+	PostmarkTypeSubscriptionChange PostmarkWebhookType = "SubscriptionChange"
+)
+
+// Helper struct for unmarshaling to check type
+type PostmarkBaseEvent struct {
+	RecordType PostmarkWebhookType `json:"RecordType"`
+	MessageID  string              `json:"MessageID"`
+	Tag        string              `json:"Tag,omitempty"`
+}
+
+// PostmarkBounceEvent represents a bounce webhook
+type PostmarkBounceEvent struct {
+	PostmarkBaseEvent
+	ID            int64     `json:"ID"`
+	Type          string    `json:"Type"`
+	TypeCode      int       `json:"TypeCode"`
+	Name          string    `json:"Name"`
+	Description   string    `json:"Description"`
+	Details       string    `json:"Details"`
+	Email         string    `json:"Email"`
+	From          string    `json:"From"`
+	BouncedAt     time.Time `json:"BouncedAt"`
+	DumpAvailable bool      `json:"DumpAvailable"`
+	Inactive      bool      `json:"Inactive"`
+	CanActivate   bool      `json:"CanActivate"`
+	Subject       string    `json:"Subject"`
+}
+
+// PostmarkSpamComplaintEvent represents a spam complaint webhook
+type PostmarkSpamComplaintEvent struct {
+	PostmarkBaseEvent
+	ID            int64     `json:"ID"`
+	Type          string    `json:"Type"`
+	TypeCode      int       `json:"TypeCode"`
+	Name          string    `json:"Name"`
+	Tag           string    `json:"Tag"`
+	MessageID     string    `json:"MessageID"`
+	Email         string    `json:"Email"`
+	From          string    `json:"From"`
+	Description   string    `json:"Description"`
+	Details       string    `json:"Details"`
+	BouncedAt     time.Time `json:"BouncedAt"`
+	DumpAvailable bool      `json:"DumpAvailable"`
+	Inactive      bool      `json:"Inactive"`
+	CanActivate   bool      `json:"CanActivate"`
+	Subject       string    `json:"Subject"`
 }
 
 // EmailRequest represents the structure expected by Postmark's Send API

@@ -17,6 +17,8 @@ type CheckoutSession struct {
 	ExternalPublicKey    *string   `json:"external_public_key"`
 	ExternalProvider     string    `json:"external_provider"`
 	ExternalSessionID    string    `json:"external_session_id"`
+	UserID               string    `json:"user_id"`
+	PlanID               string    `json:"plan_id"`
 	Plan                 *Plan     `json:"plan"`
 	RedirectURL          *string   `json:"redirect_url"`
 	CancelURL            *string   `json:"cancel_url"`
@@ -36,6 +38,10 @@ func (cs *CheckoutSession) Set(checkoutSession *models.CheckoutSession) *Checkou
 	cs.ExternalSessionID = checkoutSession.ExternalSessionID
 	cs.RedirectURL = checkoutSession.RedirectURL
 	cs.CancelURL = checkoutSession.CancelURL
+
+	// Set user_id and plan_id from the preloaded relationships
+	cs.UserID = checkoutSession.User.PublicID
+	cs.PlanID = checkoutSession.Plan.PublicID
 
 	checkoutURL := os.Getenv("CHECKOUT_URL")
 	if checkoutURL == "" {

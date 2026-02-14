@@ -10,6 +10,7 @@ import (
 	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/logx"
 	"github.com/useportcall/portcall/libs/go/qx"
+	"github.com/useportcall/portcall/libs/go/storex"
 )
 
 type IRouter interface {
@@ -20,6 +21,9 @@ type IRouter interface {
 	Use(middleware HandlerFunc) gin.IRoutes
 	Run(addr ...string) error
 	NoRoute(handler HandlerFunc)
+	LoadHTMLGlob(pattern string)
+	SetStore(store storex.IStore)
+	Handler() http.Handler
 }
 
 type HandlerFunc func(*Context)
@@ -54,8 +58,12 @@ func (c *Context) DB() dbx.IORM {
 }
 
 func (c *Context) ServerError(message string, err error) {
-	log.Println("server error:", message, err.Error())
-	c.JSON(http.StatusInternalServerError, gin.H{"error": message})
+	if err != nil {
+		log.Println("server error:", message, err.Error())
+	} else {
+		log.Println("server error:", message)
+	}
+	c.JSON(http.StatusInternalServerError, gin.H{"error": "Something went wrong"})
 }
 
 func (c *Context) BadRequest(message string) {
@@ -82,11 +90,24 @@ func (c *Context) AppID() uint {
 	return c.MustGet("app_id").(uint)
 }
 
+func (c *Context) PublicAppID() string {
+	return c.MustGet("public_app_id").(string)
+}
+
+func (c *Context) IsLive() bool {
+	return c.MustGet("is_live").(bool)
+}
+
+func (c *Context) Store() storex.IStore {
+	return c.store
+}
+
 type router struct {
 	instance *gin.Engine
 	db       dbx.IORM
 	crypto   cryptox.ICrypto
 	queue    qx.IQueue
+	store    storex.IStore
 }
 
 func New(db dbx.IORM, crypto cryptox.ICrypto, q qx.IQueue) IRouter {
@@ -99,6 +120,10 @@ func New(db dbx.IORM, crypto cryptox.ICrypto, q qx.IQueue) IRouter {
 	r.SetTrustedProxies([]string{"127.0.0.1", "172.17.0.0/16"}) // TODO: review for production
 
 	return &router{instance: r, db: db, crypto: crypto, queue: q}
+}
+
+func (r *router) SetStore(store storex.IStore) {
+	r.store = store
 }
 
 func (r *router) NoRoute(handler HandlerFunc) {
@@ -145,6 +170,10 @@ func (r *router) Use(middleware HandlerFunc) gin.IRoutes {
 	})
 }
 
+func (r *router) LoadHTMLGlob(pattern string) {
+	r.instance.LoadHTMLGlob(pattern)
+}
+
 func (c *Context) Crypto() cryptox.ICrypto {
 	return c.crypto
 }
@@ -155,4 +184,8 @@ func (c *Context) Queue() qx.IQueue {
 
 func (r *router) Run(addr ...string) error {
 	return r.instance.Run(addr...)
+}
+
+func (r *router) Handler() http.Handler {
+	return r.instance
 }

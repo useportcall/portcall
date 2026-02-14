@@ -11,6 +11,7 @@ type Plan struct {
 	Name            string     `json:"name"`
 	Currency        string     `json:"currency"`
 	Status          string     `json:"status"`
+	IsFree          bool       `json:"is_free"`
 	TrialPeriodDays int        `json:"trial_period_days"`
 	CreatedAt       time.Time  `json:"created_at"`
 	UpdatedAt       time.Time  `json:"updated_at"`
@@ -20,6 +21,8 @@ type Plan struct {
 	PlanGroup       any        `json:"plan_group"`
 	Features        []any      `json:"features"`
 	MeteredFeatures []any      `json:"metered_features"`
+	DiscountPct     int        `json:"discount_pct"`
+	DiscountQty     int        `json:"discount_qty"`
 }
 
 func (p *Plan) Set(plan *models.Plan) *Plan {
@@ -27,10 +30,13 @@ func (p *Plan) Set(plan *models.Plan) *Plan {
 	p.Name = plan.Name
 	p.Currency = plan.Currency
 	p.Status = plan.Status
+	p.IsFree = plan.IsFree
 	p.TrialPeriodDays = plan.TrialPeriodDays
 	p.CreatedAt = plan.CreatedAt
 	p.UpdatedAt = plan.UpdatedAt
 	p.Interval = plan.Interval
 	p.IntervalCount = plan.IntervalCount
+	p.DiscountPct = plan.DiscountPct
+	p.DiscountQty = plan.DiscountQty
 	return p
 }

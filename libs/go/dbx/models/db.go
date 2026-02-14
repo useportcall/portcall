@@ -16,13 +16,14 @@ type Account struct {
 
 type App struct {
 	gorm.Model
-	PublicID     string  `gorm:"not null;unique"`
-	Name         string  `gorm:"not null"`
-	AccountID    uint    `gorm:"not null;index:idx_app_account"`
-	Account      Account `gorm:"foreignKey:AccountID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	IsLive       bool    `gorm:"not null;default:false"`
-	Status       string  `gorm:"not null;default:'draft'"`
-	PublicApiKey string  `gorm:"default:null;unique"`
+	PublicID      string  `gorm:"not null;unique"`
+	Name          string  `gorm:"not null"`
+	AccountID     uint    `gorm:"not null;index:idx_app_account"`
+	Account       Account `gorm:"foreignKey:AccountID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	IsLive        bool    `gorm:"not null;default:false"`
+	Status        string  `gorm:"not null;default:'draft'"`
+	PublicApiKey  string  `gorm:"default:null;unique"`
+	BillingExempt bool    `gorm:"not null;default:false"` // true for dogfood/internal apps that should skip billing logic
 }
 
 type Address struct {
@@ -52,6 +53,7 @@ type Company struct {
 	BusinessCategory string  `gorm:"default:null"`
 	BillingAddressID uint    `gorm:"default:null"`
 	BillingAddress   Address `gorm:"foreignKey:BillingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	IconLogoURL      string  `gorm:"default:null"`
 }
 
 type Feature struct {
@@ -69,6 +71,7 @@ type User struct {
 	App               App      `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
 	Name              string   `gorm:"not null"`
 	Email             string   `gorm:"not null"`
+	CompanyTitle      string   `gorm:"default:null"`
 	PaymentCustomerID string   `gorm:"default:null"` // Stripe customer ID for the user
 	BillingAddressID  *uint    `gorm:"default:null"` // nullable, foreign key to the user's billing address
 	BillingAddress    *Address `gorm:"foreignKey:BillingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
@@ -110,34 +113,44 @@ type Secret struct {
 
 type Connection struct {
 	gorm.Model
-	PublicID               string  `gorm:"not null;uniqueIndex:idx_public_app" json:"id"`
-	AppID                  uint    `gorm:"not null;uniqueIndex:idx_public_app" json:"-"`
-	App                    App     `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
-	Name                   string  `gorm:"not null;default:'New Connection'"`
-	Source                 string  `gorm:"not null"`
-	PublicKey              string  `gorm:"not null"`
-	EncryptedKey           string  `gorm:"not null"`
-	EncryptedWebhookSecret *string `gorm:"default:null"` // nullable, encrypted webhook secret for Stripe
+	PublicID                  string  `gorm:"not null;uniqueIndex:idx_public_app"`
+	AppID                     uint    `gorm:"not null;uniqueIndex:idx_public_app"`
+	App                       App     `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	Name                      string  `gorm:"not null;default:'New Connection'"`
+	Source                    string  `gorm:"not null"`
+	PublicKey                 string  `gorm:"not null"`
+	EncryptedKey              string  `gorm:"not null"`
+	EncryptedWebhookSecret    *string `gorm:"default:null"` // nullable, encrypted webhook secret for Stripe
+	ExternalWebhookEndpointID *string `gorm:"default:null"` // Stripe webhook endpoint ID for management/deletion
 }
 
 type Quote struct {
 	gorm.Model
-	PublicID string `gorm:"not null;uniqueIndex:idx_public_app" json:"id"`
-	AppID    uint   `gorm:"not null;uniqueIndex:idx_public_app" json:"-"`
-	App      App    `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE" json:"-"`
-	PlanID   uint   `gorm:"default:null"`
-	Plan     Plan   `gorm:"default:null;foreignKey:PlanID"`
-	UserID   uint   `gorm:"not null"`
-	User     User   `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	//
-	Status         string     `gorm:"not null;default:draft"` // created, sent, accepted, declined, expired
-	DaysValid      int        `gorm:"not null;default:30"`    // number of days the quote is valid for
-	IssuedAt       *time.Time `gorm:"default:null"`           // when the quote was issued
-	ExpiresAt      *time.Time `gorm:"default:null"`           // when the quote expires
-	URL            *string    `gorm:"default:null"`
-	SignatureURL   *string    `gorm:"default:null"`
-	TokenHash      *string    `gorm:"default:null"`
-	DirectCheckout bool       `gorm:"not null;default:true"`
+	PublicID           string     `gorm:"not null;uniqueIndex:idx_public_app"`
+	AppID              uint       `gorm:"not null;uniqueIndex:idx_public_app"`
+	App                App        `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	PlanID             uint       `gorm:"default:null"`
+	Plan               Plan       `gorm:"default:null;foreignKey:PlanID"`
+	UserID             *uint      `gorm:"default:null"`
+	User               *User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	PublicTitle        string     `gorm:"not null"`
+	PublicName         string     `gorm:"not null"`
+	CompanyName        string     `gorm:"default:null"`
+	Status             string     `gorm:"not null;default:draft"` // created, sent, accepted, declined, expired
+	DaysValid          int        `gorm:"not null;default:30"`    // number of days the quote is valid for
+	IssuedAt           *time.Time `gorm:"default:null"`           // when the quote was issued
+	ExpiresAt          *time.Time `gorm:"default:null"`           // when the quote expires
+	AcceptedAt         *time.Time `gorm:"default:null"`           // when the quote was accepted
+	VoidedAt           *time.Time `gorm:"default:null"`           // when the quote was declined
+	URL                *string    `gorm:"default:null"`
+	SignatureURL       *string    `gorm:"default:null"`
+	TokenHash          *string    `gorm:"default:null"`
+	DirectCheckout     bool       `gorm:"not null;default:true"`
+	RecipientEmail     string     `gorm:"default:null"`
+	RecipientAddressID uint       `gorm:"default:null"`
+	RecipientAddress   Address    `gorm:"default:null"`
+	Toc                string     `gorm:"default:null"` // terms and conditions
+	PreparedByEmail    string     `gorm:"default:null"` // email of the person who prepared the quote, falls back to company email
 }
 
 type PlanGroup struct {
@@ -163,6 +176,8 @@ type Plan struct {
 	Currency         string     `gorm:"not null;default:USD"`   // currency code, e.g., USD, EUR
 	InvoiceDueByDays int        `gorm:"not null;default:10"`
 	IsFree           bool       `gorm:"not null;default:false"`
+	DiscountPct      int        `gorm:"not null;default:0"` // percentage discount for the plan
+	DiscountQty      int        `gorm:"not null;default:0"` // number of billing cycles the discount applies to
 }
 
 type PlanItem struct {
@@ -181,6 +196,8 @@ type PlanItem struct {
 	PublicTitle       string        `gorm:"not null"`
 	PublicDescription string        `gorm:"not null"`
 	PublicUnitLabel   string        `gorm:"not null"`
+	Interval          string        `gorm:"not null;default:inherit"` // billing interval: inherit (from plan), week, month, year
+	IntervalCount     int           `gorm:"not null;default:1"`        // number of intervals for the billing cycle
 	PlanFeatures      []PlanFeature `gorm:"constraint:OnDelete:CASCADE;"`
 }
 
@@ -196,7 +213,7 @@ type PlanFeature struct {
 	FeatureID  uint     `gorm:"default:null;uniqueIndex:idx_plan_item_feature"`
 	Feature    Feature  `gorm:"default:null;foreignKey:FeatureID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	Interval   string   `gorm:"not null;default:month"` // month, year, etc.
-	Quota      int      `gorm:"not null;default:-1"`    // -1 means unlimited, 0 means no quota
+	Quota      int64    `gorm:"not null;default:-1"`    // -1 means unlimited, 0 means no quota
 	Rollover   int      `gorm:"not null;default:0"`     // amount of quota that can be rolled over to the next period
 }
 
@@ -216,12 +233,17 @@ type Subscription struct {
 	InvoiceConfig        InvoiceConfig `gorm:"type:jsonb;not null"`
 	BillingInterval      string        `gorm:"not null;default:month"` // billing interval, e.g., month, year
 	BillingIntervalCount int           `gorm:"not null;default:1"`     // number of intervals for the billing cycle
-	BillingAddressID     uint          `gorm:"not null"`
-	BillingAddress       Address       `gorm:"foreignKey:BillingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	BillingAddressID     *uint         `gorm:"default:null"`           // nullable for free plans
+	BillingAddress       *Address      `gorm:"foreignKey:BillingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	PlanID               *uint         `gorm:"default:null"`
 	Plan                 *Plan         `gorm:"default:null;foreignKey:PlanID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	ScheduledPlanID      *uint         `gorm:"default:null"` // Plan to switch to on next reset (for scheduled downgrades/upgrades)
+	ScheduledPlan        *Plan         `gorm:"default:null;foreignKey:ScheduledPlanID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	RollbackPlanID       *uint         `gorm:"default:null"`
 	RollbackPlan         *Plan         `gorm:"default:null;foreignKey:RollbackPlanID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	DiscountPct          int           `gorm:"not null;default:0"`     // percentage discount for the plan
+	DiscountQty          int           `gorm:"not null;default:0"`     // number of billing cycles the discount applies to
+	IsFree               bool          `gorm:"not null;default:false"` // true if the subscription has no paid plan items
 }
 
 type SubscriptionItem struct {
@@ -244,6 +266,12 @@ type SubscriptionItem struct {
 	Quantity       int32        `gorm:"not null"` // quantity of the subscription item
 	Title          string       `gorm:"not null"` // title of the subscription item
 	Description    string       `gorm:"not null"` // description of the subscription item
+
+	// Per-item billing interval (copied from PlanItem at subscription creation)
+	Interval      string     `gorm:"not null;default:inherit"` // billing interval: inherit (from subscription), week, month, year
+	IntervalCount int        `gorm:"not null;default:1"`       // number of intervals for the billing cycle
+	LastResetAt   *time.Time `gorm:"column:last_reset_at"`     // when this item was last billed/reset
+	NextResetAt   *time.Time `gorm:"column:next_reset_at"`     // when this item will next be billed/reset
 }
 
 type CheckoutSession struct {
@@ -264,40 +292,42 @@ type CheckoutSession struct {
 	CancelURL            *string   `gorm:"not null"` // URL to redirect if the user cancels the checkout
 	BillingAddressID     *uint     `gorm:"default:null"`
 	BillingAddress       *Address  `gorm:"foreignKey:BillingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	CompanyAddressID     uint      `gorm:"default:null"`
-	CompanyAddress       Address   `gorm:"foreignKey:CompanyAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	CompanyAddressID     *uint     `gorm:"default:null"`
+	CompanyAddress       *Address  `gorm:"foreignKey:CompanyAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
 	Status               string    `gorm:"not null;default:active"` // active, completed, canceled, pending
 }
 
 type Invoice struct {
 	gorm.Model
-	PublicID          string        `gorm:"not null;uniqueIndex:idx_public_app"`
-	AppID             uint          `gorm:"not null;uniqueIndex:idx_public_app"`
-	App               App           `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
-	SubscriptionID    *uint         `gorm:"default:null"`
-	Subscription      *Subscription `gorm:"foreignKey:SubscriptionID;constraint:OnDelete:CASCADE"`
-	UserID            uint          `gorm:"not null"`
-	User              User          `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
-	Currency          string        `gorm:"not null"`
-	Total             int64         `gorm:"not null"`
-	SubTotal          int64         `gorm:"not null"`
-	TaxAmount         int64         `gorm:"not null;default:0"`     // total tax amount in cents
-	DiscountAmount    int64         `gorm:"not null;default:0"`     // total discount amount in cents
-	DecimalPlaces     int           `gorm:"not null;default:2"`     // number of decimal places for the total
-	Status            string        `gorm:"not null;default:draft"` // draft, paid, voided, refunded
-	DueBy             time.Time     `gorm:"not null"`
-	InvoiceNumber     string        `gorm:"not null"`
-	PDFURL            string        `gorm:"default:null"` // nullable, URL to the PDF invoice
-	EmailURL          string        `gorm:"default:null"` // nullable, URL to the email invoice
-	CompanyName       string        `gorm:"not null"`     // name of the company issuing the invoice
-	CompanyAddressID  uint          `gorm:"default:null"` // nullable, foreign key to the company address
-	CompanyAddress    Address       `gorm:"default:null;foreignKey:CompanyAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	BillingAddressID  uint          `gorm:"not null"`
-	BillingAddress    Address       `gorm:"foreignKey:BillingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	ShippingAddressID *uint         `gorm:"default:null"` // nullable, foreign key to the shipping address
-	ShippingAddress   *Address      `gorm:"foreignKey:ShippingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
-	CustomerName      string        `gorm:"not null"` // name of the customer for the invoice
-	CustomerEmail     string        `gorm:"not null"` // email of the customer for the
+	PublicID           string        `gorm:"not null;uniqueIndex:idx_public_app"`
+	AppID              uint          `gorm:"not null;uniqueIndex:idx_public_app"`
+	App                App           `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	SubscriptionID     *uint         `gorm:"default:null"`
+	Subscription       *Subscription `gorm:"foreignKey:SubscriptionID;constraint:OnDelete:CASCADE"`
+	UserID             uint          `gorm:"not null"`
+	User               User          `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+	Currency           string        `gorm:"not null"`
+	Total              int64         `gorm:"not null"`
+	SubTotal           int64         `gorm:"not null"`
+	TaxAmount          int64         `gorm:"not null;default:0"`     // total tax amount in cents
+	DiscountAmount     int64         `gorm:"not null;default:0"`     // total discount amount in cents
+	DecimalPlaces      int           `gorm:"not null;default:2"`     // number of decimal places for the total
+	Status             string        `gorm:"not null;default:draft"` // draft, paid, voided, refunded
+	DueBy              time.Time     `gorm:"not null"`
+	InvoiceNumber      string        `gorm:"not null"`
+	InvoiceNumberCount int64         `gorm:"not null;default:0"` // internal counter for invoice numbers
+	DiscountPct        int           `gorm:"not null;default:0"` // percentage discount for the plan
+	PDFURL             string        `gorm:"default:null"`       // nullable, URL to the PDF invoice
+	EmailURL           string        `gorm:"default:null"`       // nullable, URL to the email invoice
+	CompanyName        string        `gorm:"not null"`           // name of the company issuing the invoice
+	CompanyAddressID   uint          `gorm:"default:null"`       // nullable, foreign key to the company address
+	CompanyAddress     Address       `gorm:"default:null;foreignKey:CompanyAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	BillingAddressID   uint          `gorm:"not null"`
+	BillingAddress     Address       `gorm:"foreignKey:BillingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	ShippingAddressID  *uint         `gorm:"default:null"` // nullable, foreign key to the shipping address
+	ShippingAddress    *Address      `gorm:"foreignKey:ShippingAddressID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+	CustomerName       string        `gorm:"not null"` // name of the customer for the invoice
+	CustomerEmail      string        `gorm:"not null"` // email of the customer for the
 }
 
 type InvoiceItem struct {
@@ -353,4 +383,40 @@ type AppConfig struct {
 	App                 App        `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
 	DefaultConnectionID uint       `gorm:"default:null"`
 	DefaultConnection   Connection `gorm:"foreignKey:DefaultConnectionID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL"`
+}
+
+// BillingMeter tracks usage for billing purposes separately from entitlements.
+// While entitlements may reset weekly/monthly for access control, billing meters
+// track cumulative usage over the subscription's billing period for invoicing.
+// For example: a feature might give 1000 free uses per week (entitlement resets weekly),
+// but billing is annual - so we need to track total overage across all weeks for the invoice.
+type BillingMeter struct {
+	gorm.Model
+	AppID          uint         `gorm:"not null;uniqueIndex:idx_billing_meter_unique"`
+	App            App          `gorm:"foreignKey:AppID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	SubscriptionID uint         `gorm:"not null;uniqueIndex:idx_billing_meter_unique;index:idx_billing_meter_sub"`
+	Subscription   Subscription `gorm:"foreignKey:SubscriptionID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	PlanItemID     uint         `gorm:"not null;uniqueIndex:idx_billing_meter_unique"`
+	PlanItem       PlanItem     `gorm:"foreignKey:PlanItemID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	FeatureID      uint         `gorm:"not null;uniqueIndex:idx_billing_meter_unique"`
+	Feature        Feature      `gorm:"foreignKey:FeatureID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+	UserID         uint         `gorm:"not null;index:idx_billing_meter_user"`
+	User           User         `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE"`
+
+	// Usage tracking
+	Usage int64 `gorm:"column:usage;not null;default:0"` // Total billable usage in this billing period
+
+	// Pricing information (copied from PlanItem for invoice calculation)
+	PricingModel string  `gorm:"not null"`                   // unit, tiered, block, volume
+	UnitAmount   int64   `gorm:"not null;default:0"`         // Unit price in cents (for unit pricing)
+	Tiers        *[]Tier `gorm:"type:jsonb;serializer:json"` // Tier configuration (for tiered/block pricing)
+
+	// Free tier tracking - important for tiered pricing where first N are free per period
+	FreeQuota int64 `gorm:"not null;default:0"` // Free usage quota from plan feature (per entitlement period)
+
+	// Billing period - can differ from subscription main billing cycle
+	Interval      string     `gorm:"not null;default:inherit"` // billing interval: inherit (from subscription), week, month, year
+	IntervalCount int        `gorm:"not null;default:1"`       // number of intervals for the billing cycle
+	LastResetAt   *time.Time `gorm:"column:last_reset_at"`     // When usage was last reset (at invoice creation)
+	NextResetAt   *time.Time `gorm:"column:next_reset_at"`     // When usage will reset next
 }

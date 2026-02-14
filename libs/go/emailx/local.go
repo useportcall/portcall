@@ -1,7 +1,7 @@
 package emailx
 
 import (
-	"log"
+	"fmt"
 	"net/smtp"
 )
 
@@ -10,6 +10,10 @@ type localEmailClient struct {
 }
 
 func (c *localEmailClient) Send(content, subject, from string, to []string) error {
+	if len(to) == 0 {
+		return fmt.Errorf("recipient list is empty")
+	}
+
 	msg := []byte("" +
 		"From: " + from + "\r\n" +
 		"To: " + to[0] + "\r\n" +
@@ -22,7 +26,7 @@ func (c *localEmailClient) Send(content, subject, from string, to []string) erro
 
 	// No auth, no TLS; MailHog/MailDev accept this by default
 	if err := smtp.SendMail(c.addr, nil, from, to, msg); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	return nil

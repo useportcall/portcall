@@ -2,6 +2,7 @@ package dbx
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 
@@ -11,17 +12,29 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func New() IORM {
+func New() (IORM, error) { return NewFromEnv() }
+
+func NewFromEnv() (IORM, error) {
 	dbURL := os.Getenv("DATABASE_URL")
 	if dbURL == "" {
-		log.Fatal("DATABASE_URL environment variable not set")
+		return nil, fmt.Errorf("DATABASE_URL environment variable not set")
 	}
 
+	return NewFromDSN(dbURL)
+}
+
+func NewFromDSN(dbURL string) (IORM, error) {
 	db, err := gorm.Open(postgres.Open(dbURL), &gorm.Config{})
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 
+	return &orm{db: db}, nil
+}
+
+// NewFromDB creates an IORM from an existing *gorm.DB instance.
+// Useful for testing with a pre-configured database connection.
+func NewFromDB(db *gorm.DB) IORM {
 	return &orm{db: db}
 }
 
@@ -33,6 +46,7 @@ type IORM interface {
 	List(dest any, conds ...any) error
 	ListWithOrder(dest any, order string, conds ...any) error
 	ListWithOrderAndLimit(dest any, order string, limit int, conds ...any) error
+	ListWithOrderLimitOffset(dest any, order string, limit, offset int, conds ...any) error
 	ListIDs(table string, dest any, conds ...any) error
 	ListForAppID(appId uint, dest any, limit *int) error
 	ListForPlanID(appID, planID uint, dest any, preload string) error
@@ -52,6 +66,8 @@ type IORM interface {
 	DeleteForID(dest any) error
 	Count(count *int64, dest any, query string, args ...any) error
 	IncrementCount(dest any, field string, amount int64) error
+	Txn(fn func(orm IORM) error) error
+	Exec(sql string, values ...any) error
 
 	AutoMigrate(dst ...any) error
 }
@@ -80,11 +96,25 @@ func (o *orm) AutoMigrate(dst ...any) error {
 		&models.PlanGroup{},
 		&models.Quote{},
 		&models.CheckoutSession{},
+		&models.PaymentLink{},
 		&models.PaymentMethod{},
 		&models.Entitlement{},
 		&models.MeterEvent{},
 		&models.AppConfig{},
+		&models.BillingMeter{},
 	)
+}
+
+func (o *orm) Txn(fn func(orm IORM) error) error {
+	return o.db.Transaction(func(db *gorm.DB) error {
+		orm := &orm{db: db}
+
+		if err := fn(orm); err != nil {
+			return err
+		}
+
+		return nil
+	})
 }
 
 func (o *orm) List(dest any, conds ...any) error {
@@ -113,7 +143,20 @@ func (o *orm) ListWithOrder(dest any, order string, conds ...any) error {
 	return nil
 }
 func (o *orm) ListWithOrderAndLimit(dest any, order string, limit int, conds ...any) error {
-	if err := o.db.Order(order).Find(dest, conds...).Error; err != nil {
+	if err := o.db.Order(order).Limit(limit).Find(dest, conds...).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return nil
+		}
+
+		log.Printf("Error listing records with conditions %v: %v", conds, err)
+
+		return err
+	}
+	return nil
+}
+
+func (o *orm) ListWithOrderLimitOffset(dest any, order string, limit, offset int, conds ...any) error {
+	if err := o.db.Order(order).Limit(limit).Offset(offset).Find(dest, conds...).Error; err != nil {
 		if err == gorm.ErrRecordNotFound {
 			return nil
 		}
@@ -180,7 +223,9 @@ func (o *orm) ListForPlanID(appID, planID uint, dest any, preload string) error 
 
 func (o *orm) GetForPublicID(appID uint, publicID string, dest any) error {
 	if err := o.db.Where("app_id = ? AND public_id = ?", appID, publicID).First(dest).Error; err != nil {
-		log.Printf("Error finding record with appID %d and publicID %s: %v", appID, publicID, err)
+		if err != gorm.ErrRecordNotFound {
+			log.Printf("Error finding record with appID %d and publicID %s: %v", appID, publicID, err)
+		}
 		return err
 	}
 	return nil
@@ -188,7 +233,9 @@ func (o *orm) GetForPublicID(appID uint, publicID string, dest any) error {
 
 func (o *orm) FindForID(id uint, dest any) error {
 	if err := o.db.First(dest, "id = ?", id).Error; err != nil {
-		log.Printf("Error finding record with ID %d: %v", id, err)
+		if err != gorm.ErrRecordNotFound {
+			log.Printf("Error finding record with ID %d: %v", id, err)
+		}
 		return err
 	}
 	return nil
@@ -196,7 +243,9 @@ func (o *orm) FindForID(id uint, dest any) error {
 
 func (o *orm) FindFirst(dest any, conds ...any) error {
 	if err := o.db.Where(conds[0], conds[1:]...).First(dest).Error; err != nil {
-		log.Printf("Error finding first record with conditions %v: %v", conds, err)
+		if err != gorm.ErrRecordNotFound {
+			log.Printf("Error finding first record with conditions %v: %v", conds, err)
+		}
 		return err
 	}
 	return nil
@@ -328,6 +377,13 @@ func (o *orm) IncrementCount(dest any, field string, amount int64) error {
 		Model(dest).
 		UpdateColumn(field, gorm.Expr(field+" + ?", amount)).
 		Scan(&dest).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (o *orm) Exec(sql string, values ...any) error {
+	if err := o.db.Exec(sql, values...).Error; err != nil {
 		return err
 	}
 	return nil

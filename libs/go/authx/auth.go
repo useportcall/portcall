@@ -2,6 +2,7 @@ package authx
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -30,7 +31,9 @@ type clerkAuthClient struct {
 	user       *user.Client
 }
 
-func New() IAuthClient {
+func New() (IAuthClient, error) { return NewFromEnv() }
+
+func NewFromEnv() (IAuthClient, error) {
 	authModule := os.Getenv("AUTH_MODULE")
 	switch authModule { // TODO: explore build tags to exclude unused auth modules
 	case "clerk":
@@ -40,10 +43,10 @@ func New() IAuthClient {
 	}
 }
 
-func newClerkAuthClient() IAuthClient {
+func newClerkAuthClient() (IAuthClient, error) {
 	clerkSecret := os.Getenv("CLERK_SECRET")
 	if clerkSecret == "" {
-		log.Fatal("CLERK_SECRET_NULL")
+		return nil, fmt.Errorf("CLERK_SECRET environment variable is not set")
 	}
 
 	config := &clerk.ClientConfig{}
@@ -53,7 +56,7 @@ func newClerkAuthClient() IAuthClient {
 	jwksClient := jwks.NewClient(config)
 	user := user.NewClient(config)
 
-	return &clerkAuthClient{config: config, store: store, jwksClient: jwksClient, user: user}
+	return &clerkAuthClient{config: config, store: store, jwksClient: jwksClient, user: user}, nil
 }
 
 func (client *clerkAuthClient) Validate(ctx context.Context, header http.Header) (*Claims, error) {

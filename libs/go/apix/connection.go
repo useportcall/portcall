@@ -7,12 +7,13 @@ import (
 )
 
 type Connection struct {
-	ID        string    `json:"id"`
-	Name      string    `json:"name"`
-	Source    string    `json:"source"`
-	PublicKey string    `json:"public_key"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	ID         string    `json:"id"`
+	Name       string    `json:"name"`
+	Source     string    `json:"source"`
+	PublicKey  string    `json:"public_key"`
+	WebhookURL *string   `json:"webhook_url,omitempty"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 func (c *Connection) Set(connection *models.Connection) *Connection {

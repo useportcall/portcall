@@ -17,6 +17,8 @@ type PlanItem struct {
 	PublicTitle       string         `json:"public_title"`
 	PublicDescription string         `json:"public_description"`
 	PublicUnitLabel   string         `json:"public_unit_label"`
+	Interval          string         `json:"interval"`       // billing interval: inherit, week, month, year
+	IntervalCount     int            `json:"interval_count"` // number of intervals for the billing cycle
 	CreatedAt         time.Time      `json:"created_at"`
 	UpdatedAt         time.Time      `json:"updated_at"`
 
@@ -34,6 +36,8 @@ func (pi *PlanItem) Set(planItem *models.PlanItem) *PlanItem {
 	pi.PublicTitle = planItem.PublicTitle
 	pi.PublicDescription = planItem.PublicDescription
 	pi.PublicUnitLabel = planItem.PublicUnitLabel
+	pi.Interval = planItem.Interval
+	pi.IntervalCount = planItem.IntervalCount
 	pi.CreatedAt = planItem.CreatedAt
 	pi.UpdatedAt = planItem.UpdatedAt
 	return pi

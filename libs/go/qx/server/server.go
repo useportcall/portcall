@@ -1,7 +1,8 @@
 package server
 
 import (
-	"log"
+	"crypto/tls"
+	"fmt"
 	"os"
 
 	"github.com/hibiken/asynq"
@@ -13,7 +14,7 @@ import (
 )
 
 type IServer interface {
-	R()
+	R() error
 	H(taskType string, handler HandlerFunc)
 	SetEmailClient(emailClient emailx.IEmailClient)
 }
@@ -23,11 +24,7 @@ type server struct {
 	mux      *multiplexer
 }
 
-func (s *server) R() {
-	if err := s.instance.Run(s.mux.instance); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
-	}
-}
+func (s *server) R() error { return s.instance.Run(s.mux.instance) }
 
 func (s *server) H(taskType string, handler HandlerFunc) {
 	s.mux.HandleFunc(taskType, handler)
@@ -37,36 +34,38 @@ func (s *server) SetEmailClient(emailClient emailx.IEmailClient) {
 	s.mux.email = emailClient
 }
 
-func New(db dbx.IORM, crypto cryptox.ICrypto, queues map[string]int) IServer {
+func New(db dbx.IORM, crypto cryptox.ICrypto, queues map[string]int) (IServer, error) {
 	logx.Init()
 
-	redisAddr := os.Getenv("REDIS_ADDR")
-	if redisAddr == "" {
-		log.Fatal("REDIS_ADDR environment variable not set")
+	q, err := qx.New()
+	if err != nil {
+		return nil, err
 	}
-
-	q := qx.New()
+	redisOpt, err := redisClientOptFromEnv()
+	if err != nil {
+		return nil, err
+	}
 
 	muxInstance := &multiplexer{asynq.NewServeMux(), db, q, crypto, nil}
 
 	instance := asynq.NewServer(
-		asynq.RedisClientOpt{Addr: redisAddr},
+		redisOpt,
 		asynq.Config{
 			Queues: queues,
 		},
 	)
 
-	return &server{instance, muxInstance}
+	return &server{instance, muxInstance}, nil
 }
 
-func NewNoDeps(queues map[string]int) IServer {
-	redisAddr := os.Getenv("REDIS_ADDR")
-	if redisAddr == "" {
-		log.Fatal("REDIS_ADDR environment variable not set")
+func NewNoDeps(queues map[string]int) (IServer, error) {
+	redisOpt, err := redisClientOptFromEnv()
+	if err != nil {
+		return nil, err
 	}
 
 	instance := asynq.NewServer(
-		asynq.RedisClientOpt{Addr: redisAddr},
+		redisOpt,
 		asynq.Config{
 			Queues: queues,
 		},
@@ -74,5 +73,33 @@ func NewNoDeps(queues map[string]int) IServer {
 
 	muxInstance := &multiplexer{asynq.NewServeMux(), nil, nil, nil, nil}
 
-	return &server{instance, muxInstance}
+	return &server{instance, muxInstance}, nil
+}
+
+func redisClientOptFromEnv() (asynq.RedisClientOpt, error) {
+	redisAddr := os.Getenv("REDIS_ADDR")
+	if redisAddr == "" {
+		return asynq.RedisClientOpt{}, fmt.Errorf("REDIS_ADDR environment variable not set")
+	}
+	redisPassword := os.Getenv("REDIS_PASSWORD")
+	redisTLS := os.Getenv("REDIS_TLS")
+
+	if redisTLS == "true" {
+		return asynq.RedisClientOpt{
+			Addr:     redisAddr,
+			Password: redisPassword,
+			TLSConfig: &tls.Config{
+				MinVersion: tls.VersionTLS12,
+			},
+		}, nil
+	}
+	if redisPassword != "" {
+		return asynq.RedisClientOpt{
+			Addr:     redisAddr,
+			Password: redisPassword,
+		}, nil
+	}
+	return asynq.RedisClientOpt{
+		Addr: redisAddr,
+	}, nil
 }

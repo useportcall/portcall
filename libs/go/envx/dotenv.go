@@ -7,15 +7,14 @@ import (
 )
 
 func Load() {
-	var dotenv string
-
-	if IsProd() {
-		dotenv = ".env"
-	} else {
-		dotenv = ".env.example"
+	files := []string{".envs", ".env"}
+	if !IsProd() {
+		files = append(files, ".env.example")
 	}
 
-	if err := godotenv.Load(dotenv); err != nil {
-		log.Printf("could not load %s file: %v", dotenv, err)
+	for _, file := range files {
+		if err := godotenv.Load(file); err != nil {
+			log.Printf("could not load %s file: %v", file, err)
+		}
 	}
 }

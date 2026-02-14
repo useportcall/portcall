@@ -19,6 +19,7 @@ type Company struct {
 	ShippingAddress  *Address  `json:"shipping_address"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
+	IconLogoURL      *string   `json:"icon_logo_url"`
 }
 
 func (c *Company) Set(company *models.Company) *Company {
@@ -32,5 +33,6 @@ func (c *Company) Set(company *models.Company) *Company {
 	c.BusinessCategory = company.BusinessCategory
 	c.CreatedAt = company.CreatedAt
 	c.UpdatedAt = company.UpdatedAt
+	c.IconLogoURL = &company.IconLogoURL
 	return c
 }
