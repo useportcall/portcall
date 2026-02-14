@@ -1,0 +1,34 @@
+{
+    "valid_until": "Valid until",
+    "prepared_for": "Prepared for",
+    "prepared_by": "Prepared by",
+    "quote_details": "Quote details",
+    "plan_name": "Plan name",
+    "base_price": "Base price",
+    "features_included": "Features included",
+    "quote_summary": "Quote summary",
+    "product": "Product",
+    "price": "Price",
+    "quantity": "Quantity",
+    "frequency": "Frequency",
+    "discount": "Discount",
+    "total": "Total",
+    "subtotal": "Subtotal",
+    "sign_here": "Sign here to accept quote",
+    "clear_signature": "Clear Signature",
+    "legal_confirm": "I confirm I am authorized to accept this quote and agree to the terms.",
+    "accept_submit": "Accept & Submit",
+    "decline_quote": "Decline quote",
+    "payment_terms": "Payment terms",
+    "jurisdiction_note": "Taxes and invoicing are finalized at checkout for the recipient jurisdiction.",
+    "status": {
+        "sent": "This quote is pending acceptance.",
+        "accepted": "This quote has been accepted.",
+        "declined": "This quote has been declined.",
+        "expired": "This quote has expired."
+    },
+    "pricing": {
+        "usage_based": "Usage-based pricing applies",
+        "see_plan": "See plan for details"
+    }
+}

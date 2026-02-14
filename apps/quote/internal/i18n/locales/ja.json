@@ -1,0 +1,34 @@
+{
+    "valid_until": "有効期限",
+    "prepared_for": "宛先",
+    "prepared_by": "作成者",
+    "quote_details": "見積もり詳細",
+    "plan_name": "プラン名",
+    "base_price": "基本価格",
+    "features_included": "含まれる機能",
+    "quote_summary": "見積もり概要",
+    "product": "製品",
+    "price": "価格",
+    "quantity": "数量",
+    "frequency": "頻度",
+    "discount": "割引",
+    "total": "合計",
+    "subtotal": "小計",
+    "sign_here": "署名して見積もりを承諾する",
+    "clear_signature": "署名をクリア",
+    "legal_confirm": "私はこの見積もりを承諾する権限を有し、条件に同意することを確認します。",
+    "accept_submit": "承諾して送信",
+    "decline_quote": "見積もりを辞退",
+    "payment_terms": "支払い条件",
+    "jurisdiction_note": "税金と請求書は、受取人の管轄区域のチェックアウト時に確定されます。",
+    "status": {
+        "sent": "この見積もりは承諾待ちです。",
+        "accepted": "この見積もりは承諾されました。",
+        "declined": "この見積もりは辞退されました。",
+        "expired": "この見積もりは期限切れです。"
+    },
+    "pricing": {
+        "usage_based": "従量課金が適用されます",
+        "see_plan": "詳細はプランをご覧ください"
+    }
+}

@@ -1,0 +1,520 @@
+<!doctype html>
+<html lang="{{ .CurrentLang }}">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Quote Approval</title>
+    <link
+      href="https://fonts.googleapis.com/css?family=Inter:400,500,600,700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: #fff;
+        color: oklch(12.9% 0.042 264.695);
+        font-family: "Inter", "Helvetica Neue", Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .quote-container {
+        position: relative;
+        background: #fff;
+        border: 1px solid #eee;
+        border-radius: 18px;
+        box-shadow: 0 4px 32px 0 rgba(0, 0, 0, 0.07);
+        padding: 48px 36px 36px 36px;
+        width: 100%;
+        max-width: 680px;
+        display: flex;
+        flex-direction: column;
+        align-items: start;
+        gap: 24px;
+      }
+      .lang-toggle {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        text-decoration: none;
+        color: #666;
+        font-size: 13px;
+        border: 1px solid #eee;
+        padding: 6px 10px;
+        border-radius: 20px;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        transition: all 0.2s;
+      }
+      .lang-toggle:hover {
+        background: #f9f9f9;
+        color: #111;
+        border-color: #ddd;
+      }
+      .quote-title {
+        font-size: 20px;
+        font-weight: 600;
+        margin-bottom: 12px;
+        color: oklch(12.9% 0.042 264.695);
+        letter-spacing: -0.5px;
+        text-align: center;
+      }
+      .section {
+        font-size: 14px;
+        color: oklch(12.9% 0.042 264.695);
+        margin-bottom: 12px;
+        text-align: start;
+        width: 100%;
+      }
+      .section-title {
+        font-size: 16px;
+        margin-bottom: 10px;
+        text-align: left;
+        width: 100%;
+      }
+      .signature-canvas {
+        border: 1.5px solid oklch(92.9% 0.013 255.508);
+        border-radius: 8px;
+        background: oklch(96.8% 0.007 247.896);
+        width: 100%;
+        max-width: 480px;
+        height: 120px;
+        display: block;
+        margin-bottom: 10px;
+        cursor: crosshair;
+        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.01);
+      }
+      .clear-btn {
+        background: none;
+        border: none;
+        color: oklch(54.6% 0.245 262.881);
+        font-size: 14px;
+        cursor: pointer;
+        margin-bottom: 18px;
+        text-decoration: underline;
+        padding: 0;
+        transition: color 0.2s;
+      }
+      .clear-btn:hover {
+        color: #18181b;
+      }
+      .submit-btn {
+        width: 100%;
+        background: oklch(12.9% 0.042 264.695);
+        color: #fff;
+        border: none;
+        border-radius: 8px;
+        padding: 14px 0;
+        font-size: 16px;
+        font-weight: 600;
+        cursor: pointer;
+        margin-top: 10px;
+        transition:
+          background 0.2s,
+          box-shadow 0.2s;
+        letter-spacing: -0.2px;
+      }
+      .submit-btn:hover {
+        background: oklch(27.9% 0.041 260.031);
+      }
+      .company-logo {
+        width: 50px;
+        height: 50px;
+        background: #000;
+        border-radius: 100%;
+      }
+      .section-row {
+        width: 100%;
+        column-count: 2;
+        column-width: 50%;
+        margin-bottom: 12px;
+      }
+      .all-caps {
+        text-transform: uppercase;
+      }
+    </style>
+  </head>
+  <body>
+    <form
+      class="quote-container"
+      method="post"
+      action="/quotes/{{ .ID }}{{ if .AccessToken }}?qt={{ .AccessToken }}{{ end }}"
+    >
+      <a href="?lang={{ .AlternateLang }}{{ if .AccessToken }}&qt={{ .AccessToken }}{{ end }}" class="lang-toggle">
+        <span style="font-size: 14px">{{ if eq .AlternateLang "ja" }}🇯🇵{{ else }}🇺🇸{{ end }}</span> {{ .AlternateLabel }}
+      </a>
+      <div
+        class="company-logo"
+        style="background-image: url('{{ .CompanyIconURL }}'); background-size: cover; background-position: center;"
+      ></div>
+      <div class="quote-title">
+        <span class="all-caps">{{ .RecipientCompanyName }}</span>
+      </div>
+      {{ if .StatusMessage }}
+      <div
+        class="section"
+        style="border: 1px solid #eee; border-radius: 10px; padding: 10px 12px"
+      >
+        {{ .StatusMessage }}
+      </div>
+      {{ end }}
+      <!-- Quote basic details section -->
+      <div class="section">
+        <!-- <div style="width: 50%; column-count: 2; column-width: 50%">
+          <div><strong>Quote number</strong></div>
+          12345
+        </div> -->
+        <div style="width: 50%; column-count: 2; column-width: 50%">
+          <div><strong>{{ .Labels.ValidUntil }}</strong></div>
+          {{ .ValidUntil }}
+        </div>
+      </div>
+      <!-- Quote contact info section -->
+      <div class="section-row" style="display: flex; gap: 24px">
+        <div style="font-size: 14px; flex: 1">
+          <div class="section-title">
+            <strong>{{ .Labels.PreparedFor }}</strong>
+          </div>
+          <div>{{.RecipientName}}</div>
+          <div style="margin-bottom: 6px">{{.RecipientTitle}}</div>
+          <div>{{.RecipientCompanyName}}</div>
+          <div>{{.RecipientAddressLine1}}</div>
+          <div>{{.RecipientAddressLine2}}</div>
+          <div>{{.RecipientCity}}</div>
+          <div>{{.RecipientPostalCode}}</div>
+          <div>{{.RecipientCountry}}</div>
+        </div>
+        <div style="font-size: 14px; flex: 1">
+          <div class="section-title">
+            <strong>{{ .Labels.PreparedBy }}</strong>
+          </div>
+          <div>{{ .QuoteIssuedByName }}</div>
+          <div style="margin-bottom: 6px">{{ .QuoteIssuedByEmail }}</div>
+          <div>{{ .CompanyName }}</div>
+          <div>{{.CompanyAddressLine1}}</div>
+          <div>{{.CompanyAddressLine2}}</div>
+          <div>{{.CompanyCity}}</div>
+          <div>{{.CompanyPostalCode}}</div>
+          <div>{{.CompanyCountry}}</div>
+        </div>
+      </div>
+      <!-- Quote details section - includes price, features, etc. -->
+      <div class="section">
+        <div class="section-title">
+          <strong>{{ .Labels.QuoteDetails }}</strong>
+        </div>
+        <div
+          style="
+            width: 50%;
+            column-count: 2;
+            column-width: 50%;
+            margin-bottom: 10px;
+          "
+        >
+          <div><strong>{{ .Labels.PlanName }}</strong></div>
+          {{ .PlanName }}
+        </div>
+        <div
+          style="
+            width: 50%;
+            column-count: 2;
+            column-width: 50%;
+            margin-bottom: 10px;
+          "
+        >
+          <div><strong>{{ .Labels.BasePrice }}</strong></div>
+          {{ .BasePrice }}
+        </div>
+        <div style="margin-top: 6px">
+          <div style="margin-bottom: 10px">
+            <strong>{{ .Labels.FeaturesIncluded }}</strong>
+          </div>
+          <div
+            style="
+              background-color: oklch(98.4% 0.003 247.858);
+              padding: 14px;
+              border-radius: 10px;
+            "
+          >
+            {{ range .Features }}
+            <div>✓ {{ .Name }}</div>
+            {{ end }}
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title"><strong>{{ .Labels.QuoteSummary }}</strong></div>
+        <div style="margin-top: 6px; width: 100%">
+          <table
+            style="width: 100%; border-collapse: collapse; margin-bottom: 12px"
+          >
+            <thead>
+              <tr style="background: oklch(98.4% 0.003 247.858)">
+                <th
+                  style="
+                    text-align: left;
+                    padding: 6px 8px;
+                    font-size: 14px;
+                    border-top-left-radius: 8px;
+                    border-bottom-left-radius: 8px;
+                  "
+                >
+                  {{ .Labels.Product }}
+                </th>
+                <th style="text-align: left; padding: 6px 8px; font-size: 14px">
+                  {{ .Labels.Price }}
+                </th>
+                <th style="text-align: left; padding: 6px 8px; font-size: 14px">
+                  {{ .Labels.Quantity }}
+                </th>
+
+                <th style="text-align: left; padding: 6px 8px; font-size: 14px">
+                  {{ .Labels.Frequency }}
+                </th>
+                <th style="text-align: left; padding: 6px 8px; font-size: 14px">
+                  {{ .Labels.Discount }}
+                </th>
+                <th
+                  style="
+                    text-align: right;
+                    padding: 6px 8px;
+                    font-size: 14px;
+                    border-top-right-radius: 8px;
+                    border-bottom-right-radius: 8px;
+                  "
+                >
+                  {{ .Labels.Total }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td style="padding: 6px 8px; text-align: left; font-size: 14px">
+                  {{ .PlanName }}
+                </td>
+                <td style="padding: 6px 8px; text-align: left; font-size: 14px">
+                  {{ .PlanPrice }}
+                </td>
+                <td style="padding: 6px 8px; text-align: left; font-size: 14px">
+                  1
+                </td>
+                <td style="padding: 6px 8px; text-align: left; font-size: 14px">
+                  {{ .BillingFrequency }}
+                </td>
+                <td style="padding: 6px 8px; text-align: left; font-size: 14px">
+                  {{ .Discount }}%
+                </td>
+                <td
+                  style="padding: 6px 8px; text-align: right; font-size: 14px"
+                >
+                  {{ .SubTotal }}
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 6px 8px; text-align: left; font-size: 14px">
+                  <strong>{{ .Labels.Subtotal }}</strong>
+                </td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: right; font-size: 14px"
+                >
+                  <strong>{{ .SubTotal }}</strong>
+                </td>
+              </tr>
+              <!-- <tr>
+                <td style="padding: 6px 8px; text-align: left; font-size: 14px">
+                  VAT (20%)
+                </td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: right; font-size: 14px"
+                >
+                  {{ .TaxAmount }}
+                </td>
+              </tr> -->
+              <tr style="background: oklch(98.4% 0.003 247.858)">
+                <td
+                  style="
+                    padding: 6px 8px;
+                    text-align: left;
+                    font-size: 14px;
+                    border-top-left-radius: 8px;
+                    border-bottom-left-radius: 8px;
+                  "
+                >
+                  <strong>{{ .Labels.Total }}</strong>
+                </td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="padding: 6px 8px; text-align: left; font-size: 14px"
+                ></td>
+                <td
+                  style="
+                    padding: 6px 8px;
+                    text-align: right;
+                    font-size: 14px;
+                    border-bottom-right-radius: 8px;
+                    border-top-right-radius: 8px;
+                  "
+                >
+                  <strong>{{ .TotalAmount }}</strong>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <!-- Payment terms section - only include if payment terms have been added -->
+      <div class="section">
+        <div class="section-title">
+          <strong>{{ .Labels.PaymentTerms }}</strong>
+        </div>
+        <div style="font-size: 12px">{{ .Toc }}</div>
+        <div style="font-size: 11px; margin-top: 8px; color: #666">
+          {{ .JurisdictionNote }}
+        </div>
+      </div>
+
+      <!-- Signature section -->
+      <!-- removed JS div100 helper, use Go template formatting instead -->
+      {{ if .CanAccept }}
+      <div class="section">
+        <div class="section-title">
+          <strong>{{ .Labels.SignHere }}</strong>
+        </div>
+        <canvas id="signature" class="signature-canvas"></canvas>
+        <button type="button" class="clear-btn" onclick="clearSignature()">
+          {{ .Labels.ClearSignature }}
+        </button>
+        <label style="display: flex; align-items: start; gap: 8px; margin-bottom: 10px">
+          <input type="checkbox" id="legalConfirm" required />
+          <span style="font-size: 12px">
+            {{ .Labels.LegalConfirm }}
+          </span>
+        </label>
+        <input type="hidden" name="signatureData" id="signatureData" />
+        <button type="submit" class="submit-btn">{{ .Labels.AcceptSubmit }}</button>
+        <button
+          type="submit"
+          formnovalidate
+          formaction="/quotes/{{ .ID }}/decline{{ if .AccessToken }}?qt={{ .AccessToken }}{{ end }}"
+          class="clear-btn"
+          style="margin-top: 12px"
+        >
+          {{ .Labels.DeclineQuote }}
+        </button>
+      </div>
+      {{ end }}
+    </form>
+    <script>
+      // Simple signature pad
+      const canvas = document.getElementById("signature");
+      if (canvas) {
+        const ctx = canvas.getContext("2d");
+        let drawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let hasStroke = false;
+        function resizeCanvas() {
+          // Make canvas crisp on HiDPI
+          const dpr = window.devicePixelRatio || 1;
+          canvas.width = canvas.offsetWidth * dpr;
+          canvas.height = canvas.offsetHeight * dpr;
+          ctx.setTransform(1, 0, 0, 1, 0, 0);
+          ctx.scale(dpr, dpr);
+          ctx.lineWidth = 4;
+          ctx.lineCap = "round";
+          ctx.strokeStyle = "#222";
+        }
+        resizeCanvas();
+        window.addEventListener("resize", resizeCanvas);
+        function startDraw(e) {
+          drawing = true;
+          [lastX, lastY] = getPos(e);
+        }
+        function endDraw() {
+          drawing = false;
+        }
+        function draw(e) {
+          if (!drawing) return;
+          const [x, y] = getPos(e);
+          ctx.beginPath();
+          ctx.moveTo(lastX, lastY);
+          ctx.lineTo(x, y);
+          ctx.stroke();
+          [lastX, lastY] = [x, y];
+          hasStroke = true;
+        }
+        function getPos(e) {
+          if (e.touches && e.touches.length) {
+            const rect = canvas.getBoundingClientRect();
+            return [
+              e.touches[0].clientX - rect.left,
+              e.touches[0].clientY - rect.top,
+            ];
+          } else {
+            const rect = canvas.getBoundingClientRect();
+            return [e.clientX - rect.left, e.clientY - rect.top];
+          }
+        }
+        canvas.addEventListener("mousedown", startDraw);
+        canvas.addEventListener("touchstart", startDraw);
+        canvas.addEventListener("mousemove", draw);
+        canvas.addEventListener("touchmove", draw);
+        canvas.addEventListener("mouseup", endDraw);
+        canvas.addEventListener("mouseleave", endDraw);
+        canvas.addEventListener("touchend", endDraw);
+        window.clearSignature = function () {
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+          hasStroke = false;
+        };
+        // On submit, save signature as data URL
+        document.querySelector("form").addEventListener("submit", function (e) {
+          const action = e.submitter?.getAttribute("formaction") || "";
+          if (action.includes("/decline")) {
+            return;
+          }
+          if (!hasStroke) {
+            e.preventDefault();
+            return;
+          }
+          document.getElementById("signatureData").value = canvas.toDataURL();
+        });
+      }
+    </script>
+  </body>
+</html>
