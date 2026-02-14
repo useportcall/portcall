@@ -21,10 +21,12 @@ func GetEntitlement(c *routerx.Context) {
 
 	var entitlement models.Entitlement
 	if err := c.DB().FindFirst(&entitlement, query, c.AppID(), user.ID, entitlementID); err != nil {
-		if !dbx.IsRecordNotFoundError(err) {
+		if dbx.IsRecordNotFoundError(err) {
+			c.NotFound("Entitlement not found")
+		} else {
 			c.ServerError("Internal server error", err)
-			return
 		}
+		return
 	}
 
 	c.OK(new(apix.Entitlement).Set(&entitlement))

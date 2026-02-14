@@ -1,0 +1,1358 @@
+openapi: 3.0.3
+info:
+  title: Portcall API
+  description: |
+    The Portcall API provides developer-first access to metered billing, entitlements, and feature management.
+
+    ## Authentication
+    All API endpoints require authentication via an API key. Include your API key in the `x-api-key` header:
+    ```
+    x-api-key: pk_test_your_api_key_here
+    ```
+  version: 1.0.0
+  contact:
+    name: Portcall Support
+    url: https://useportcall.com
+servers:
+  - url: https://api.portcall.com
+    description: Production server
+  - url: http://localhost:8080
+    description: Local development server
+
+security:
+  - ApiKeyAuth: []
+
+components:
+  securitySchemes:
+    ApiKeyAuth:
+      type: apiKey
+      in: header
+      name: x-api-key
+      description: API key for authentication
+
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+      required:
+        - error
+
+    CheckoutSession:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the checkout session
+          example: cs_1234567890
+        created_at:
+          type: string
+          format: date-time
+          description: When the checkout session was created
+        expires_at:
+          type: string
+          format: date-time
+          description: When the checkout session expires
+        external_client_secret:
+          type: string
+          nullable: true
+          description: Client secret for the external payment provider
+        external_public_key:
+          type: string
+          nullable: true
+          description: Public key for the external payment provider
+        external_provider:
+          type: string
+          description: The payment provider (e.g., stripe)
+          example: stripe
+        external_session_id:
+          type: string
+          description: Session ID from the external payment provider
+        user_id:
+          type: string
+          description: The ID of the user
+          example: usr_1234567890
+        plan_id:
+          type: string
+          description: The ID of the plan
+          example: plan_basic_monthly
+        plan:
+          $ref: "#/components/schemas/Plan"
+        redirect_url:
+          type: string
+          nullable: true
+          description: URL to redirect to after successful checkout
+        cancel_url:
+          type: string
+          nullable: true
+          description: URL to redirect to if checkout is cancelled
+        url:
+          type: string
+          description: The checkout URL to redirect the user to
+          example: https://checkout.example.com?id=cs_1234567890abcdef1234567890abcdef&st=token_abc123
+
+    CreateCheckoutSessionRequest:
+      type: object
+      required:
+        - user_id
+        - plan_id
+      properties:
+        user_id:
+          type: string
+          description: The ID of the user creating the checkout session
+          example: usr_1234567890
+        plan_id:
+          type: string
+          description: The ID of the plan to subscribe to
+          example: plan_basic_monthly
+        redirect_url:
+          type: string
+          description: URL to redirect to after successful checkout
+          example: https://yourapp.com/success
+        cancel_url:
+          type: string
+          description: URL to redirect to if checkout is cancelled
+          example: https://yourapp.com/cancel
+
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the subscription
+          example: sub_1234567890
+        user_id:
+          type: string
+          description: The ID of the user
+          example: usr_1234567890
+        plan_id:
+          type: string
+          description: The ID of the plan
+          example: plan_basic_monthly
+        status:
+          type: string
+          description: Current status of the subscription
+          enum: [active, canceled, expired, past_due, trialing]
+          example: active
+        last_reset_at:
+          type: string
+          format: date-time
+          description: When usage was last reset
+        next_reset_at:
+          type: string
+          format: date-time
+          description: When usage will next reset
+        billing_interval:
+          type: string
+          description: Billing interval (month, year)
+          example: month
+        billing_interval_count:
+          type: integer
+          description: Number of intervals between billings
+          example: 1
+        currency:
+          type: string
+          description: Currency code
+          example: usd
+        auto_collection:
+          type: boolean
+          description: Whether payments are automatically collected
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        plan:
+          $ref: "#/components/schemas/Plan"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/SubscriptionItem"
+
+    SubscriptionItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        quantity:
+          type: integer
+        unit_price:
+          type: integer
+          description: Price in cents
+
+    UpdateSubscriptionRequest:
+      type: object
+      required:
+        - plan_id
+      properties:
+        plan_id:
+          type: string
+          description: The ID of the new plan
+          example: plan_premium_monthly
+
+    CancelSubscriptionRequest:
+      type: object
+      properties:
+        skip_entitlement_reset:
+          type: boolean
+          description: Whether to skip resetting entitlements when canceling
+          default: false
+
+    Entitlement:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The feature ID this entitlement is for
+          example: feat_api_access
+        usage:
+          type: integer
+          format: int64
+          description: Current usage count
+          example: 2543
+        quota:
+          type: integer
+          format: int64
+          description: Maximum allowed usage (-1 for unlimited)
+          example: 10000
+        interval:
+          type: string
+          description: Reset interval (month, year)
+          example: month
+        enabled:
+          type: boolean
+          description: Whether the entitlement is currently enabled
+        next_reset_at:
+          type: string
+          format: date-time
+          nullable: true
+          description: When usage will next reset
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Feature:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the feature
+          example: feat_api_access
+        name:
+          type: string
+          description: Human-readable name
+          example: API Access
+        key:
+          type: string
+          description: Feature key for programmatic access
+          example: api_access
+        description:
+          type: string
+          description: Description of the feature
+        is_metered:
+          type: boolean
+          description: Whether this is a metered feature
+        created_at:
+          type: string
+          format: date-time
+
+    Plan:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the plan
+          example: plan_basic_monthly
+        name:
+          type: string
+          description: Plan name
+          example: Basic Plan
+        description:
+          type: string
+          description: Plan description
+        price:
+          type: integer
+          description: Price in cents
+          example: 2900
+        currency:
+          type: string
+          description: Currency code
+          example: usd
+        interval:
+          type: string
+          description: Billing interval
+          example: month
+        interval_count:
+          type: integer
+          description: Number of intervals
+          example: 1
+        status:
+          type: string
+          enum: [draft, published, archived]
+        features:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanFeature"
+        items:
+          type: array
+          items:
+            $ref: "#/components/schemas/PlanItem"
+        plan_group:
+          $ref: "#/components/schemas/PlanGroup"
+        created_at:
+          type: string
+          format: date-time
+
+    PlanFeature:
+      type: object
+      properties:
+        feature:
+          type: string
+          description: Feature ID
+        quota:
+          type: integer
+          format: int64
+          description: Usage quota for this feature
+
+    PlanItem:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        pricing_model:
+          type: string
+          enum: [fixed, per_unit, tiered]
+        unit_price:
+          type: integer
+          description: Price in cents
+
+    PlanGroup:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the user
+          example: usr_1234567890
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: user@example.com
+        name:
+          type: string
+          description: User's display name
+          example: John Doe
+        created_at:
+          type: string
+          format: date-time
+
+    CreateMeterEventRequest:
+      type: object
+      required:
+        - user_id
+        - feature_id
+        - usage
+      properties:
+        user_id:
+          type: string
+          description: The ID of the user consuming the resource
+          example: usr_1234567890
+        feature_id:
+          type: string
+          description: The ID of the metered feature
+          example: feat_api_access
+        usage:
+          type: integer
+          format: int64
+          description: The amount consumed
+          example: 1
+
+    MeterEvent:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the meter event
+        user_id:
+          type: string
+        feature_id:
+          type: string
+        usage:
+          type: integer
+          format: int64
+        timestamp:
+          type: string
+          format: date-time
+        processed:
+          type: boolean
+
+    CreateUserRequest:
+      type: object
+      required:
+        - email
+      properties:
+        email:
+          type: string
+          format: email
+          description: User's email address
+          example: user@example.com
+        name:
+          type: string
+          description: User's display name
+          example: John Doe
+
+    UpdateUserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          description: User's display name
+          example: Jane Doe
+        company_title:
+          type: string
+          description: User's company or job title
+          example: Software Engineer
+
+    CreateFeatureRequest:
+      type: object
+      required:
+        - feature_id
+      properties:
+        feature_id:
+          type: string
+          description: The unique identifier for the feature
+          example: api_calls
+        is_metered:
+          type: boolean
+          description: Whether this is a metered feature
+          default: false
+          example: true
+
+    Invoice:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the invoice
+          example: inv_1234567890
+        subscription_id:
+          type: string
+          nullable: true
+          description: Associated subscription ID
+          example: sub_1234567890
+        invoice_number:
+          type: string
+          description: Human-readable invoice number
+          example: INV-2024-0001
+        currency:
+          type: string
+          description: Currency code
+          example: usd
+        due_date:
+          type: string
+          format: date-time
+          nullable: true
+          description: When the invoice is due
+        status:
+          type: string
+          description: Invoice status
+          enum: [draft, open, paid, void, uncollectible]
+          example: paid
+        total:
+          type: integer
+          format: int64
+          nullable: true
+          description: Total amount in cents
+          example: 2900
+        subtotal:
+          type: integer
+          format: int64
+          nullable: true
+          description: Subtotal amount in cents
+          example: 2900
+        pdf_url:
+          type: string
+          nullable: true
+          description: URL to download invoice PDF
+        email_url:
+          type: string
+          nullable: true
+          description: URL to view invoice in email format
+        recipient_email:
+          type: string
+          description: Email of invoice recipient
+        recipient_id:
+          type: string
+          description: User ID of invoice recipient
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        items:
+          type: array
+          items:
+            type: object
+          description: Line items on the invoice
+
+paths:
+  /v1/checkout-sessions:
+    post:
+      operationId: createCheckoutSession
+      summary: Create Checkout Session
+      description: |
+        Create a new checkout session for a user to subscribe to a plan. 
+        Returns a session object with a URL that can be used to redirect the user to the checkout page.
+      tags:
+        - Checkout Sessions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateCheckoutSessionRequest"
+            example:
+              user_id: usr_1234567890
+              plan_id: plan_basic_monthly
+              redirect_url: https://yourapp.com/success
+              cancel_url: https://yourapp.com/cancel
+      responses:
+        "200":
+          description: Checkout session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CheckoutSession"
+              example:
+                id: cs_1234567890
+                user_id: usr_1234567890
+                plan_id: plan_basic_monthly
+                url: https://checkout.example.com?id=cs_1234567890abcdef1234567890abcdef&st=token_abc123
+                redirect_url: https://yourapp.com/success
+                cancel_url: https://yourapp.com/cancel
+                expires_at: "2024-01-17T12:00:00Z"
+                created_at: "2024-01-15T12:00:00Z"
+                external_provider: stripe
+                external_session_id: cs_test_abc123
+                external_client_secret: cs_test_abc123_secret_xyz
+                external_public_key: pk_test_xyz
+        "400":
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized - missing or invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/subscriptions:
+    get:
+      operationId: listSubscriptions
+      summary: List Subscriptions
+      description: |
+        Retrieve a list of subscriptions. You can filter by user_id to get subscriptions for a specific user, 
+        or by status to filter by subscription state.
+      tags:
+        - Subscriptions
+      parameters:
+        - name: user_id
+          in: query
+          description: Filter subscriptions by user ID
+          schema:
+            type: string
+          example: usr_1234567890
+        - name: status
+          in: query
+          description: Filter by subscription status
+          schema:
+            type: string
+            enum: [active, canceled, expired, past_due, trialing]
+          example: active
+      responses:
+        "200":
+          description: List of subscriptions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Subscription"
+              example:
+                - id: sub_1234567890
+                  user_id: usr_1234567890
+                  plan_id: plan_basic_monthly
+                  status: active
+                  billing_interval: month
+                  billing_interval_count: 1
+                  currency: usd
+                  last_reset_at: "2024-01-01T00:00:00Z"
+                  next_reset_at: "2024-02-01T00:00:00Z"
+                  created_at: "2024-01-01T00:00:00Z"
+                  updated_at: "2024-01-01T00:00:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/subscriptions/{subscription_id}:
+    post:
+      operationId: updateSubscription
+      summary: Update Subscription
+      description: |
+        Update an existing subscription. Currently supports changing the plan.
+        The new plan must have the same currency, interval, and interval count as the current plan.
+      tags:
+        - Subscriptions
+      parameters:
+        - name: subscription_id
+          in: path
+          required: true
+          description: The ID of the subscription to update
+          schema:
+            type: string
+          example: sub_1234567890
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateSubscriptionRequest"
+            example:
+              plan_id: plan_premium_monthly
+      responses:
+        "200":
+          description: Subscription updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+              example:
+                id: sub_1234567890
+                user_id: usr_1234567890
+                plan_id: plan_premium_monthly
+                status: active
+                billing_interval: month
+                updated_at: "2024-01-17T10:30:00Z"
+        "400":
+          description: Bad request - invalid plan or incompatible change
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/subscriptions/{subscription_id}/cancel:
+    post:
+      operationId: cancelSubscription
+      summary: Cancel Subscription
+      description: |
+        Cancel a subscription. The subscription must be in an active state.
+        By default, entitlements are reset when canceling, but this can be skipped.
+      tags:
+        - Subscriptions
+      parameters:
+        - name: subscription_id
+          in: path
+          required: true
+          description: The ID of the subscription to cancel
+          schema:
+            type: string
+          example: sub_1234567890
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CancelSubscriptionRequest"
+            example:
+              skip_entitlement_reset: false
+      responses:
+        "200":
+          description: Subscription canceled successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+              example:
+                id: sub_1234567890
+                user_id: usr_1234567890
+                plan_id: plan_basic_monthly
+                status: canceled
+                updated_at: "2024-01-17T10:30:00Z"
+        "400":
+          description: Bad request - subscription not active
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/features:
+    get:
+      operationId: listFeatures
+      summary: List Features
+      description: |
+        Get a list of all available features in your Portcall account. 
+        Features define what capabilities are available in different plans.
+      tags:
+        - Features
+      parameters:
+        - name: is_metered
+          in: query
+          description: Filter by metered features
+          schema:
+            type: boolean
+          example: false
+      responses:
+        "200":
+          description: List of features
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Feature"
+              example:
+                - id: feat_api_access
+                  name: API Access
+                  key: api_access
+                  description: Access to REST API
+                  is_metered: true
+                  created_at: "2024-01-01T00:00:00Z"
+                - id: feat_premium_support
+                  name: Premium Support
+                  key: premium_support
+                  description: 24/7 priority support
+                  is_metered: false
+                  created_at: "2024-01-01T00:00:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createFeature
+      summary: Create Feature
+      description: |
+        Create a new feature in your Portcall account. Features define capabilities 
+        that can be assigned to plans with quotas.
+      tags:
+        - Features
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateFeatureRequest"
+            example:
+              feature_id: api_calls
+              is_metered: true
+      responses:
+        "200":
+          description: Feature created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Feature"
+              example:
+                id: api_calls
+                is_metered: true
+                created_at: "2024-01-17T12:00:00Z"
+        "400":
+          description: Bad request - invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/plans/{id}:
+    get:
+      operationId: getPlan
+      summary: Get Plan
+      description: |
+        Retrieve details about a specific pricing plan, including features, pricing, and billing intervals.
+      tags:
+        - Plans
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the plan to retrieve
+          schema:
+            type: string
+          example: plan_basic_monthly
+      responses:
+        "200":
+          description: Plan details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Plan"
+              example:
+                id: plan_basic_monthly
+                name: Basic Plan
+                description: Perfect for small teams
+                price: 2900
+                currency: usd
+                interval: month
+                interval_count: 1
+                status: published
+                features:
+                  - feature: feat_api_access
+                    quota: 10000
+                  - feature: feat_premium_support
+                    quota: -1
+                created_at: "2024-01-01T00:00:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Plan not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/users:
+    get:
+      operationId: listUsers
+      summary: List Users
+      description: |
+        Retrieve a list of users in your Portcall account. 
+        Useful for admin dashboards and user management.
+      tags:
+        - Users
+      parameters:
+        - name: email
+          in: query
+          description: Filter by email address
+          schema:
+            type: string
+            format: email
+          example: user@example.com
+      responses:
+        "200":
+          description: List of users
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+              example:
+                - id: usr_1234567890
+                  email: user@example.com
+                  name: John Doe
+                  created_at: "2024-01-01T00:00:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: createUser
+      summary: Create User
+      description: |
+        Create a new user in your Portcall account. Users can then be subscribed to plans and have entitlements.
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateUserRequest"
+            example:
+              email: user@example.com
+              name: John Doe
+      responses:
+        "200":
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                id: usr_1234567890
+                email: user@example.com
+                name: John Doe
+                created_at: "2024-01-17T12:00:00Z"
+        "400":
+          description: Bad request - invalid email or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/users/{id}:
+    get:
+      operationId: getUser
+      summary: Get User
+      description: |
+        Retrieve details about a specific user, including their billing address if available.
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to retrieve
+          schema:
+            type: string
+          example: usr_1234567890
+      responses:
+        "200":
+          description: User details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                id: usr_1234567890
+                email: user@example.com
+                name: John Doe
+                created_at: "2024-01-01T00:00:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+    post:
+      operationId: updateUser
+      summary: Update User
+      description: |
+        Update an existing user's information such as name or company title.
+      tags:
+        - Users
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the user to update
+          schema:
+            type: string
+          example: usr_1234567890
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UpdateUserRequest"
+            example:
+              name: Jane Doe
+              company_title: Senior Engineer
+      responses:
+        "200":
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+              example:
+                id: usr_1234567890
+                email: user@example.com
+                name: Jane Doe
+                created_at: "2024-01-01T00:00:00Z"
+        "400":
+          description: Bad request - invalid request body
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/entitlements:
+    get:
+      operationId: listEntitlements
+      summary: List Entitlements
+      description: |
+        Retrieve all entitlements for a specific user. This returns the features and quotas 
+        available to the user based on their subscription.
+      tags:
+        - Entitlements
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          description: The ID of the user
+          schema:
+            type: string
+          example: usr_1234567890
+        - name: is_metered
+          in: query
+          description: Filter by metered entitlements only
+          schema:
+            type: boolean
+          example: true
+      responses:
+        "200":
+          description: List of entitlements
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Entitlement"
+              example:
+                - id: feat_api_access
+                  usage: 2543
+                  quota: 10000
+                  interval: month
+                  enabled: true
+                  next_reset_at: "2024-02-01T00:00:00Z"
+                - id: feat_premium_support
+                  usage: 0
+                  quota: -1
+                  interval: month
+                  enabled: true
+        "400":
+          description: Bad request - missing user_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/entitlements/{user_id}/{id}:
+    get:
+      operationId: getEntitlement
+      summary: Get Entitlement
+      description: |
+        Check if a user has access to a specific entitlement/feature. 
+        This is commonly used for feature flagging and access control.
+      tags:
+        - Entitlements
+      parameters:
+        - name: user_id
+          in: path
+          required: true
+          description: The ID of the user
+          schema:
+            type: string
+          example: usr_1234567890
+        - name: id
+          in: path
+          required: true
+          description: The feature ID to check entitlement for
+          schema:
+            type: string
+          example: feat_api_access
+      responses:
+        "200":
+          description: Entitlement details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Entitlement"
+              example:
+                id: feat_api_access
+                usage: 2543
+                quota: 10000
+                interval: month
+                enabled: true
+                next_reset_at: "2024-02-01T00:00:00Z"
+                created_at: "2024-01-01T00:00:00Z"
+                updated_at: "2024-01-15T10:30:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User or entitlement not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/invoices:
+    get:
+      operationId: listInvoices
+      summary: List Invoices
+      description: |
+        Retrieve a list of invoices. You can filter by user_id or subscription_id 
+        to get invoices for a specific user or subscription.
+      tags:
+        - Invoices
+      parameters:
+        - name: user_id
+          in: query
+          description: Filter invoices by user ID
+          schema:
+            type: string
+          example: usr_1234567890
+        - name: subscription_id
+          in: query
+          description: Filter invoices by subscription ID
+          schema:
+            type: string
+          example: sub_1234567890
+      responses:
+        "200":
+          description: List of invoices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Invoice"
+              example:
+                - id: inv_1234567890
+                  subscription_id: sub_1234567890
+                  invoice_number: INV-2024-0001
+                  currency: usd
+                  status: paid
+                  total: 2900
+                  subtotal: 2900
+                  recipient_email: user@example.com
+                  recipient_id: usr_1234567890
+                  created_at: "2024-01-01T00:00:00Z"
+                  updated_at: "2024-01-01T00:00:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: User or subscription not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/subscriptions/{id}:
+    get:
+      operationId: getSubscription
+      summary: Get Subscription
+      description: |
+        Retrieve details about a specific subscription, including the associated user and plan.
+      tags:
+        - Subscriptions
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the subscription to retrieve
+          schema:
+            type: string
+          example: sub_1234567890
+      responses:
+        "200":
+          description: Subscription details
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subscription"
+              example:
+                id: sub_1234567890
+                user_id: usr_1234567890
+                plan_id: plan_basic_monthly
+                status: active
+                billing_interval: month
+                billing_interval_count: 1
+                currency: usd
+                last_reset_at: "2024-01-01T00:00:00Z"
+                next_reset_at: "2024-02-01T00:00:00Z"
+                created_at: "2024-01-01T00:00:00Z"
+                updated_at: "2024-01-01T00:00:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "404":
+          description: Subscription not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/plans:
+    get:
+      operationId: listPlans
+      summary: List Plans
+      description: |
+        Retrieve a list of all available pricing plans. Each plan includes its features, 
+        pricing items, and billing intervals.
+      tags:
+        - Plans
+      responses:
+        "200":
+          description: List of plans
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Plan"
+              example:
+                - id: plan_basic_monthly
+                  name: Basic Plan
+                  description: Perfect for small teams
+                  price: 2900
+                  currency: usd
+                  interval: month
+                  interval_count: 1
+                  status: published
+                  created_at: "2024-01-01T00:00:00Z"
+                - id: plan_premium_monthly
+                  name: Premium Plan
+                  description: For growing businesses
+                  price: 9900
+                  currency: usd
+                  interval: month
+                  interval_count: 1
+                  status: published
+                  created_at: "2024-01-01T00:00:00Z"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+  /v1/meter-events:
+    post:
+      operationId: createMeterEvent
+      summary: Create Meter Event
+      description: |
+        Record a usage event for metered billing. This is used to track consumption of metered features 
+        like API calls, storage, or compute time.
+      tags:
+        - Meter Events
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CreateMeterEventRequest"
+            example:
+              user_id: usr_1234567890
+              feature_id: feat_api_access
+              usage: 1
+      responses:
+        "200":
+          description: Meter event recorded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+              example:
+                success: true
+        "400":
+          description: Bad request - usage exceeds quota
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+tags:
+  - name: Checkout Sessions
+    description: Create and manage checkout sessions for subscriptions
+  - name: Subscriptions
+    description: Manage user subscriptions
+  - name: Entitlements
+    description: Check user entitlements and feature access
+  - name: Features
+    description: List and manage available features
+  - name: Plans
+    description: List and retrieve plan details
+  - name: Users
+    description: Create, list, and manage users
+  - name: Invoices
+    description: List and retrieve invoices
+  - name: Meter Events
+    description: Record usage events for metered billing

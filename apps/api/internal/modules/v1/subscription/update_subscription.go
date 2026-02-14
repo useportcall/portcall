@@ -1,21 +1,21 @@
 package subscription
 
 import (
-	"github.com/useportcall/portcall/libs/go/apix"
-	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
 type UpdateSubscriptionPayload struct {
-	PlanID string `json:"plan_id"`
+	PlanID           string `json:"plan_id"`
+	IsFree           *bool  `json:"is_free"`
+	ApplyAtNextReset *bool  `json:"apply_at_next_reset"` // If true, schedule plan change for next reset instead of immediate
 }
 
 func UpdateSubscription(c *routerx.Context) {
 	subscriptionID := c.Param("subscription_id")
 
 	var p UpdateSubscriptionPayload
-	if err := c.BindJSON(&p); err != nil {
+	if err := c.ShouldBindJSON(&p); err != nil {
 		c.BadRequest("Invalid request payload")
 		return
 	}
@@ -28,6 +28,21 @@ func UpdateSubscription(c *routerx.Context) {
 
 	if subscription.Status != "active" {
 		c.BadRequest("Subscription is not active")
+		return
+	}
+
+	// Handle is_free update (can be done independently of plan change)
+	if p.IsFree != nil {
+		subscription.IsFree = *p.IsFree
+	}
+
+	// If no plan change, just save the is_free update and return
+	if p.PlanID == "" {
+		if err := c.DB().Save(&subscription); err != nil {
+			c.ServerError("Internal server error", err)
+			return
+		}
+		c.OK(buildSubscriptionResponse(c, &subscription))
 		return
 	}
 
@@ -58,71 +73,21 @@ func UpdateSubscription(c *routerx.Context) {
 		return
 	}
 
-	subscription.PlanID = &newPlan.ID
-	subscription.InvoiceDueByDays = newPlan.InvoiceDueByDays
-
-	var si models.SubscriptionItem
-	if err := c.DB().Delete(&si, "subscription_id = ?", subscription.ID); err != nil {
-		c.ServerError("Internal server error", err)
-		return
-	}
-
-	var planItems []models.PlanItem
-	if err := c.DB().List(&planItems, "plan_id = ?", newPlan.ID); err != nil {
-		c.ServerError("Internal server error", err)
-		return
-	}
-
-	for _, pi := range planItems {
-		var title string
-		if pi.PricingModel == "fixed" {
-			title = newPlan.Name
-		} else {
-			title = pi.PublicTitle
-		}
-
-		subscriptionItem := models.SubscriptionItem{
-			PublicID:       dbx.GenPublicID("si"),
-			PlanItemID:     &pi.ID,
-			Quantity:       pi.Quantity,
-			AppID:          pi.AppID,
-			UnitAmount:     pi.UnitAmount,
-			PricingModel:   pi.PricingModel,
-			Tiers:          pi.Tiers,
-			Maximum:        pi.Maximum,
-			Minimum:        pi.Minimum,
-			Title:          title,
-			Description:    pi.PublicDescription,
-			SubscriptionID: subscription.ID,
-		}
-		if err := c.DB().Create(&subscriptionItem); err != nil {
+	// If apply_at_next_reset is true, schedule the change instead of applying immediately
+	if p.ApplyAtNextReset != nil && *p.ApplyAtNextReset {
+		subscription.ScheduledPlanID = &newPlan.ID
+		if err := c.DB().Save(&subscription); err != nil {
 			c.ServerError("Internal server error", err)
 			return
 		}
-	}
-
-	if err := c.DB().Save(&subscription); err != nil {
-		c.ServerError("Internal server error", err)
+		c.OK(buildSubscriptionResponse(c, &subscription))
 		return
 	}
 
-	if err := c.Queue().Enqueue(
-		"process_plan_switch",
-		map[string]any{"old_plan_id": oldPlan.ID, "new_plan_id": newPlan.ID, "subscription_id": subscription.ID},
-		"billing_queue",
-	); err != nil {
-		c.ServerError("Internal server error", err)
+	// Apply plan switch immediately
+	if !applyPlanSwitch(c, &subscription, &oldPlan, &newPlan) {
 		return
 	}
 
-	if err := c.Queue().Enqueue(
-		"create_entitlements",
-		map[string]any{"user_id": subscription.UserID, "plan_id": newPlan.ID},
-		"billing_queue",
-	); err != nil {
-		c.ServerError("Internal server error", err)
-		return
-	}
-
-	c.OK(new(apix.Subscription).Set(&subscription))
+	c.OK(buildSubscriptionResponse(c, &subscription))
 }
