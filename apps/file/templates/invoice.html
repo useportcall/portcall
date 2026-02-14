@@ -1,108 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <meta charset="UTF-8" />
     <title>Invoice</title>
-    <style>
-      body {
-        font-family: "Inter", "Segoe UI", Arial, sans-serif;
-        background: #f4f6fb;
-        margin-top: 14px;
-        align-items: center;
-        justify-content: start;
-        display: flex;
-        flex-direction: column;
-      }
-      .invoice-container {
-        width: 70.67vh;
-        height: 100vh;
-        background: #fff;
-        box-sizing: border-box;
-        padding: 32px 32px 32px 32px;
-        border-radius: 0;
-        box-shadow: none;
-      }
-      .header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 32px;
-      }
-      .company {
-        font-size: 16px;
-        font-weight: 500;
-        color: #2d3748;
-      }
-      .invoice-title {
-        font-size: 18px;
-        font-weight: 600;
-        color: #3b82f6;
-        letter-spacing: 2px;
-      }
-      .info {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 32px;
-      }
-      .address-block {
-        font-size: 12px;
-        color: #4a5568;
-        line-height: 1.6;
-        margin-bottom: 16px;
-      }
-      .section-title {
-        font-size: 14px;
-        font-weight: 600;
-        color: #3b82f6;
-        margin-bottom: 6px;
-      }
-      .details {
-        font-size: 12px;
-        color: #4a5568;
-        margin-bottom: 18px;
-      }
-      table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 24px;
-      }
-      th,
-      td {
-        padding: 10px 6px;
-        border-bottom: 1px solid #e2e8f0;
-        text-align: left;
-        font-size: 12px;
-      }
-      th {
-        background: #f1f5f9;
-        font-weight: 600;
-        color: #2d3748;
-        font-size: 12px;
-      }
-      tr:last-child td {
-        border-bottom: none;
-      }
-      .totals {
-        text-align: right;
-        font-size: 12px;
-        margin-top: 10px;
-      }
-      .subtotals {
-        text-align: right;
-        font-size: 12px;
-      }
-      .status-banner {
-        border: 1px solid oklch(76.5% 0.177 163.223);
-        background-color: white;
-        border-radius: 6px;
-        font-size: 12px;
-        width: fit-content;
-        padding: 4px 8px;
-        color: oklch(76.5% 0.177 163.223);
-        justify-self: end;
-        margin-top: 14px;
-      }
-    </style>
+    {{template "invoice-styles"}}
   </head>
   <body>
     <div class="invoice-container">
@@ -133,9 +34,6 @@
       <div class="details">
         <div><strong>Invoice #:</strong> {{.InvoiceNumber}}</div>
         <div><strong>Date:</strong> {{.InvoiceDate}}</div>
-        {{/*
-        <div><strong>Customer:</strong> {{.CustomerName}}</div>
-        */}}
       </div>
       <table>
         <tr>
@@ -146,10 +44,7 @@
         </tr>
         {{range .Items}}
         <tr>
-          <td>
-            {{.Title}}<br />
-            {{.Description}}
-          </td>
+          <td>{{.Title}}<br />{{.Description}}</td>
           <td>{{.Quantity}}</td>
           <td>${{printf "%.2f" .UnitPrice}}</td>
           <td>${{printf "%.2f" .Total}}</td>
@@ -163,7 +58,6 @@
       <div class="totals">
         Total: <strong>${{printf "%.2f" .Total}}</strong>
       </div>
-      <!-- TODO: Different invoice status should have different color, paid status would have green color and due status would have red color -->
       <div class="status-banner">Paid</div>
     </div>
   </body>

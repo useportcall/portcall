@@ -1,0 +1,126 @@
+{{define "view-styles"}}
+<style>
+  @property --tw-border-style {
+    syntax: "*";
+    inherits: false;
+    initial-value: solid;
+  }
+  :root {
+    --page-bg: #fff;
+    --fg: #0a0a0a;
+    --btn-bg: #fff;
+    --btn-fg: #0a0a0a;
+    --btn-border: hsl(0 0% 89.8%);
+    --btn-hover: hsl(0 0% 96.1%);
+    --overlay-bg: rgba(255, 255, 255, 0.85);
+    --overlay-fg: #333;
+    --spinner-track: #f3f3f3;
+    --spinner-active: #007bff;
+    --iframe-bg: #fff;
+    --shadow-clr: rgba(0, 0, 0, 0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not(.light) {
+      --page-bg: hsl(0 0% 3.9%);
+      --fg: hsl(0 0% 98%);
+      --btn-bg: hsl(0 0% 14.9%);
+      --btn-fg: hsl(0 0% 98%);
+      --btn-border: hsl(0 0% 14.9%);
+      --btn-hover: hsl(0 0% 20%);
+      --overlay-bg: rgba(10, 10, 10, 0.85);
+      --overlay-fg: hsl(0 0% 80%);
+      --spinner-track: hsl(0 0% 14.9%);
+      --spinner-active: #60a5fa;
+      --iframe-bg: hsl(0 0% 3.9%);
+      --shadow-clr: rgba(0, 0, 0, 0.3);
+    }
+  }
+  html.dark {
+    --page-bg: hsl(0 0% 3.9%);
+    --fg: hsl(0 0% 98%);
+    --btn-bg: hsl(0 0% 14.9%);
+    --btn-fg: hsl(0 0% 98%);
+    --btn-border: hsl(0 0% 14.9%);
+    --btn-hover: hsl(0 0% 20%);
+    --overlay-bg: rgba(10, 10, 10, 0.85);
+    --overlay-fg: hsl(0 0% 80%);
+    --spinner-track: hsl(0 0% 14.9%);
+    --spinner-active: #60a5fa;
+    --iframe-bg: hsl(0 0% 3.9%);
+    --shadow-clr: rgba(0, 0, 0, 0.3);
+  }
+  .toolbar-btn {
+    position: fixed;
+    top: 24px;
+    z-index: 1000;
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    border: 1px var(--tw-border-style) var(--btn-border);
+    border-radius: calc(0.5rem - 2px);
+    font-family: ui-sans-serif, system-ui, sans-serif;
+    font-size: 0.875rem;
+    line-height: calc(1.25 / 0.875);
+    height: calc(0.25rem * 8);
+    padding: 0.25rem 0.5rem;
+    padding-inline: calc(0.25rem * 2.5);
+    cursor: pointer;
+    box-shadow: 0 1px 2px 0 var(--shadow-clr);
+    white-space: nowrap;
+  }
+  .toolbar-btn:hover {
+    background-color: var(--btn-hover);
+  }
+  #download-btn {
+    right: 24px;
+  }
+  #theme-btn {
+    right: 150px;
+  }
+  #iframe-container {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100vw;
+    height: 100vh;
+  }
+  #invoice-frame {
+    width: 100vw;
+    height: 100vh;
+    border: none;
+    background: var(--iframe-bg);
+    box-shadow: 0 2px 16px var(--shadow-clr);
+  }
+  #loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: var(--overlay-bg);
+    z-index: 2000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: var(--overlay-fg);
+  }
+  .spinner {
+    border: 6px solid var(--spinner-track);
+    border-top: 6px solid var(--spinner-active);
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    animation: spin 1s linear infinite;
+    margin-bottom: 18px;
+  }
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+</style>
+{{end}}

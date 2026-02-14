@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"text/template"
+	"html/template"
 
 	"github.com/useportcall/portcall/libs/go/routerx"
 )
@@ -15,9 +15,9 @@ func ViewInvoice(c *routerx.Context) {
 	pdfUrl := fmt.Sprintf("/pdf/%s", invoiceId)
 	c.Header("Content-Type", "text/html")
 
-	tmpl, err := template.ParseFiles("templates/view.html")
+	tmpl, err := template.ParseFiles(tmplPaths("view.html", "view-styles.html")...)
 	if err != nil {
-		log.Printf("Error loading iframe.html template: %v", err)
+		log.Printf("Error loading view template: %v", err)
 		c.String(http.StatusInternalServerError, "Template error")
 		return
 	}

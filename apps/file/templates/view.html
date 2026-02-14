@@ -1,113 +1,68 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
   <head>
     <title>View invoice</title>
-    <style>
-      @property --tw-border-style {
-        syntax: "*";
-        inherits: false;
-        initial-value: solid;
-      }
-
-      #download-btn {
-        position: fixed;
-        top: 24px;
-        right: 24px;
-        z-index: 1000;
-        background: rgb(255, 255, 255);
-        color: rgb(10, 10, 10);
-        border-width: 1px;
-        border-radius: calc(0.5rem - 2px);
-        border-color: hsl(0 0% 89.8%);
-        font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
-          "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
-        font-size: 0.875rem;
-        line-height: calc(1.25 / 0.875);
-        height: calc(0.25rem * 8);
-        padding: 0.25rem 0.5rem;
-        padding-inline: calc(0.25rem * 2.5);
-        transition-property: all;
-        --tw-shadow: 0 1px 2px 0 var(--tw-shadow-color, #0000000d);
-        box-shadow: var(--tw-inset-shadow), var(--tw-inset-ring-shadow),
-          var(--tw-ring-offset-shadow), var(--tw-ring-shadow), var(--tw-shadow);
-        white-space: nowrap;
-        border-style: var(--tw-border-style);
-      }
-
-      #download-btn:hover {
-        background-color: hsl(0 0% 96.1%);
-      }
-      #iframe-container {
-        display: flex;
-        justify-content: center;
-        align-items: flex-start;
-        width: 100vw;
-        height: 100vh;
-      }
-      #invoice-frame {
-        width: 100vw;
-        height: 100vh;
-        border: none;
-        background: #fff;
-        box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
-      }
-      #loading-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100vw;
-        height: 100vh;
-        background: rgba(255, 255, 255, 0.85);
-        z-index: 2000;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        color: #333;
-      }
-      .spinner {
-        border: 6px solid #f3f3f3;
-        border-top: 6px solid #007bff;
-        border-radius: 50%;
-        width: 48px;
-        height: 48px;
-        animation: spin 1s linear infinite;
-        margin-bottom: 18px;
-      }
-      @keyframes spin {
-        0% {
-          transform: rotate(0deg);
-        }
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
+    {{template "view-styles"}}
   </head>
-  <body style="margin: 0; padding: 0">
+  <body style="margin: 0; padding: 0; background: var(--page-bg)">
     <div id="loading-overlay">
       <div class="spinner"></div>
-      <div id="loading-text">Loading invoice…</div>
+      <div>Loading invoice…</div>
     </div>
-    <button id="download-btn" onclick="printInvoice()">Download PDF</button>
+    <button
+      id="theme-btn"
+      class="toolbar-btn"
+      onclick="toggleTheme()"
+      title="Toggle dark mode"
+    >
+      🌙
+    </button>
+    <button id="download-btn" class="toolbar-btn" onclick="printInvoice()">
+      Download PDF
+    </button>
     <div id="iframe-container">
       <iframe id="invoice-frame" src="{{.Src}}" allowfullscreen></iframe>
     </div>
     <script>
       function printInvoice() {
-        const iframe = document.getElementById("invoice-frame");
-        if (iframe && iframe.contentWindow) {
-          iframe.contentWindow.focus();
-          iframe.contentWindow.print();
-        } else {
-          alert("Invoice not loaded yet.");
-        }
+        var f = document.getElementById("invoice-frame");
+        if (f && f.contentWindow) {
+          f.contentWindow.focus();
+          f.contentWindow.print();
+        } else alert("Invoice not loaded yet.");
       }
-      const overlay = document.getElementById("loading-overlay");
-      const iframe = document.getElementById("invoice-frame");
-      iframe.onload = function () {
+      function syncIframeTheme(dark) {
+        try {
+          var doc = document.getElementById("invoice-frame").contentDocument;
+          if (!doc) return;
+          doc.documentElement.classList.toggle("dark", dark);
+          doc.documentElement.classList.toggle("light", !dark);
+        } catch (e) {}
+      }
+      function toggleTheme() {
+        var html = document.documentElement;
+        var isDark = html.classList.toggle("dark");
+        html.classList.remove("light");
+        if (!isDark) html.classList.add("light");
+        localStorage.setItem("invoice-theme", isDark ? "dark" : "light");
+        syncIframeTheme(isDark);
+        document.getElementById("theme-btn").textContent = isDark ? "☀️" : "🌙";
+      }
+      (function () {
+        var saved = localStorage.getItem("invoice-theme");
+        if (saved === "dark") {
+          document.documentElement.classList.add("dark");
+          document.getElementById("theme-btn").textContent = "☀️";
+        } else if (saved === "light") {
+          document.documentElement.classList.add("light");
+        }
+      })();
+      var overlay = document.getElementById("loading-overlay");
+      document.getElementById("invoice-frame").onload = function () {
         overlay.style.display = "none";
+        var saved = localStorage.getItem("invoice-theme");
+        if (saved === "dark") syncIframeTheme(true);
+        else if (saved === "light") syncIframeTheme(false);
       };
     </script>
   </body>
