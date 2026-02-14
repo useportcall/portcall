@@ -1,0 +1,74 @@
+{{- if .Values.quote.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: quote
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: quote
+spec:
+  replicas: {{ .Values.quote.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: quote
+  template:
+    metadata:
+      labels:
+        app: quote
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      containers:
+      - name: quote
+        image: {{ .Values.quote.image.repository }}:{{ .Values.quote.image.tag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.quote.port }}
+        env:
+        - name: PORT
+          value: {{ .Values.quote.port | quote }}
+        - name: S3_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: spaces-credentials
+              key: AWS_ACCESS_KEY_ID
+        - name: S3_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: spaces-credentials
+              key: AWS_SECRET_ACCESS_KEY
+        envFrom:
+        - configMapRef:
+            name: portcall-config
+        - secretRef:
+            name: {{ .Values.common.secretName }}
+        resources:
+          requests:
+            memory: {{ .Values.quote.resources.requests.memory }}
+            cpu: {{ .Values.quote.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.quote.resources.limits.memory }}
+            cpu: {{ .Values.quote.resources.limits.cpu }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: quote
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: quote
+  ports:
+  - port: {{ .Values.quote.port }}
+    targetPort: {{ .Values.quote.port }}
+    {{- if .Values.quote.nodePort }}
+    nodePort: {{ .Values.quote.nodePort }}
+    {{- end }}
+  type: NodePort
+{{- end }}

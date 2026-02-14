@@ -1,0 +1,72 @@
+{{- if .Values.keycloak.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: keycloak-admin-lockdown
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: keycloak
+spec:
+  podSelector:
+    matchLabels:
+      app: keycloak
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    # Allow health checks from within cluster
+    - from:
+        - podSelector: {}
+      ports:
+        - protocol: TCP
+          port: 9000  # Health check port
+    
+    # Allow traffic from ingress controller (for user-facing endpoints)
+    - from:
+        - namespaceSelector:
+            matchLabels:
+              name: ingress-nginx
+      ports:
+        - protocol: TCP
+          port: 8080  # HTTP port for user-facing endpoints only
+    
+    # Block all other traffic (including external admin API access)
+    # Admin console is intentionally NOT exposed externally
+  
+  egress:
+    # Allow DNS resolution
+    - to:
+        - namespaceSelector: {}
+      ports:
+        - protocol: UDP
+          port: 53
+    
+    # Allow database access (PostgreSQL)
+    - ports:
+        - protocol: TCP
+          port: {{ .Values.keycloak.database.port }}
+    
+    # Allow SMTP for password reset emails - allow to smtp-relay pod in same namespace
+    - to:
+        - namespaceSelector:
+            matchLabels:
+              kubernetes.io/metadata.name: {{ .Release.Namespace }}
+          podSelector:
+            matchLabels:
+              app: smtp-relay
+      ports:
+        - protocol: TCP
+          port: 2525
+    
+    # Fallback: Allow SMTP to any destination (for external SMTP servers)
+    - ports:
+        - protocol: TCP
+          port: 587  # Standard SMTP submission port
+        - protocol: TCP
+          port: 2525 # Alternative SMTP port
+    
+    # Allow HTTPS for external services (e.g., identity providers, webhooks)
+    - ports:
+        - protocol: TCP
+          port: 443
+{{- end }}

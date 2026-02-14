@@ -1,0 +1,469 @@
+# Default values for Portcall
+# This is a YAML-formatted file.
+
+global:
+  namespace: portcall-dev
+  imagePullPolicy: IfNotPresent
+  storageClass: "" # Use default storage class
+  # Whether to enforce running containers as non-root. Set to true for production
+  enforceNonRoot: false
+  imagePullSecrets: []
+
+# Image registry settings
+imageRegistry:
+  # For local development, we'll build and use local images
+  # For production, use your container registry
+  enabled: false
+  url: ""
+
+# PostgreSQL StatefulSet
+postgresql:
+  enabled: true
+  image: postgres:16
+  replicas: 1
+  port: 5432
+  host: postgres
+  user: admin
+  password: adminpassword
+  database: main_portcall_db
+  persistence:
+    enabled: true
+    size: 10Gi
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+# Redis StatefulSet
+redis:
+  enabled: true
+  image: redis:7-alpine
+  replicas: 1
+  port: 6379
+  host: redis
+  persistence:
+    enabled: true
+    size: 5Gi
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# MinIO StatefulSet (S3-compatible object storage)
+# For local/dev clusters, MinIO provides S3-compatible storage
+# For production, set enabled: false and use external S3 (AWS S3, DigitalOcean Spaces, etc.)
+minio:
+  enabled: true # Set to false for production with external S3
+  image: minio/minio:latest
+  replicas: 1
+  port: 9000
+  consolePort: 9001
+  rootUser: admin
+  rootPassword: admin123
+  persistence:
+    enabled: true
+    size: 20Gi
+  # Buckets to create automatically via minio-init Job
+  # IMPORTANT: These buckets are required for Portcall to function
+  buckets:
+    - quote-signatures # Used by quote service for signature storage
+    - icon-logos # Used by dashboard for company logo uploads
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "250m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+# Keycloak Deployment
+keycloak:
+  enabled: true
+  image:
+    repository: "portcall/keycloak"
+    tag: "latest"
+  replicas: 1
+  port: 8080
+  adminUsername: admin
+  adminPassword: admin
+  hostname: localhost
+  hostnamePort: 30800
+  database:
+    name: keycloak
+    createDatabase: true
+    host: postgres
+    port: 5432
+    user: admin
+    sslmode: disable
+  smtp:
+    enabled: false
+    host: ""
+    port: "25"
+    from: "noreply@portcall.local"
+    fromDisplayName: "Portcall"
+    auth: false
+    starttls: false
+  adminAccess:
+    enabled: false
+    host: "admin.portcall.local"
+    allowedIPs: []
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "2Gi"
+      cpu: "2000m"
+
+# Common environment variables
+common:
+  appEnv: development
+  aesEncryptionKey: "zRBkAMS4lX9CYBLJajHF/J0p+kcIIxVIr9gR4Y1M+nM="
+
+  # S3/Object Storage Configuration
+  # For local/dev: Use MinIO settings below
+  # For production: Update these values and set minio.enabled: false
+  s3Region:
+    "us-east-1" # For MinIO or AWS region (e.g., us-east-1)
+    # For DigitalOcean Spaces: use region code (e.g., nyc3, sfo3)
+  s3Endpoint:
+    "http://minio:9000" # Local MinIO endpoint
+    # Production AWS S3: "https://s3.us-east-1.amazonaws.com"
+    # Production DO Spaces: "https://nyc3.digitaloceanspaces.com"
+  s3AccessKeyId: "admin" # MinIO root user (change for production)
+  s3SecretAccessKey: "admin123" # MinIO root password (change for production)
+
+  # Secret Management
+  createSecret: true # Set to false for production (manage secrets externally)
+  secretName: "portcall-secrets" # For production, create this secret with S3 credentials
+
+  # Dogfood configuration for self-billing/entitlement tracking
+  dogfood:
+    apiUrl: "http://api:8080" # Internal API URL for dogfooding
+    liveSecret: "" # Live mode API secret for production dogfooding
+    testSecret: "" # Test mode API secret for development dogfooding
+
+# API Service
+api:
+  enabled: true
+  replicas: 1
+  port: 8080
+  nodePort: 30080 # External access via NodePort
+  image:
+    repository: "portcall/api"
+    tag: "latest"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "1000m"
+  env:
+    checkoutURL: "http://localhost:30700"
+
+# Admin Service
+admin:
+  enabled: true
+  replicas: 1
+  port: 8081
+  nodePort: 30081
+  image:
+    repository: "portcall/admin"
+    tag: "latest"
+  env:
+    keycloakApiUrl: "http://localhost:30800"
+    keycloakInternalUrl: "http://keycloak:8080"
+    keycloakRealm: "admin"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+  ingress:
+    enabled: true
+    host: portcall.local
+    path: /admin
+    # IP whitelist for admin access
+    allowedIPs:
+      - "203.0.113.0"
+
+# Dashboard Service
+dashboard:
+  enabled: true
+  replicas: 1
+  port: 8082
+  nodePort: 30082
+  serviceType: NodePort
+  image:
+    repository: "portcall/dashboard"
+    tag: "latest"
+  env:
+    quoteAppUrl: "http://localhost:30010"
+    fileApiUrl: "http://localhost:30085"
+    webhookBaseUrl: "http://localhost:30082"
+    keycloakApiUrl: "http://localhost:30800"
+    keycloakInternalUrl: "http://keycloak:8080"
+    keycloakRealm: "dev"
+    dashboardUrl: "http://localhost:30082"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+# Checkout Service
+checkout:
+  enabled: true
+  replicas: 1
+  port: 8700
+  nodePort: 30700
+  image:
+    repository: "portcall/checkout"
+    tag: "latest"
+  resources:
+    requests:
+      memory: "256Mi"
+      cpu: "200m"
+    limits:
+      memory: "1Gi"
+      cpu: "1000m"
+
+# File Service
+fileApi:
+  enabled: true
+  replicas: 1
+  port: 8085
+  nodePort: 30085
+  image:
+    repository: "portcall/file-api"
+    tag: "latest"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Quote Service
+quote:
+  enabled: true
+  replicas: 1
+  port: 8010
+  nodePort: 30010
+  image:
+    repository: "portcall/quote"
+    tag: "latest"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# Email Worker
+emailWorker:
+  enabled: true
+  replicas: 1
+  image:
+    repository: "portcall/email-worker"
+    tag: "latest"
+  env:
+    appEnv: production
+    # Email provider: "local" for development (mailpit), "postmark" for production
+    emailProvider: "local"
+    # For local development with mailpit
+    smtpServer: "mailpit:1025"
+    emailFrom: "dev@portcall.local"
+    # For production with Postmark, set:
+    # emailProvider: "postmark"
+    # postmarkApiKey: "" # Set via secret or override
+    # emailFrom: "noreply@yourdomain.com"
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+
+# Billing Worker
+billingWorker:
+  enabled: true
+  replicas: 1
+  image:
+    repository: "portcall/billing-worker"
+    tag: "latest"
+  env:
+    appEnv: production
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "512Mi"
+      cpu: "500m"
+
+# SMTP Relay
+smtpRelay:
+  enabled: false
+  replicas: 1
+  image:
+    repository: "portcall/smtp-relay"
+    tag: "latest"
+  resources:
+    requests:
+      memory: "64Mi"
+      cpu: "50m"
+    limits:
+      memory: "128Mi"
+      cpu: "100m"
+
+# Development Tools
+tools:
+  # Asynqmon - Redis Queue Monitor
+  asynqmon:
+    enabled: false # Disabled: no ARM64 support for M1 Macs
+    image: hibiken/asynqmon:latest
+    port: 8080
+    nodePort: 30090
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+
+  # Mailpit - Email Testing
+  mailpit:
+    enabled: true
+    image: axllent/mailpit:latest
+    smtpPort: 1025
+    httpPort: 8025
+    nodePort: 30025
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "50m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+
+  # Redis Insight
+  redisInsight:
+    enabled: true
+    image: redis/redisinsight:latest
+    port: 5540
+    nodePort: 30540
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "100m"
+      limits:
+        memory: "512Mi"
+        cpu: "500m"
+
+# Database Migration Job
+migration:
+  enabled: true
+  image:
+    repository: "portcall/migrate"
+    tag: "latest"
+  resources:
+    requests:
+      memory: "128Mi"
+      cpu: "100m"
+    limits:
+      memory: "256Mi"
+      cpu: "500m"
+
+# Ingress configuration (optional)
+ingress:
+  enabled: false
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: portcall.local
+      paths:
+        - path: /api
+          pathType: Prefix
+          service: api
+          port: 8080
+        - path: /
+          pathType: Prefix
+          service: dashboard
+          port: 8082
+  tls: []
+
+observability:
+  enabled: false
+  namespaceSelector:
+    - portcall
+  loki:
+    image: grafana/loki:2.9.1
+    replicas: 1
+    port: 3100
+    persistence:
+      enabled: true
+      size: 10Gi
+    resources:
+      requests:
+        memory: "150Mi"
+        cpu: "20m"
+      limits:
+        memory: "400Mi"
+        cpu: "300m"
+  grafana:
+    image: grafana/grafana:10.4.0
+    port: 3000
+    adminUser: admin
+    adminPassword: admin
+    adminPasswordSecretName: ""
+    adminPasswordSecretKey: ""
+    service:
+      type: ClusterIP
+      port: 3000
+      annotations: {}
+    persistence:
+      enabled: true
+      size: 5Gi
+    resources:
+      requests:
+        memory: "128Mi"
+        cpu: "20m"
+      limits:
+        memory: "256Mi"
+        cpu: "200m"
+    ingress:
+      enabled: false
+      className: nginx
+      host: grafana.portcall.local
+      tlsSecretName: grafana-tls
+      annotations: {}
+  promtail:
+    image: grafana/promtail:2.9.1
+    resources:
+      requests:
+        memory: "40Mi"
+        cpu: "5m"
+      limits:
+        memory: "120Mi"
+        cpu: "150m"
+  alerts:
+    enabled: false
+    secretName: portcall-secrets
+    secretKey: DISCORD_WEBHOOK_URL_BILLING
+    signupSecretKey: DISCORD_WEBHOOK_URL_SIGNUP_GRAFANA

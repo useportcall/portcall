@@ -1,0 +1,39 @@
+{{- if and .Values.keycloak.enabled .Values.keycloak.adminAccess.enabled }}
+# WARNING: This ingress exposes Keycloak admin console
+# Only enable for temporary admin access, then disable immediately
+# Use kubectl port-forward instead for regular admin access
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: keycloak-admin
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ .Values.certManager.issuer }}
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    # IP whitelist - ONLY allow specific IPs to access admin console
+    {{- if .Values.keycloak.adminAccess.allowedIPs }}
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ join "," .Values.keycloak.adminAccess.allowedIPs }}
+    {{- end }}
+    # Additional security headers
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      more_set_headers "X-Frame-Options: DENY";
+      more_set_headers "X-Content-Type-Options: nosniff";
+      more_set_headers "X-XSS-Protection: 1; mode=block";
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - {{ .Values.keycloak.adminAccess.host }}
+      secretName: keycloak-admin-tls
+  rules:
+    - host: {{ .Values.keycloak.adminAccess.host }}
+      http:
+        paths:
+          - path: /admin
+            pathType: Prefix
+            backend:
+              service:
+                name: keycloak
+                port:
+                  number: 8080
+{{- end }}

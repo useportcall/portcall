@@ -1,0 +1,117 @@
+# DigitalOcean Production Values (EXAMPLE)
+# Copy this file to values.yaml and fill in your own values.
+# NEVER commit the actual values.yaml — it contains production secrets.
+
+global:
+  namespace: portcall
+  imagePullPolicy: Always
+  enforceNonRoot: false
+  imagePullSecrets: ["your-registry-secret"]
+  domain: yourdomain.com
+  imageRegistry: "your-registry.example.com"
+  imageTag: "v1.0.0"
+
+postgresql:
+  enabled: false
+  host: "your-managed-db-host.example.com"
+  port: 25060
+  user: "your-db-user"
+  database: "main_portcall_db"
+  sslmode: "require"
+
+redis:
+  enabled: false
+  host: "your-managed-redis-host.example.com"
+  port: 25061
+  usePassword: true
+  useTLS: true
+
+minio:
+  enabled: false # Using external S3-compatible storage
+
+# Dev tools - disabled for production
+tools:
+  asynqmon:
+    enabled: false
+  mailpit:
+    enabled: false
+  redisInsight:
+    enabled: false
+
+common:
+  createSecret: false # Secrets managed externally via kubectl
+  secretName: portcall-secrets
+  s3Region: "your-region"
+  s3Endpoint: "https://your-region.your-s3-provider.com"
+  dogfood:
+    apiUrl: "https://api.yourdomain.com"
+
+smtpRelay:
+  enabled: true
+  replicas: 1
+  image:
+    repository: "your-registry.example.com/portcall-smtp-relay"
+    tag: "v1.0.0"
+
+keycloak:
+  enabled: true
+  image:
+    repository: "your-registry.example.com/portcall-keycloak"
+    tag: "v1.0.0"
+  hostname: "auth.yourdomain.com"
+  adminUsername: "admin"
+  database:
+    name: "keycloak"
+    host: "your-managed-db-host.example.com"
+    port: 25060
+    user: "keycloak_user"
+    createDatabase: false
+    sslmode: "require"
+  smtp:
+    enabled: true
+    host: "smtp-relay.portcall.svc.cluster.local"
+    port: "2525"
+    from: "notifications@yourdomain.com"
+    fromDisplayName: "Portcall"
+    auth: false
+    starttls: false
+
+# Add your service definitions here following the pattern in portcall-chart/values.yaml
+# Each service needs: enabled, image.repository, image.tag, resources
+# Example:
+# dashboard:
+#   enabled: true
+#   image:
+#     repository: "your-registry.example.com/portcall-dashboard"
+#     tag: "v1.0.0"
+
+ingress:
+  enabled: true
+  className: nginx
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  hosts:
+    - host: dashboard.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: dashboard
+          port: 8082
+    - host: api.yourdomain.com
+      paths:
+        - path: /
+          pathType: Prefix
+          service: api
+          port: 8080
+  tls:
+    - secretName: portcall-tls
+      hosts:
+        - dashboard.yourdomain.com
+        - api.yourdomain.com
+
+migration:
+  enabled: false
+
+observability:
+  enabled: true

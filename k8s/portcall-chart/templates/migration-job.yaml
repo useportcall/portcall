@@ -1,0 +1,35 @@
+{{- if .Values.migration.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: db-migration-{{ .Values.migration.image.tag | replace "." "-" }}
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-timeout": "600s"
+spec:
+  backoffLimit: 3
+  template:
+    metadata:
+      labels:
+        app: db-migration
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      restartPolicy: OnFailure
+      containers:
+      - name: migrate
+        image: {{ .Values.migration.image.repository }}:{{ .Values.migration.image.tag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        envFrom:
+        - configMapRef:
+            name: portcall-config
+        - secretRef:
+            name: {{ .Values.common.secretName }}
+{{- end }}

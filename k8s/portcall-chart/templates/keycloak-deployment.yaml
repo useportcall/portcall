@@ -1,0 +1,148 @@
+{{- if .Values.keycloak.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: keycloak
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: keycloak
+spec:
+  replicas: {{ .Values.keycloak.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: keycloak
+  template:
+    metadata:
+      labels:
+        app: keycloak
+      annotations:
+        # Force pod restart when image changes
+        image-version: "{{ .Values.keycloak.image.tag }}"
+    spec:
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:16
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h {{ .Values.keycloak.database.host }} -p {{ .Values.keycloak.database.port }} -U {{ .Values.keycloak.database.user }}; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+      containers:
+      - name: keycloak
+        image: "{{ .Values.keycloak.image.repository }}:{{ .Values.keycloak.image.tag }}"
+        imagePullPolicy: Always
+        args:
+        - start
+        - --import-realm
+        - --optimized
+        - --spi-email-template-provider=freemarker
+        - --spi-email-template-freemarker-enabled=true
+        ports:
+        - containerPort: {{ .Values.keycloak.port }}
+          name: http
+        readinessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 30
+          periodSeconds: 10
+          timeoutSeconds: 2
+          failureThreshold: 3
+
+        livenessProbe:
+          tcpSocket:
+            port: 8080
+          initialDelaySeconds: 120
+          periodSeconds: 30
+          timeoutSeconds: 2
+          failureThreshold: 3
+        env:
+        - name: KC_BOOTSTRAP_ADMIN_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: KC_BOOTSTRAP_ADMIN_USERNAME
+        - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: KC_BOOTSTRAP_ADMIN_PASSWORD
+        - name: KC_DB
+          value: postgres
+        - name: KC_DB_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: KC_DB_USERNAME
+        - name: KC_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: KC_DB_PASSWORD
+        - name: KC_DB_URL
+          value: "jdbc:postgresql://{{ .Values.keycloak.database.host }}:{{ .Values.keycloak.database.port }}/{{ .Values.keycloak.database.name }}?sslmode={{ .Values.keycloak.database.sslmode }}"
+        - name: KC_HTTP_ENABLED
+          value: "true"
+        - name: KC_HOSTNAME_STRICT
+          value: "true"
+        - name: KC_HOSTNAME
+          value: {{ .Values.keycloak.hostname | quote }}
+        {{- if .Values.keycloak.hostnamePort }}
+        - name: KC_HOSTNAME_PORT
+          value: {{ .Values.keycloak.hostnamePort | quote }}
+        {{- end }}
+        - name: KC_PROXY
+          value: "edge"
+        - name: KC_PROXY_HEADERS
+          value: "xforwarded"
+        - name: KC_HOSTNAME_STRICT_HTTPS
+          value: "true"
+        {{- if .Values.keycloak.smtp.enabled }}
+        - name: KC_SPI_EMAIL_SMTP_HOST
+          value: {{ .Values.keycloak.smtp.host | quote }}
+        - name: KC_SPI_EMAIL_SMTP_PORT
+          value: {{ .Values.keycloak.smtp.port | quote }}
+        - name: KC_SPI_EMAIL_SMTP_FROM
+          value: {{ .Values.keycloak.smtp.from | quote }}
+        - name: KC_SPI_EMAIL_SMTP_FROM_DISPLAY_NAME
+          value: {{ .Values.keycloak.smtp.fromDisplayName | quote }}
+        - name: KC_SPI_EMAIL_SMTP_STARTTLS
+          value: {{ .Values.keycloak.smtp.starttls | default false | quote }}
+        - name: KC_SPI_EMAIL_SMTP_AUTH
+          value: {{ .Values.keycloak.smtp.auth | default true | quote }}
+        # - name: KC_SPI_EMAIL_SMTP_USER
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: {{ $.Values.common.secretName }}
+        #       key: POSTMARK_API_KEY
+        # - name: KC_SPI_EMAIL_SMTP_PASSWORD
+        #   valueFrom:
+        #     secretKeyRef:
+        #       name: {{ $.Values.common.secretName }}
+        #       key: POSTMARK_API_KEY
+        {{- end }}
+        resources:
+          requests:
+            memory: {{ .Values.keycloak.resources.requests.memory }}
+            cpu: {{ .Values.keycloak.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.keycloak.resources.limits.memory }}
+            cpu: {{ .Values.keycloak.resources.limits.cpu }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: keycloak
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: keycloak
+  ports:
+  - port: {{ .Values.keycloak.port }}
+    targetPort: {{ .Values.keycloak.port }}
+  type: ClusterIP
+{{- end }}

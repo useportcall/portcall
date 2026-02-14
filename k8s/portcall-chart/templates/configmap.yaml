@@ -1,0 +1,51 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: postgres-init
+  namespace: {{ .Values.global.namespace }}
+data:
+  init.sql: |
+    CREATE DATABASE main_portcall_db;
+    CREATE DATABASE keycloak;
+{{- end }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: portcall-config
+  namespace: {{ .Values.global.namespace }}
+data:
+  APP_ENV: {{ .Values.common.appEnv | quote }}
+  S3_REGION: {{ .Values.common.s3Region | quote }}
+  S3_ENDPOINT: {{ .Values.common.s3Endpoint | quote }}
+  DF_API_URL: {{ .Values.common.dfApiUrl | default "https://api.useportcall.com" | quote }}
+  DF_TEST_FREE: {{ .Values.common.dfTestFree | quote }}
+  DF_TEST_PRO: {{ .Values.common.dfTestPro | quote }}
+  DF_LIVE_FREE: {{ .Values.common.dfLiveFree | quote }}
+  DF_LIVE_PRO: {{ .Values.common.dfLivePro | quote }}
+  REDIS_ADDR: "{{ .Values.redis.host }}:{{ .Values.redis.port }}"
+  {{- if .Values.redis.usePassword }}
+  REDIS_TLS: "true"
+  {{- end }}
+  {{- if .Values.api.enabled }}
+  CHECKOUT_URL: {{ .Values.api.env.checkoutURL | quote }}
+  {{- end }}
+  {{- if .Values.dashboard.enabled }}
+  QUOTE_APP_URL: {{ .Values.dashboard.env.quoteAppUrl | quote }}
+  FILE_API_URL: {{ .Values.dashboard.env.fileApiUrl | quote }}
+  INVOICE_APP_URL: {{ .Values.dashboard.env.fileApiUrl | quote }}
+  DASHBOARD_URL: {{ .Values.dashboard.env.dashboardUrl | quote }}
+  WEBHOOK_BASE_URL: {{ .Values.dashboard.env.webhookBaseUrl | default "https://webhook.useportcall.com" | quote }}
+  {{- end }}
+  {{- if or .Values.dashboard.enabled .Values.admin.enabled }}
+  KEYCLOAK_API_URL: {{ .Values.dashboard.env.keycloakApiUrl | default .Values.admin.env.keycloakApiUrl | quote }}
+  KEYCLOAK_INTERNAL_URL: {{ .Values.dashboard.env.keycloakInternalUrl | default .Values.admin.env.keycloakInternalUrl | quote }}
+  {{- end }}
+  {{- if .Values.emailWorker.enabled }}
+  EMAIL_PROVIDER: {{ .Values.emailWorker.env.emailProvider | quote }}
+  {{- if eq .Values.emailWorker.env.emailProvider "local" }}
+  SMTP_SERVER: {{ .Values.emailWorker.env.smtpServer | quote }}
+  {{- end }}
+  EMAIL_FROM: {{ .Values.emailWorker.env.emailFrom | quote }}
+  {{- end }}

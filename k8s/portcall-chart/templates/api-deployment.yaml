@@ -1,0 +1,119 @@
+{{- if .Values.api.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: api
+spec:
+  replicas: {{ .Values.api.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: api
+  template:
+    metadata:
+      labels:
+        app: api
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:16
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h {{ .Values.postgresql.host }} -p {{ .Values.postgresql.port }} -U {{ .Values.postgresql.user }}; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+      - name: wait-for-redis
+        image: redis:7-alpine
+        command:
+        - sh
+        - -c
+        - |
+          {{- if .Values.redis.usePassword }}
+          until redis-cli -h {{ .Values.redis.host }} -p {{ .Values.redis.port }} -a "$REDIS_PASSWORD" --tls ping; do
+            echo "Waiting for redis..."
+            sleep 2
+          done
+          {{- else }}
+          until redis-cli -h {{ .Values.redis.host }} -p {{ .Values.redis.port }} ping; do
+            echo "Waiting for redis..."
+            sleep 2
+          done
+          {{- end }}
+        {{- if .Values.redis.usePassword }}
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: REDIS_PASSWORD
+        {{- end }}
+      containers:
+      - name: api
+        image: {{ .Values.api.image.repository }}:{{ .Values.api.image.tag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.api.port }}
+        # Pod/container security settings (non-root enforcement is opt-in)
+        securityContext:
+          runAsNonRoot: {{ .Values.global.enforceNonRoot }}
+          # Harden container where possible
+          allowPrivilegeEscalation: false
+        env:
+        - name: PORT
+          value: {{ .Values.api.port | quote }}
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.api.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 2
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: {{ .Values.api.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 3
+        envFrom:
+        - configMapRef:
+            name: portcall-config
+        - secretRef:
+            name: {{ .Values.common.secretName }}
+        resources:
+          requests:
+            memory: {{ .Values.api.resources.requests.memory }}
+            cpu: {{ .Values.api.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.api.resources.limits.memory }}
+            cpu: {{ .Values.api.resources.limits.cpu }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: api
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: api
+  ports:
+  - port: {{ .Values.api.port }}
+    targetPort: {{ .Values.api.port }}
+    {{- if .Values.api.nodePort }}
+    nodePort: {{ .Values.api.nodePort }}
+    {{- end }}
+  type: NodePort
+{{- end }}

@@ -1,0 +1,33 @@
+{{- if and .Values.admin.enabled .Values.admin.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: admin-ingress
+  namespace: {{ .Values.global.namespace }}
+  annotations:
+    {{- with .Values.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+    {{- if .Values.admin.ingress.allowedIPs }}
+    nginx.ingress.kubernetes.io/whitelist-source-range: {{ join "," .Values.admin.ingress.allowedIPs }}
+    {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  {{- if .Values.ingress.tls }}
+  tls:
+    {{- toYaml .Values.ingress.tls | nindent 4 }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.admin.ingress.host }}
+      http:
+        paths:
+          - path: {{ .Values.admin.ingress.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: admin
+                port:
+                  number: {{ .Values.admin.port }}
+{{- end }}

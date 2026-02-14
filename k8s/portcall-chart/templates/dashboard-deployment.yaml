@@ -1,0 +1,97 @@
+{{- if .Values.dashboard.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dashboard
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: dashboard
+spec:
+  replicas: {{ .Values.dashboard.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: dashboard
+  template:
+    metadata:
+      labels:
+        app: dashboard
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      containers:
+      - name: dashboard
+        image: {{ .Values.dashboard.image.repository }}:{{ .Values.dashboard.image.tag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.dashboard.port }}
+        securityContext:
+          # This is opt-in via values.global.enforceNonRoot (default: false)
+          runAsNonRoot: {{ .Values.global.enforceNonRoot }}
+          # Harden container where possible without changing UID
+          allowPrivilegeEscalation: false
+        env:
+        - name: PORT
+          value: {{ .Values.dashboard.port | quote }}
+        - name: EXTERNAL_PORT
+          value: {{ .Values.dashboard.nodePort | quote }}
+        - name: KEYCLOAK_REALM
+          value: {{ .Values.dashboard.env.keycloakRealm | default "dev" | quote }}
+        - name: KEYCLOAK_CLIENT_ID
+          value: {{ .Values.dashboard.env.keycloakClientId | default "portcall" | quote }}
+        - name: S3_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: spaces-credentials
+              key: AWS_ACCESS_KEY_ID
+        - name: S3_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: spaces-credentials
+              key: AWS_SECRET_ACCESS_KEY
+        readinessProbe:
+          tcpSocket:
+            port: {{ .Values.dashboard.port }}
+          initialDelaySeconds: 5
+          periodSeconds: 10
+          timeoutSeconds: 2
+        livenessProbe:
+          tcpSocket:
+            port: {{ .Values.dashboard.port }}
+          initialDelaySeconds: 30
+          periodSeconds: 20
+          timeoutSeconds: 3
+        envFrom:
+        - configMapRef:
+            name: portcall-config
+        - secretRef:
+            name: {{ .Values.common.secretName }}
+        resources:
+          requests:
+            memory: {{ .Values.dashboard.resources.requests.memory }}
+            cpu: {{ .Values.dashboard.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.dashboard.resources.limits.memory }}
+            cpu: {{ .Values.dashboard.resources.limits.cpu }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dashboard
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: dashboard
+  ports:
+  - port: {{ .Values.dashboard.port }}
+    targetPort: {{ .Values.dashboard.port }}
+    {{- if and (eq .Values.dashboard.serviceType "NodePort") .Values.dashboard.nodePort }}
+    nodePort: {{ .Values.dashboard.nodePort }}
+    {{- end }}
+  type: {{ .Values.dashboard.serviceType }}
+{{- end }}

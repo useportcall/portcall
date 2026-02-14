@@ -1,0 +1,80 @@
+{{- if .Values.observability.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboards
+  namespace: {{ .Values.global.namespace }}
+data:
+  portcall-logs-overview.json: |
+    {
+      "uid":"portcall-logs-overview",
+      "title":"Portcall Logs Overview",
+      "schemaVersion":39,
+      "version":1,
+      "refresh":"30s",
+      "templating":{"list":[{"name":"app","type":"query","datasource":{"type":"loki","uid":"loki"},"query":"label_values({namespace=\"portcall\",app!~\"loki|grafana|promtail\"}, app)","includeAll":true,"multi":true}]},
+      "panels":[
+        {"id":1,"type":"timeseries","title":"Errors by App (5m)","datasource":{"type":"loki","uid":"loki"},"targets":[{"refId":"A","expr":"sum by (app) (count_over_time({namespace=\"portcall\",app=~\"$app\",app!~\"loki|grafana|promtail\"} |~ \"(?i)error|fatal|panic\" [5m]))"}],"gridPos":{"h":8,"w":24,"x":0,"y":0}},
+        {"id":2,"type":"timeseries","title":"Log Volume by App (5m)","datasource":{"type":"loki","uid":"loki"},"targets":[{"refId":"A","expr":"sum by (app) (count_over_time({namespace=\"portcall\",app=~\"$app\",app!~\"loki|grafana|promtail\"}[5m]))"}],"gridPos":{"h":8,"w":24,"x":0,"y":8}},
+        {"id":3,"type":"logs","title":"Live Logs","datasource":{"type":"loki","uid":"loki"},"targets":[{"refId":"A","expr":"{namespace=\"portcall\",app=~\"$app\",app!~\"loki|grafana|promtail\"}"}],"gridPos":{"h":12,"w":24,"x":0,"y":16}}
+      ]
+    }
+  portcall-error-drilldown.json: |
+    {
+      "uid":"portcall-error-drilldown",
+      "title":"Portcall Error Drilldown",
+      "schemaVersion":39,
+      "version":1,
+      "refresh":"10s",
+      "templating":{"list":[{"name":"app","type":"query","datasource":{"type":"loki","uid":"loki"},"query":"label_values({namespace=\"portcall\",app!~\"loki|grafana|promtail\"}, app)","multi":false}]},
+      "panels":[
+        {"id":1,"type":"logs","title":"Recent Errors","datasource":{"type":"loki","uid":"loki"},"targets":[{"refId":"A","expr":"{namespace=\"portcall\",app=\"$app\",app!~\"loki|grafana|promtail\"} |~ \"(?i)error|fatal|panic\""}],"gridPos":{"h":16,"w":24,"x":0,"y":0}},
+        {"id":2,"type":"timeseries","title":"Errors / 1m","datasource":{"type":"loki","uid":"loki"},"targets":[{"refId":"A","expr":"sum(count_over_time({namespace=\"portcall\",app=\"$app\",app!~\"loki|grafana|promtail\"} |~ \"(?i)error|fatal|panic\" [1m]))"}],"gridPos":{"h":8,"w":24,"x":0,"y":16}}
+      ]
+    }
+  portcall-account-signups.json: |
+    {
+      "uid":"portcall-account-signups",
+      "title":"Portcall Account Signups",
+      "schemaVersion":39,
+      "version":1,
+      "refresh":"1m",
+      "panels":[
+        {
+          "id":1,
+          "type":"timeseries",
+          "title":"Total Accounts Over Time",
+          "datasource":{"type":"loki","uid":"loki"},
+          "targets":[{"refId":"A","expr":"sum(count_over_time({namespace=\"portcall\",app=\"dashboard\"} |= \"[ACCOUNT_CREATED]\" [3650d]))","interval":"1d"}],
+          "fieldConfig":{"defaults":{"custom":{"drawStyle":"bars","barAlignment":0,"lineWidth":1,"fillOpacity":80},"color":{"mode":"palette-classic"}}},
+          "options":{"legend":{"showLegend":false},"tooltip":{"mode":"single"}},
+          "gridPos":{"h":10,"w":24,"x":0,"y":0}
+        },
+        {
+          "id":2,
+          "type":"timeseries",
+          "title":"Account Creations Per Day",
+          "datasource":{"type":"loki","uid":"loki"},
+          "targets":[{"refId":"A","expr":"sum(count_over_time({namespace=\"portcall\",app=\"dashboard\"} |= \"[ACCOUNT_CREATED]\" [1d]))","interval":"1d"}],
+          "fieldConfig":{"defaults":{"custom":{"drawStyle":"bars","barAlignment":0,"lineWidth":1,"fillOpacity":80},"color":{"mode":"palette-classic"}}},
+          "options":{"legend":{"showLegend":false},"tooltip":{"mode":"single"}},
+          "gridPos":{"h":10,"w":24,"x":0,"y":10}
+        }
+      ]
+    }
+  portcall-service-health.json: |
+    {
+      "uid":"portcall-service-health",
+      "title":"Portcall Service Health",
+      "schemaVersion":39,
+      "version":1,
+      "refresh":"30s",
+      "templating":{"list":[{"name":"app","type":"query","datasource":{"type":"loki","uid":"loki"},"query":"label_values({namespace=\"portcall\",app!~\"loki|grafana|promtail\"}, app)","includeAll":true,"multi":true}]},
+      "panels":[
+        {"id":1,"type":"timeseries","title":"Warnings by App (5m)","datasource":{"type":"loki","uid":"loki"},"targets":[{"refId":"A","expr":"sum by (app) (count_over_time({namespace=\"portcall\",app=~\"$app\",app!~\"loki|grafana|promtail\"} |~ \"(?i)warn|warning\" [5m]))"}],"gridPos":{"h":8,"w":12,"x":0,"y":0}},
+        {"id":2,"type":"timeseries","title":"Critical Errors by App (5m)","datasource":{"type":"loki","uid":"loki"},"targets":[{"refId":"A","expr":"sum by (app) (count_over_time({namespace=\"portcall\",app=~\"$app\",app!~\"loki|grafana|promtail\"} |~ \"(?i)fatal|panic|exception\" [5m]))"}],"gridPos":{"h":8,"w":12,"x":12,"y":0}},
+        {"id":3,"type":"timeseries","title":"Log Throughput by App (1m)","datasource":{"type":"loki","uid":"loki"},"targets":[{"refId":"A","expr":"sum by (app) (count_over_time({namespace=\"portcall\",app=~\"$app\",app!~\"loki|grafana|promtail\"}[1m]))"}],"gridPos":{"h":8,"w":24,"x":0,"y":8}},
+        {"id":4,"type":"logs","title":"Recent Critical Logs","datasource":{"type":"loki","uid":"loki"},"targets":[{"refId":"A","expr":"{namespace=\"portcall\",app=~\"$app\",app!~\"loki|grafana|promtail\"} |~ \"(?i)fatal|panic|exception\""}],"gridPos":{"h":12,"w":24,"x":0,"y":16}}
+      ]
+    }
+{{- end }}

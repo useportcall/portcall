@@ -1,0 +1,104 @@
+{{- if .Values.smtpRelay.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: smtp-relay
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: smtp-relay
+spec:
+  replicas: {{ .Values.smtpRelay.replicas | default 1 }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: smtp-relay
+  template:
+    metadata:
+      labels:
+        app: smtp-relay
+    spec:
+      containers:
+      - name: smtp-relay
+        image: {{ .Values.smtpRelay.image.repository | default (printf "%s/portcall-smtp-relay" .Values.global.imageRegistry) }}:{{ .Values.smtpRelay.image.tag | default .Values.global.imageTag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: 2525
+          name: smtp
+          protocol: TCP
+        - containerPort: 8080
+          name: health
+          protocol: TCP
+        env:
+        - name: SMTP_ADDR
+          value: ":2525"
+        - name: HEALTH_ADDR
+          value: ":8080"
+        - name: EMAIL_PROVIDER
+          value: "resend"
+        - name: RESEND_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: RESEND_API_KEY
+        - name: POSTMARK_API_URL
+          value: "https://api.postmarkapp.com/email"
+        - name: POSTMARK_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: POSTMARK_API_KEY
+              optional: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "50m"
+          limits:
+            memory: "128Mi"
+            cpu: "100m"
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
+      affinity:
+        podAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - labelSelector:
+              matchExpressions:
+              - key: app
+                operator: In
+                values:
+                - keycloak
+            topologyKey: "kubernetes.io/hostname"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: smtp-relay
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: smtp-relay
+spec:
+  type: ClusterIP
+  ports:
+  - port: 2525
+    targetPort: 2525
+    protocol: TCP
+    name: smtp
+  selector:
+    app: smtp-relay
+{{- end }}

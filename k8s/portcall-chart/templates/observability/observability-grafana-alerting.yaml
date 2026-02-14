@@ -1,0 +1,155 @@
+{{- if and .Values.observability.enabled .Values.observability.alerts.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-alerting
+  namespace: {{ .Values.global.namespace }}
+data:
+  contact-points.yaml: |
+    apiVersion: 1
+    contactPoints:
+      - orgId: 1
+        name: discord-native
+        receivers:
+          - uid: discord-native
+            type: discord
+            disableResolveMessage: true
+            settings:
+              url: ${DISCORD_ALERT_WEBHOOK_URL}
+      - orgId: 1
+        name: discord-signup
+        receivers:
+          - uid: discord-signup
+            type: discord
+            disableResolveMessage: true
+            settings:
+              url: ${DISCORD_SIGNUP_ALERT_WEBHOOK_URL}
+  notification-policies.yaml: |
+    apiVersion: 1
+    policies:
+      - orgId: 1
+        receiver: discord-native
+        group_by: ["alertname", "app"]
+        group_wait: 1m
+        group_interval: 20m
+        repeat_interval: 6h
+        routes:
+          - receiver: discord-signup
+            object_matchers:
+              - ["route", "=", "signup"]
+            group_by: ["alertname", "account_id"]
+            group_wait: 0s
+            group_interval: 1m
+            repeat_interval: 1h
+  alert-rules.yaml: |
+    apiVersion: 1
+    groups:
+      - orgId: 1
+        name: portcall-log-alerts
+        folder: Portcall
+        interval: 1m
+        rules:
+          - uid: portcall-error-logs
+            title: Portcall Error Logs Detected
+            condition: C
+            for: 5m
+            noDataState: OK
+            execErrState: OK
+            labels:
+              severity: warning
+            annotations:
+              summary: Elevated application error logs detected in the portcall namespace.
+              description: Error count is above 10 over 5m and sustained for 5m. Inspect labels.app in this alert for the impacted service.
+              logs_query: '{namespace="portcall",app="<labels.app>"} |~ "(?i)error|fatal|panic|exception"'
+            data:
+              - refId: A
+                queryType: instant
+                relativeTimeRange:
+                  from: 300
+                  to: 0
+                datasourceUid: loki
+                model:
+                  datasource:
+                    type: loki
+                    uid: loki
+                  editorMode: code
+                  expr: sum by (app) (count_over_time({namespace="portcall",app!~"loki|grafana|promtail"} |~ "(?i)error|fatal|panic|exception" [5m]))
+                  instant: true
+                  refId: A
+              - refId: B
+                datasourceUid: __expr__
+                model:
+                  expression: A
+                  reducer: last
+                  settings:
+                    mode: dropNN
+                  type: reduce
+              - refId: C
+                datasourceUid: __expr__
+                model:
+                  expression: B
+                  type: threshold
+                  conditions:
+                    - type: query
+                      query:
+                        params: [B]
+                      reducer:
+                        type: last
+                      evaluator:
+                        type: gt
+                        params: [10]
+                      operator:
+                        type: and
+          - uid: portcall-account-created
+            title: Portcall New Account Created
+            condition: C
+            for: 0s
+            noDataState: OK
+            execErrState: OK
+            labels:
+              severity: info
+              route: signup
+            annotations:
+              summary: New account created on dashboard.
+              description: A new account was created in the last minute (account_id=<labels.account_id>).
+              logs_query: '{namespace="portcall",app="dashboard"} |= "[ACCOUNT_CREATED]"'
+            data:
+              - refId: A
+                queryType: instant
+                relativeTimeRange:
+                  from: 60
+                  to: 0
+                datasourceUid: loki
+                model:
+                  datasource:
+                    type: loki
+                    uid: loki
+                  editorMode: code
+                  expr: sum by (account_id) (count_over_time({namespace="portcall",app="dashboard"} |= "[ACCOUNT_CREATED]" | regexp "account_id=(?P<account_id>[0-9]+)" [1m]))
+                  instant: true
+                  refId: A
+              - refId: B
+                datasourceUid: __expr__
+                model:
+                  expression: A
+                  reducer: last
+                  settings:
+                    mode: dropNN
+                  type: reduce
+              - refId: C
+                datasourceUid: __expr__
+                model:
+                  expression: B
+                  type: threshold
+                  conditions:
+                    - type: query
+                      query:
+                        params: [B]
+                      reducer:
+                        type: last
+                      evaluator:
+                        type: gt
+                        params: [0]
+                      operator:
+                        type: and
+{{- end }}

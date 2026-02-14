@@ -1,0 +1,82 @@
+{{- if .Values.billingWorker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: billing-worker
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: billing-worker
+spec:
+  replicas: {{ .Values.billingWorker.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: billing-worker
+  template:
+    metadata:
+      labels:
+        app: billing-worker
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      initContainers:
+      - name: wait-for-redis
+        image: redis:7-alpine
+        command:
+        - sh
+        - -c
+        - |
+          {{- if .Values.redis.usePassword }}
+          until redis-cli -h {{ .Values.redis.host }} -p {{ .Values.redis.port }} -a "$REDIS_PASSWORD" --tls ping; do
+            echo "Waiting for redis..."
+            sleep 2
+          done
+          {{- else }}
+          until redis-cli -h {{ .Values.redis.host }} -p {{ .Values.redis.port }} ping; do
+            echo "Waiting for redis..."
+            sleep 2
+          done
+          {{- end }}
+        {{- if .Values.redis.usePassword }}
+        env:
+        - name: REDIS_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: REDIS_PASSWORD
+        {{- end }}
+      - name: wait-for-postgres
+        image: postgres:16
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h {{ .Values.postgresql.host }} -p {{ .Values.postgresql.port }} -U {{ .Values.postgresql.user }}; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+      containers:
+      - name: billing-worker
+        image: {{ .Values.billingWorker.image.repository }}:{{ .Values.billingWorker.image.tag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        env:
+        - name: APP_ENV
+          value: {{ .Values.billingWorker.env.appEnv | quote }}
+        envFrom:
+        - configMapRef:
+            name: portcall-config
+        - secretRef:
+            name: {{ .Values.common.secretName }}
+        resources:
+          requests:
+            memory: {{ .Values.billingWorker.resources.requests.memory }}
+            cpu: {{ .Values.billingWorker.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.billingWorker.resources.limits.memory }}
+            cpu: {{ .Values.billingWorker.resources.limits.cpu }}
+{{- end }}

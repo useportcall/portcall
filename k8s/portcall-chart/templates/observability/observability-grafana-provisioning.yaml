@@ -1,0 +1,29 @@
+{{- if .Values.observability.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-provisioning
+  namespace: {{ .Values.global.namespace }}
+data:
+  datasources.yaml: |
+    apiVersion: 1
+    datasources:
+      - name: Loki
+        uid: loki
+        type: loki
+        access: proxy
+        url: http://loki:{{ .Values.observability.loki.port }}
+        isDefault: true
+        jsonData:
+          maxLines: 5000
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+      - name: Portcall
+        folder: Portcall
+        type: file
+        disableDeletion: false
+        editable: true
+        options:
+          path: /var/lib/grafana/dashboards/portcall
+{{- end }}

@@ -1,0 +1,30 @@
+{{- if and .Values.observability.enabled .Values.observability.grafana.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: grafana-ingress
+  namespace: {{ .Values.global.namespace }}
+  {{- with .Values.observability.grafana.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.observability.grafana.ingress.className }}
+  ingressClassName: {{ .Values.observability.grafana.ingress.className }}
+  {{- end }}
+  tls:
+    - secretName: {{ .Values.observability.grafana.ingress.tlsSecretName }}
+      hosts:
+        - {{ .Values.observability.grafana.ingress.host }}
+  rules:
+    - host: {{ .Values.observability.grafana.ingress.host }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: {{ .Values.observability.grafana.port }}
+{{- end }}

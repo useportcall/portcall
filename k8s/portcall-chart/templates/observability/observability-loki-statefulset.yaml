@@ -1,0 +1,72 @@
+{{- if .Values.observability.enabled }}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: loki
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: loki
+spec:
+  serviceName: loki
+  replicas: {{ .Values.observability.loki.replicas }}
+  selector:
+    matchLabels:
+      app: loki
+  template:
+    metadata:
+      labels:
+        app: loki
+    spec:
+      securityContext:
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+      containers:
+        - name: loki
+          image: {{ .Values.observability.loki.image }}
+          args: ["-config.file=/etc/loki/loki.yaml"]
+          ports:
+            - containerPort: {{ .Values.observability.loki.port }}
+          volumeMounts:
+            - name: config
+              mountPath: /etc/loki
+            - name: data
+              mountPath: /loki
+          resources:
+            requests:
+              memory: {{ .Values.observability.loki.resources.requests.memory }}
+              cpu: {{ .Values.observability.loki.resources.requests.cpu }}
+            limits:
+              memory: {{ .Values.observability.loki.resources.limits.memory }}
+              cpu: {{ .Values.observability.loki.resources.limits.cpu }}
+      volumes:
+        - name: config
+          configMap:
+            name: loki-config
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes: ["ReadWriteOnce"]
+        resources:
+          requests:
+            storage: {{ .Values.observability.loki.persistence.size }}
+        {{- if .Values.global.storageClass }}
+        storageClassName: {{ .Values.global.storageClass }}
+        {{- end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: loki
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: loki
+spec:
+  selector:
+    app: loki
+  ports:
+    - name: http
+      port: {{ .Values.observability.loki.port }}
+      targetPort: {{ .Values.observability.loki.port }}
+{{- end }}

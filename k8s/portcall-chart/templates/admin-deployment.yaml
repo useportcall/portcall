@@ -1,0 +1,80 @@
+{{- if .Values.admin.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: admin
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: admin
+spec:
+  replicas: {{ .Values.admin.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: admin
+  template:
+    metadata:
+      labels:
+        app: admin
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      serviceAccountName: admin
+      initContainers:
+      - name: wait-for-postgres
+        image: postgres:16
+        command:
+        - sh
+        - -c
+        - |
+          until pg_isready -h {{ .Values.postgresql.host }} -p {{ .Values.postgresql.port }} -U {{ .Values.postgresql.user }}; do
+            echo "Waiting for postgres..."
+            sleep 2
+          done
+      containers:
+      - name: admin
+        image: {{ .Values.admin.image.repository }}:{{ .Values.admin.image.tag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.admin.port }}
+        env:
+        - name: PORT
+          value: {{ .Values.admin.port | quote }}
+        - name: KEYCLOAK_REALM
+          value: {{ .Values.admin.env.keycloakRealm | default "admin" | quote }}
+        - name: KEYCLOAK_CLIENT_ID
+          value: {{ .Values.admin.env.keycloakClientId | default "portcall-admin" | quote }}
+        envFrom:
+        - configMapRef:
+            name: portcall-config
+        - secretRef:
+            name: {{ .Values.common.secretName }}
+        resources:
+          requests:
+            memory: {{ .Values.admin.resources.requests.memory }}
+            cpu: {{ .Values.admin.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.admin.resources.limits.memory }}
+            cpu: {{ .Values.admin.resources.limits.cpu }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: admin
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: admin
+  ports:
+  - port: {{ .Values.admin.port }}
+    targetPort: {{ .Values.admin.port }}
+    {{- if .Values.admin.nodePort }}
+    nodePort: {{ .Values.admin.nodePort }}
+    {{- end }}
+  type: NodePort
+{{- end }}

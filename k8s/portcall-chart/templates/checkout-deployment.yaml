@@ -1,0 +1,64 @@
+{{- if .Values.checkout.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkout
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: checkout
+spec:
+  replicas: {{ .Values.checkout.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: checkout
+  template:
+    metadata:
+      labels:
+        app: checkout
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      containers:
+      - name: checkout
+        image: {{ .Values.checkout.image.repository }}:{{ .Values.checkout.image.tag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.checkout.port }}
+        env:
+        - name: PORT
+          value: {{ .Values.checkout.port | quote }}
+        envFrom:
+        - configMapRef:
+            name: portcall-config
+        - secretRef:
+            name: {{ .Values.common.secretName }}
+        resources:
+          requests:
+            memory: {{ .Values.checkout.resources.requests.memory }}
+            cpu: {{ .Values.checkout.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.checkout.resources.limits.memory }}
+            cpu: {{ .Values.checkout.resources.limits.cpu }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkout
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: checkout
+  ports:
+  - port: {{ .Values.checkout.port }}
+    targetPort: {{ .Values.checkout.port }}
+    {{- if .Values.checkout.nodePort }}
+    nodePort: {{ .Values.checkout.nodePort }}
+    {{- end }}
+  type: NodePort
+{{- end }}

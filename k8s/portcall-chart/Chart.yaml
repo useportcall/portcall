@@ -1,0 +1,16 @@
+apiVersion: v2
+name: portcall
+description: A Helm chart for Portcall - Developer-first SaaS platform for metered billing, entitlements, and feature management
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+keywords:
+  - portcall
+  - billing
+  - saas
+  - entitlements
+maintainers:
+  - name: Portcall Team
+home: https://useportcall.com
+sources:
+  - https://github.com/useportcall/portcall

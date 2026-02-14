@@ -1,0 +1,87 @@
+{{- if .Values.fileApi.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: file-api
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: file-api
+spec:
+  replicas: {{ .Values.fileApi.replicas | default 1 }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: file-api
+  template:
+    metadata:
+      labels:
+        app: file-api
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.minio.enabled }}
+      initContainers:
+      - name: wait-for-minio
+        image: curlimages/curl:latest
+        command:
+        - sh
+        - -c
+        - |
+          until curl -f http://minio:{{ .Values.minio.port }}/minio/health/live; do
+            echo "Waiting for MinIO..."
+            sleep 2
+          done
+      {{- end }}
+      containers:
+      - name: file-api
+        image: {{ .Values.fileApi.image.repository }}:{{ .Values.fileApi.image.tag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: {{ .Values.fileApi.port }}
+        env:
+        - name: PORT
+          value: {{ .Values.fileApi.port | quote }}
+        - name: S3_ACCESS_KEY_ID
+          valueFrom:
+            secretKeyRef:
+              name: spaces-credentials
+              key: AWS_ACCESS_KEY_ID
+        - name: S3_SECRET_ACCESS_KEY
+          valueFrom:
+            secretKeyRef:
+              name: spaces-credentials
+              key: AWS_SECRET_ACCESS_KEY
+        envFrom:
+        - configMapRef:
+            name: portcall-config
+        - secretRef:
+            name: {{ .Values.common.secretName }}
+        resources:
+          requests:
+            memory: {{ .Values.fileApi.resources.requests.memory }}
+            cpu: {{ .Values.fileApi.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.fileApi.resources.limits.memory }}
+            cpu: {{ .Values.fileApi.resources.limits.cpu }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: file-api
+  namespace: {{ .Values.global.namespace }}
+spec:
+  selector:
+    app: file-api
+  ports:
+  - port: {{ .Values.fileApi.port }}
+    targetPort: {{ .Values.fileApi.port }}
+    {{- if .Values.fileApi.nodePort }}
+    nodePort: {{ .Values.fileApi.nodePort }}
+    {{- end }}
+  type: NodePort
+{{- end }}

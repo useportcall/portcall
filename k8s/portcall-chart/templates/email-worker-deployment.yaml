@@ -1,0 +1,67 @@
+{{- if .Values.emailWorker.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: email-worker
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: email-worker
+spec:
+  replicas: {{ .Values.emailWorker.replicas }}
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: email-worker
+  template:
+    metadata:
+      labels:
+        app: email-worker
+    spec:
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+      {{- range .Values.global.imagePullSecrets }}
+        - name: {{ . }}
+      {{- end }}
+      {{- end }}
+      {{- if .Values.redis.enabled }}
+      initContainers:
+      - name: wait-for-redis
+        image: redis:7-alpine
+        command:
+        - sh
+        - -c
+        - |
+          until redis-cli -h {{ .Values.redis.host }} -p {{ .Values.redis.port }} ping; do
+            echo "Waiting for redis..."
+            sleep 2
+          done
+      {{- end }}
+      containers:
+      - name: email-worker
+        image: {{ .Values.emailWorker.image.repository }}:{{ .Values.emailWorker.image.tag }}
+        imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        env:
+        - name: APP_ENV
+          value: {{ .Values.emailWorker.env.appEnv | quote }}
+        - name: EMAIL_PROVIDER
+          value: {{ .Values.emailWorker.env.emailProvider | quote }}
+        - name: RESEND_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: RESEND_API_KEY
+              optional: true
+        envFrom:
+        - configMapRef:
+            name: portcall-config
+        - secretRef:
+            name: {{ .Values.common.secretName }}
+        resources:
+          requests:
+            memory: {{ .Values.emailWorker.resources.requests.memory }}
+            cpu: {{ .Values.emailWorker.resources.requests.cpu }}
+          limits:
+            memory: {{ .Values.emailWorker.resources.limits.memory }}
+            cpu: {{ .Values.emailWorker.resources.limits.cpu }}
+{{- end }}
