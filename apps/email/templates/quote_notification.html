@@ -1,13 +1,13 @@
-<!-- invoice_paid_receipt.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>{{.CompanyName}} invoice paid</title>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>You have a new quote from {{.CompanyName}}</title>
     <style>
       body {
         font-family: "Inter", "Segoe UI", Arial, sans-serif;
-
         background: oklch(98.5% 0.001 106.423);
         color: oklch(12.9% 0.042 264.695);
         font-size: 12px;
@@ -19,6 +19,9 @@
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         padding: 32px;
+      }
+      h1 {
+        font-size: 16px;
       }
       .title {
         font-size: 16px;
@@ -44,46 +47,25 @@
       .banner:hover {
         background-color: oklch(92.9% 0.013 255.508);
       }
-      .logo {
-        max-height: 36px;
-        max-width: 180px;
-        margin-bottom: 12px;
-      }
-      .status {
-        display: inline-block;
-        margin: 10px 0 6px;
-        background: #dcfce7;
-        border: 1px solid #86efac;
-        color: #166534;
-        border-radius: 999px;
-        padding: 4px 10px;
-        font-size: 11px;
-      }
     </style>
   </head>
   <body>
     <div class="container">
-      {{if .logo_url}}<img class="logo" src="{{.logo_url}}" alt="{{.company_name}} logo" />{{end}}
-      <p>Hi {{.recipient_name}},</p>
-      <p><span class="status">{{if .payment_status}}{{.payment_status}}{{else}}paid{{end}}</span></p>
+      <p>Hi {{.CustomerName}},</p>
+      <p>A new quote has been created for you by {{.CompanyName}}.</p>
       <p>
-        This is an email confirmation of your payment for the invoice
-        <strong>#{{.invoice_number}}</strong>, issued by {{.company_name}}.
-      </p>
-      <div class="details">
-        <p><strong>Amount Paid:</strong> {{.amount_paid}}</p>
-        <p><strong>Date Paid:</strong> {{.date_paid}}</p>
-        <!-- <p><strong>Payment Method:</strong> {{.payment_method}}</p> -->
-      </div>
-      <p>
-        To download your invoice, log into your {{.company_name}} dashboard.
+        You can view your quote by clicking the link below:
+        <a href="{{.QuoteURL}}" class="button">View Quote</a>.
       </p>
       <p>
-        If you have any questions, don't hesitate to contact our support team.
+        If the button above does not work, copy and paste the following this
+        link: <a href="{{.QuoteURL}}">{{.QuoteURL}}</a>.
       </p>
-      <p>{{.company_name}}</p>
+      <p>
+        If you're satisfied with the quote, feel free to accept the quote in the
+        app and arrange next steps with {{.CompanyName}}.
+      </p>
       <div class="footer">
-        <p>&copy; {{.year}} {{.company_name}}. All rights reserved.</p>
         <p style="margin-top: 20px">
           This is an automated message. Please do not reply directly to this
           email.

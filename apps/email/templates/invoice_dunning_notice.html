@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Payment issue for invoice {{.InvoiceNumber}}</title>
+    <style>
+      body { font-family: "Inter", "Segoe UI", Arial, sans-serif; background: #f5f7fb; color: #0f172a; }
+      .container { max-width: 600px; margin: 24px auto; background: #fff; border-radius: 10px; padding: 28px; border: 1px solid #e2e8f0; }
+      .logo { max-height: 36px; max-width: 180px; margin-bottom: 12px; }
+      .status { display: inline-block; padding: 6px 10px; border-radius: 999px; background: #fef2f2; color: #991b1b; font-size: 12px; border: 1px solid #fecaca; }
+      .status.final { background: #fff7ed; color: #9a3412; border-color: #fdba74; }
+      .meta { margin: 18px 0; background: #f8fafc; border-radius: 8px; padding: 14px; border: 1px solid #e2e8f0; }
+      .meta p { margin: 6px 0; font-size: 13px; }
+      .note { font-size: 13px; color: #475569; }
+      .footer { margin-top: 24px; font-size: 11px; color: #64748b; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      {{if .LogoURL}}<img class="logo" src="{{.LogoURL}}" alt="{{.CompanyName}} logo" />{{end}}
+      <h2>We couldn't process your payment</h2>
+      <p><span class="status {{if .FinalAttempt}}final{{end}}">{{.PaymentStatus}}</span></p>
+      <p class="note">
+        Invoice <strong>{{.InvoiceNumber}}</strong> from {{.CompanyName}} could not be charged.
+      </p>
+      <div class="meta">
+        <p><strong>Amount due:</strong> {{.AmountDue}}</p>
+        <p><strong>Due date:</strong> {{.DueDate}}</p>
+        <p><strong>Attempt:</strong> {{.Attempt}} of {{.MaxAttempts}}</p>
+        {{if .FailureReason}}<p><strong>Reason:</strong> {{.FailureReason}}</p>{{end}}
+      </div>
+      {{if .FinalAttempt}}
+      <p class="note">This was the final retry attempt. Please update your payment method immediately.</p>
+      {{else}}
+      <p class="note">We'll retry the payment automatically after you update your payment method.</p>
+      {{end}}
+      <div class="footer">
+        This is an automated message from Portcall billing.
+      </div>
+    </div>
+  </body>
+</html>

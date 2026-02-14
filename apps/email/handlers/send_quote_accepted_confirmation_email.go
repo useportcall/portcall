@@ -10,13 +10,13 @@ import (
 	"github.com/useportcall/portcall/libs/go/qx/server"
 )
 
-func SendInvoicePaidEmail(c server.IContext) error {
+func SendQuoteAcceptedConfirmationEmail(c server.IContext) error {
 	var payload map[string]any
 	if err := json.Unmarshal(c.Payload(), &payload); err != nil {
 		return err
 	}
 
-	tmpl, err := template.ParseFiles("templates/invoice_paid_receipt.html")
+	tmpl, err := template.ParseFiles("templates/quote_accepted_confirmation.html")
 	if err != nil {
 		return fmt.Errorf("failed to parse template: %w", err)
 	}
@@ -41,7 +41,7 @@ func SendInvoicePaidEmail(c server.IContext) error {
 
 	return c.EmailClient().Send(
 		content,
-		"Invoice Paid",
+		"Quote Accepted - Confirmation",
 		from,
 		[]string{to},
 	)
