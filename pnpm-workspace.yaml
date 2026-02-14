@@ -1,0 +1,6 @@
+packages:
+  - "example/*"
+  - "libs/ui"
+  - "libs/tailwind-config"
+  - "libs/typescript-config"
+  - "sdks/*"

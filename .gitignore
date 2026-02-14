@@ -1,8 +1,65 @@
-# any logs folder in any directory
-
+# Logs
 logs/
 
+# OS files
 .DS_Store
+
+# Environment and secrets
 .env
-.env.development
+.env.*
+.envs
+.envs.*
+!.env.example
+!.envs.example
 .rsa_private.pem
+*.pem
+*.key
+
+# Turbo cache
+.turbo
+
+# Node
+node_modules/
+
+# Go binaries - root level (built by Makefile/dev workflow)
+/admin
+/api
+/checkout
+/cron
+/dashboard
+/dev-cli
+
+# Go binaries - within apps directories (only specific known binaries)
+apps/admin/admin
+apps/admin/admin_app
+apps/cron/cron
+
+# Go binaries - dev-cli in tools
+tools/dev-cli/dev-cli
+
+# Build outputs
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+*.tsbuildinfo
+
+# Test coverage
+coverage/
+*.out
+/smtp-relay
+/email
+apps/api/api
+apps/billing/billing
+apps/dashboard/dashboard
+
+# E2E browser artifacts
+e2etest/browser/test-results/
+e2etest/browser/playwright-report/
+e2etest/browser/setup/.harness-config.json
+e2etest/browser/setup/.harness-pid
+
+# Dev CLI runtime state
+.dev-cli.deploy.json
