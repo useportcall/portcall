@@ -1,0 +1,35 @@
+services:
+  
+  dashboard:
+    build:
+      context: ..
+      dockerfile: apps/dashboard/Dockerfile
+    container_name: dashboard
+    restart: always
+    # depends_on:
+    #   - redis
+    #   - postgres
+    ports:
+      - "8082:8082"
+    environment:
+      APP_ENV: "development"
+      PORT: "8082"
+      REDIS_ADDR: "redis:6379"
+      AES_ENCRYPTION_KEY: "zRBkAMS4lX9CYBLJajHF/J0p+kcIIxVIr9gR4Y1M+nM="
+      DATABASE_URL: "postgresql://admin:adminpassword@postgres:5432/main_portcall_db?sslmode=disable"
+      QUOTE_APP_URL: "http://localhost:8010"
+      S3_REGION: "us-east-1"
+      S3_ENDPOINT: "http://minio:9000"
+      S3_ACCESS_KEY_ID: "admin"
+      S3_SECRET_ACCESS_KEY: "admin123"
+      FILE_API_URL: "http://file-api:8085"
+      WEBHOOK_BASE_URL: "http://localhost:8082"
+      KEYCLOAK_API_URL: "http://host.docker.internal:8080"
+      # Dogfood configuration
+      PORTCALL_API_URL: "http://api:8080"
+      DOGFOOD_LIVE_SECRET: "sk_302739c39b824a13a313e68ed8a0c67b_9ee8b8ed91029cb4a22c80e59903aca3adf85edaafcca2ddf4f680b639092363"
+      DOGFOOD_TEST_SECRET: "sk_293659d19c3c49538010122a02e43e33_1390bc66e8658f88289f83e46ff3750a35966ba35149000be743ed14c0205d65"
+    networks:
+      - default
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

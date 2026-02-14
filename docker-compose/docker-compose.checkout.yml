@@ -1,0 +1,19 @@
+services:
+  
+  checkout:
+    build:
+      context: ..
+      dockerfile: apps/checkout/Dockerfile
+    container_name: checkout
+    restart: always
+    # depends_on:
+    #   - redis
+    #   - postgres
+    ports:
+      - "8700:8700"
+    environment:
+      APP_ENV: "development"
+      PORT: "8700"
+      REDIS_ADDR: "redis:6379"
+      AES_ENCRYPTION_KEY: "zRBkAMS4lX9CYBLJajHF/J0p+kcIIxVIr9gR4Y1M+nM="
+      DATABASE_URL: "postgresql://admin:adminpassword@postgres:5432/main_portcall_db?sslmode=disable"

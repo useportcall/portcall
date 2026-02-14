@@ -1,0 +1,78 @@
+{
+  "realm": "admin",
+  "enabled": true,
+  "resetPasswordAllowed": false,
+  "registrationAllowed": false,
+  "loginTheme": "portcall-admin",
+  "sslRequired": "external",
+  "clients": [
+    {
+      "clientId": "portcall-admin",
+      "name": "portcall-admin",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "",
+      "baseUrl": "",
+      "redirectUris": [
+        "http://localhost:5401/*",
+        "http://localhost:8081/*",
+        "http://localhost:30081/*",
+        "https://admin.useportcall.com/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5401",
+        "http://localhost:8081",
+        "http://localhost:30081",
+        "https://admin.useportcall.com"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "portcall-admin",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "superadmin",
+      "email": "superadmin@portcall.internal",
+      "enabled": true,
+      "emailVerified": true,
+      "firstName": "Super",
+      "lastName": "Admin",
+      "credentials": [
+        {
+          "type": "password",
+          "value": "X9$mK@2pLqR#7vNw!8ZbCyDe",
+          "temporary": false
+        }
+      ],
+      "realmRoles": [
+        "admin"
+      ]
+    }
+  ],
+  "roles": {
+    "realm": [
+      {
+        "name": "admin",
+        "description": "Administrator role with full access"
+      }
+    ]
+  }
+}

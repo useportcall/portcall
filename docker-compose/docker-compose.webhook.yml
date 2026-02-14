@@ -1,0 +1,20 @@
+services:
+
+  webhook:
+    # Deprecated app; webhook traffic is now served by dashboard.
+    build:
+      context: ..
+      dockerfile: apps/deprecated/webhook/Dockerfile
+    container_name: webhook
+    restart: always
+    depends_on:
+      - redis
+      - postgres
+    ports:
+      - "8086:8086"
+    environment:
+      APP_ENV: "development"
+      PORT: "8086"
+      REDIS_ADDR: "redis:6379"
+      AES_ENCRYPTION_KEY: "zRBkAMS4lX9CYBLJajHF/J0p+kcIIxVIr9gR4Y1M+nM="
+      DATABASE_URL: "postgresql://admin:adminpassword@postgres:5432/main_portcall_db?sslmode=disable"

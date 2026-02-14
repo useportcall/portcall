@@ -1,0 +1,64 @@
+{
+  "realm": "dev",
+  "enabled": true,
+  "resetPasswordAllowed": true,
+  "registrationAllowed": true,
+  "registrationEmailAsUsername": true,
+  "loginTheme": "portcall",
+  "sslRequired": "external",
+  "clients": [
+    {
+      "clientId": "portcall",
+      "name": "portcall",
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "standardFlowEnabled": true,
+      "implicitFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "rootUrl": "",
+      "baseUrl": "",
+      "redirectUris": [
+        "http://localhost:5400/*",
+        "http://localhost:8082/*",
+        "http://localhost:30082/*",
+        "http://localhost:30700/*",
+        "https://dashboard.useportcall.com/*",
+        "https://checkout.useportcall.com/*"
+      ],
+      "webOrigins": [
+        "http://localhost:5400",
+        "http://localhost:8082",
+        "http://localhost:30082",
+        "http://localhost:30700",
+        "https://dashboard.useportcall.com",
+        "https://checkout.useportcall.com"
+      ],
+      "attributes": {
+        "pkce.code.challenge.method": "S256"
+      },
+      "protocolMappers": [
+        {
+          "name": "audience",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-audience-mapper",
+          "consentRequired": false,
+          "config": {
+            "included.client.audience": "portcall",
+            "id.token.claim": "true",
+            "access.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "smtpServer": {
+    "host": "mailpit",
+    "port": "1025",
+    "from": "dev@portcall.local",
+    "fromDisplayName": "Portcall",
+    "auth": "false",
+    "starttls": "false",
+    "ssl": "false"
+  }
+}

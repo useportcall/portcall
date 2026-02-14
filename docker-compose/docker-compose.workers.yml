@@ -1,0 +1,38 @@
+services:
+
+  email_worker:
+    build:
+      context: ..
+      dockerfile: apps/email/Dockerfile
+    container_name: email_worker
+    restart: always
+    depends_on:
+      - redis
+      - mailpit
+    environment:
+      APP_ENV: "production"
+      REDIS_ADDR: "redis:6379"
+      # Local development - use mailpit
+      EMAIL_PROVIDER: "local"
+      SMTP_SERVER: "mailpit:1025"
+      EMAIL_FROM: "dev@portcall.local"
+      # For production, override these with:
+      # EMAIL_PROVIDER: "postmark"
+      # POSTMARK_API_KEY: "${POSTMARK_API_KEY}"
+      # EMAIL_FROM: "noreply@yourdomain.com"
+
+  billing_worker:
+    build:
+      context: ..
+      dockerfile: apps/billing/Dockerfile
+    container_name: billing_worker
+    restart: always
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      APP_ENV: "production"
+      REDIS_ADDR: "redis:6379"
+      AES_ENCRYPTION_KEY: "zRBkAMS4lX9CYBLJajHF/J0p+kcIIxVIr9gR4Y1M+nM="
+      DATABASE_URL: "postgresql://admin:adminpassword@postgres:5432/main_portcall_db?sslmode=disable"
+      INVOICE_APP_URL: "http://localhost:8085"
