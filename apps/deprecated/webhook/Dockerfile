@@ -6,10 +6,10 @@ WORKDIR /workspace
 COPY libs/ libs/
 
 # Copy app files
-COPY apps/email/ apps/email/
+COPY apps/webhook/ apps/webhook/
 
 # Set working directory to the app
-WORKDIR /workspace/apps/email
+WORKDIR /workspace/apps/webhook
 
 # Add replace directives to use local libs
 RUN go mod edit -replace github.com/useportcall/portcall/libs/go/apix=../../libs/go/apix \
@@ -31,14 +31,11 @@ RUN go mod tidy && go mod download
 RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -o app
 
 # Start a new minimal image
-FROM alpine:3.21
+FROM alpine:latest
 RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
-COPY --from=builder /workspace/apps/email/app ./app
-COPY --from=builder /workspace/apps/email/templates ./templates
-
-EXPOSE 2525 9091
+COPY --from=builder /workspace/apps/webhook/app ./app
 
 # Command to run the executable
 CMD ["./app"]

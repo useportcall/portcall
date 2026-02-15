@@ -1,0 +1,36 @@
+# Binaries and build output
+/bin
+/dist
+/build
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+
+# Logs
+*.log
+logs/
+
+# OS and editor files
+.DS_Store
+.idea/
+.vscode/
+*.swp
+
+# Env and secrets
+.env
+.env.*
+.envrc
+
+# Docker
+Dockerfile*
+.dockerignore
+
+# Misc
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
