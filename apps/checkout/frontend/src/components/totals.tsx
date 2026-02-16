@@ -1,7 +1,11 @@
-import { CheckoutSession, Plan } from "@/types/api";
+import { formatPlanTotals } from "@/lib/checkout-totals";
+import { resolveCheckoutConsentMode } from "@/lib/payment-consent";
+import { CheckoutSession } from "@/types/api";
 import { Loader2, Lock } from "lucide-react";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { CheckoutComplianceNotice } from "./checkout-compliance-notice";
+import { CheckoutRecurringConsent } from "./checkout-recurring-consent";
 
 type TotalsProps = {
   session: CheckoutSession;
@@ -17,11 +21,15 @@ export function Totals({
   errorMessage,
 }: TotalsProps) {
   const { i18n, t } = useTranslation();
+  const consentMode = resolveCheckoutConsentMode(session);
+  const [hasConsent, setHasConsent] = useState(false);
+  const [showConsentError, setShowConsentError] = useState(false);
   const locale = i18n.resolvedLanguage || i18n.language || "en";
+  const requiresConsent = consentMode === "save";
   const totals = useMemo(() => {
     if (!session.plan)
       return { subtotal: "$0.00", tax: "$0.00", total: "$0.00" };
-    return formatTotals(session.plan, locale);
+    return formatPlanTotals(session.plan, locale);
   }, [session.plan, locale]);
 
   return (
@@ -38,13 +46,28 @@ export function Totals({
         </span>
       </div>
       {errorMessage && (
-        <div className="w-full p-3 bg-red-50 border border-red-200 rounded-md mt-2">
+        <div className="w-full p-3 bg-red-50 border border-red-200 rounded-md mt-2" role="alert">
           <p className="text-sm text-red-600">{errorMessage}</p>
         </div>
       )}
+      <CheckoutRecurringConsent
+        mode={consentMode}
+        checked={hasConsent}
+        showError={showConsentError}
+        onChange={(checked) => {
+          setHasConsent(checked);
+          if (checked) setShowConsentError(false);
+        }}
+      />
       <button
         type="submit"
         disabled={isSubmitting || isDisabled}
+        onClick={(event) => {
+          if (requiresConsent && !hasConsent) {
+            event.preventDefault();
+            setShowConsentError(true);
+          }
+        }}
         className="w-full bg-slate-900 p-2 flex justify-center items-center gap-2 text-white font-semibold mt-2 rounded-md hover:bg-slate-700 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200"
       >
         {isSubmitting ? (
@@ -54,29 +77,16 @@ export function Totals({
           </>
         ) : (
           <>
-            <span>{t("submit.pay", { total: totals.total })}</span>
+            <span>
+              {consentMode === "save"
+                ? t("submit.authorize_and_continue")
+                : t("submit.pay", { total: totals.total })}
+            </span>
             <Lock className="w-4 h-4" />
           </>
         )}
       </button>
+      <CheckoutComplianceNotice session={session} />
     </>
   );
-}
-
-function formatTotals(plan: Plan, locale: string) {
-  const mainPlanItem = plan.items.find(
-    (item) => item.pricing_model === "fixed",
-  );
-  const subtotal = mainPlanItem?.unit_amount || 0;
-  const tax = 0;
-  const total = subtotal + tax;
-  const fmt = (amount: number) => {
-    const cur = plan.currency.toUpperCase();
-    const divisor = cur === "JPY" || cur === "KRW" ? 1 : 100;
-    return new Intl.NumberFormat(locale, {
-      style: "currency",
-      currency: cur,
-    }).format(amount / divisor);
-  };
-  return { subtotal: fmt(subtotal), tax: fmt(tax), total: fmt(total) };
 }

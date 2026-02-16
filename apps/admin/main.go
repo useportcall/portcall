@@ -2,13 +2,13 @@ package main
 
 import (
 	"log"
-	"net/http"
 	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/useportcall/portcall/apps/admin/internal/router"
+	"github.com/useportcall/portcall/libs/go/cryptox"
+	"github.com/useportcall/portcall/libs/go/dbx"
 	"github.com/useportcall/portcall/libs/go/envx"
 	"github.com/useportcall/portcall/libs/go/qx"
-	"github.com/useportcall/portcall/libs/go/routerx"
 )
 
 func main() {
@@ -19,34 +19,22 @@ func main() {
 		log.Fatal("PORT environment variable not set")
 	}
 
-	q := qx.New()
+	db, err := dbx.New()
+	if err != nil {
+		log.Fatalf("failed to init db: %v", err)
+	}
+	crypto, err := cryptox.New()
+	if err != nil {
+		log.Fatalf("failed to init crypto: %v", err)
+	}
+	q, err := qx.New()
+	if err != nil {
+		log.Fatalf("failed to init queue: %v", err)
+	}
 
-	r := routerx.New(nil, nil, q)
+	router := router.Init(db, crypto, q)
 
-	r.GET("/ping", func(c *routerx.Context) { c.JSON(http.StatusOK, gin.H{"message": "pong"}) })
-	r.POST("/queues/:queue_id/tasks/:task_id", HandleQueueTask)
-
-	if err := r.Run(":" + port); err != nil {
+	if err := router.Run(":" + port); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
-}
-
-func HandleQueueTask(c *routerx.Context) {
-	queueID := c.Param("queue_id")
-	taskID := c.Param("task_id")
-
-	var payload map[string]any
-	if err := c.BindJSON(&payload); err != nil {
-		log.Printf("JSON_BIND_ERROR: %v", err)
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request payload"})
-		return
-	}
-
-	if err := c.Queue().Enqueue(taskID, payload, queueID); err != nil {
-		log.Printf("ENQUEUE_TASK_ERROR: %v", err)
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to enqueue task"})
-		return
-	}
-
-	c.JSON(http.StatusOK, gin.H{"status": "Task enqueued successfully"})
 }

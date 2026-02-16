@@ -15,6 +15,22 @@ This directory contains the Helm chart and deployment values used by Portcall.
 go run ./tools/dev-cli deploy --cluster digitalocean --version patch
 ```
 
+## New Cluster Init (DigitalOcean Micro)
+
+```bash
+go run ./tools/dev-cli infra init --cluster digitalocean --mode micro
+go run ./tools/dev-cli infra doctor --cluster digitalocean
+go run ./tools/dev-cli deploy --cluster digitalocean --apps all --version patch
+```
+
+`infra init` provisions VPC + cluster + registry + managed Postgres/Redis/Spaces and generates `.infra/<alias>/values.micro.yaml`.
+
+For existing clusters, align local state first:
+
+```bash
+go run ./tools/dev-cli infra pull --cluster digitalocean
+```
+
 Default preflight behavior:
 
 - Unit tests: enabled

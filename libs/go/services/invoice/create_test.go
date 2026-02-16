@@ -68,3 +68,19 @@ func TestCreate_Idempotent_Skips(t *testing.T) {
 		t.Fatal("expected skipped for idempotent call")
 	}
 }
+
+func TestCreate_MissingBillingAddress_ReturnsError(t *testing.T) {
+	sub := &models.Subscription{AppID: 1}
+	sub.ID = 100
+
+	db := &mockDB{
+		subscription:    sub,
+		company:         &models.Company{BillingAddressID: 60},
+		notFoundInvoice: true,
+	}
+
+	svc := inv.NewService(db)
+	if _, err := svc.Create(&inv.CreateInput{SubscriptionID: 100}); err == nil {
+		t.Fatal("expected error when subscription billing address is missing")
+	}
+}

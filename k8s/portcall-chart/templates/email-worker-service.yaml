@@ -1,0 +1,22 @@
+{{- if .Values.emailWorker.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: email-worker
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: email-worker
+spec:
+  type: ClusterIP
+  ports:
+  - port: 2525
+    targetPort: smtp
+    protocol: TCP
+    name: smtp
+  - port: {{ .Values.emailWorker.health.port | default 9091 }}
+    targetPort: health
+    protocol: TCP
+    name: health
+  selector:
+    app: email-worker
+{{- end }}

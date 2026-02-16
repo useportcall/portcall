@@ -9,7 +9,6 @@ use (
 	./apps/email
 	./apps/file
 	./apps/quote
-	./apps/smtp-relay
 	./e2etest
 	./libs/go/apix
 	./libs/go/authx

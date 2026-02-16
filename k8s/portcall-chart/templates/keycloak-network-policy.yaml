@@ -46,14 +46,14 @@ spec:
         - protocol: TCP
           port: {{ .Values.keycloak.database.port }}
     
-    # Allow SMTP for password reset emails - allow to smtp-relay pod in same namespace
+    # Allow SMTP for password reset emails - allow to email-worker pod in same namespace
     - to:
         - namespaceSelector:
             matchLabels:
               kubernetes.io/metadata.name: {{ .Release.Namespace }}
           podSelector:
             matchLabels:
-              app: smtp-relay
+              app: email-worker
       ports:
         - protocol: TCP
           port: 2525

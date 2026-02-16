@@ -41,22 +41,56 @@ spec:
       - name: email-worker
         image: {{ .Values.emailWorker.image.repository }}:{{ .Values.emailWorker.image.tag }}
         imagePullPolicy: {{ .Values.global.imagePullPolicy }}
+        ports:
+        - containerPort: 2525
+          name: smtp
+          protocol: TCP
+        - containerPort: {{ .Values.emailWorker.health.port | default 9091 }}
+          name: health
+          protocol: TCP
         env:
         - name: APP_ENV
           value: {{ .Values.emailWorker.env.appEnv | quote }}
         - name: EMAIL_PROVIDER
           value: {{ .Values.emailWorker.env.emailProvider | quote }}
+        - name: SMTP_ADDR
+          value: {{ .Values.emailWorker.smtp.addr | default ":2525" | quote }}
+        - name: PORT
+          value: {{ .Values.emailWorker.health.port | default 9091 | quote }}
+        - name: SMTP_RELAY_ENABLED
+          value: "true"
+        - name: RESEND_API_URL
+          value: {{ .Values.emailWorker.env.resendApiUrl | default "https://api.resend.com/emails" | quote }}
+        - name: POSTMARK_API_URL
+          value: {{ .Values.emailWorker.env.postmarkApiUrl | default "https://api.postmarkapp.com/email" | quote }}
         - name: RESEND_API_KEY
           valueFrom:
             secretKeyRef:
               name: {{ .Values.common.secretName }}
               key: RESEND_API_KEY
               optional: true
+        - name: POSTMARK_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: {{ .Values.common.secretName }}
+              key: POSTMARK_API_KEY
+              optional: true
         envFrom:
         - configMapRef:
             name: portcall-config
         - secretRef:
             name: {{ .Values.common.secretName }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          initialDelaySeconds: 10
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: health
+          initialDelaySeconds: 5
         resources:
           requests:
             memory: {{ .Values.emailWorker.resources.requests.memory }}

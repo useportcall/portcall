@@ -11,6 +11,7 @@ import { MockCheckoutTotals } from "./mock-checkout-totals";
 import { MockCheckoutFormWrapper } from "./mock-checkout-form-wrapper";
 import { applyMockCheckoutAutofill } from "./mock-checkout-autofill";
 import { MockCardFields } from "./mock-card-fields";
+import { CheckoutComplianceNotice } from "./checkout-compliance-notice";
 
 type Props = {
   form: UseFormReturn<CheckoutFormSchema>;
@@ -79,6 +80,7 @@ export function MockCheckout({ form, session, credentials }: Props) {
             />
           </div>
           <MockCheckoutTotals session={session} />
+          <CheckoutComplianceNotice session={session} />
         </MockCheckoutFormWrapper>
       </div>
     </SubmitStateContext.Provider>

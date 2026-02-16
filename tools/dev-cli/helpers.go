@@ -42,6 +42,18 @@ func findRootDir() (string, error) {
 	return "", fmt.Errorf("could not find go.work in any parent directory")
 }
 
+func ensureRootDir() error {
+	if strings.TrimSpace(rootDir) != "" {
+		return nil
+	}
+	dir, err := findRootDir()
+	if err != nil {
+		return err
+	}
+	rootDir = dir
+	return nil
+}
+
 func parseAppList(input string) []string {
 	var result []string
 	for _, s := range strings.Split(input, ",") {

@@ -1,0 +1,37 @@
+package initcmd
+
+import "github.com/spf13/cobra"
+
+func applyFlags(cmd *cobra.Command, opts *Options) {
+	cmd.Flags().StringVar(&opts.Cluster, "cluster", "digitalocean", "Cluster alias used by dev-cli")
+	cmd.Flags().StringVar(&opts.Provider, "provider", "digitalocean", "Infrastructure provider")
+	cmd.Flags().StringSliceVar(&opts.Providers, "providers", []string{"digitalocean"}, "Infrastructure providers to configure")
+	cmd.Flags().StringVar(&opts.Action, "action", "create", "Init action: create|update")
+	cmd.Flags().StringVar(&opts.Mode, "mode", "micro", "Provisioning mode")
+	cmd.Flags().StringVar(&opts.Step, "step", "all", "Init step: all|core|services")
+	cmd.Flags().StringVar(&opts.ClusterName, "name", "portcall-micro", "Kubernetes cluster name")
+	cmd.Flags().StringVar(&opts.Region, "region", "nyc1", "DigitalOcean region")
+	cmd.Flags().StringVar(&opts.NodeSize, "node-size", "s-2vcpu-2gb", "Kubernetes node size slug")
+	cmd.Flags().IntVar(&opts.NodeCount, "node-count", 1, "Kubernetes node count")
+	cmd.Flags().StringVar(&opts.RedisSize, "redis-size", "db-s-1vcpu-1gb", "Managed Redis size slug")
+	cmd.Flags().StringVar(&opts.PostgresSize, "postgres-size", "", "Managed Postgres size slug (optional)")
+	cmd.Flags().StringVar(&opts.RegistryName, "registry", "portcall-registry", "DigitalOcean registry name")
+	cmd.Flags().StringVar(&opts.VPCCIDR, "vpc-cidr", "10.18.0.0/16", "VPC CIDR range")
+	cmd.Flags().StringVar(&opts.SpacesRegion, "spaces-region", "nyc3", "Spaces region")
+	cmd.Flags().StringVar(&opts.SpacesPrefix, "spaces-prefix", "portcall", "Spaces bucket prefix")
+	cmd.Flags().StringVar(&opts.Domain, "domain", "example.com", "Base domain for ingress hosts")
+	cmd.Flags().StringVar(&opts.DNSProvider, "dns-provider", "manual", "DNS provider: manual|cloudflare")
+	cmd.Flags().BoolVar(&opts.DNSAuto, "dns-auto", false, "Auto create/update DNS records when --dns-provider=cloudflare")
+	cmd.Flags().StringVar(&opts.CloudflareZoneID, "cloudflare-zone-id", "", "Cloudflare zone ID (optional; auto-resolve from --domain)")
+	cmd.Flags().StringSliceVar(&opts.AllowedIPs, "allowed-ip", nil, "Admin ingress CIDR(s)")
+	cmd.Flags().StringVar(&opts.AllowedIPsFrom, "allowed-ips-from", "k8s/deploy/digitalocean/values.yaml", "Source values file for admin allowed IPs")
+	cmd.Flags().BoolVar(&opts.InstallIngress, "install-ingress", true, "Install ingress-nginx via Helm")
+	cmd.Flags().BoolVar(&opts.SkipRegistryLogin, "skip-registry-login", false, "Skip doctl registry login")
+	cmd.Flags().BoolVar(&opts.SkipPostgres, "skip-postgres", false, "Skip managed Postgres resources")
+	cmd.Flags().BoolVar(&opts.SkipRedis, "skip-redis", false, "Skip managed Redis resources")
+	cmd.Flags().BoolVar(&opts.SkipSpaces, "skip-spaces", false, "Skip managed Spaces resources")
+	cmd.Flags().BoolVar(&opts.SkipSmokeCheck, "skip-smoke-check", false, "Skip post-change smoke checks")
+	cmd.Flags().IntVar(&opts.SmokeTimeout, "smoke-timeout-sec", 300, "Smoke check timeout in seconds")
+	cmd.Flags().BoolVarP(&opts.Yes, "yes", "y", false, "Skip confirmation prompts")
+	cmd.Flags().BoolVar(&opts.DryRun, "dry-run", false, "Show actions without applying changes")
+}

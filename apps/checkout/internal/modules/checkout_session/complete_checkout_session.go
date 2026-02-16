@@ -25,11 +25,29 @@ func CompleteCheckoutSession(c *routerx.Context, session *models.CheckoutSession
 		c.BadRequest("invalid request body")
 		return
 	}
+	idempotencyKey := c.Request.Header.Get("X-Checkout-Idempotency-Key")
+	if session.Status != "active" && session.Status != "pending" {
+		c.OK(map[string]any{
+			"status":                  "processing",
+			"idempotency_key_present": idempotencyKey != "",
+		})
+		return
+	}
+	if session.Status == "active" {
+		session.Status = "pending"
+		if err := c.DB().Save(session); err != nil {
+			c.ServerError("failed to persist checkout state", err)
+			return
+		}
+	}
 
 	// Stripe completion is webhook-driven to ensure subscription activation
 	// happens only after a signed setup_intent.succeeded event.
 	if session.ExternalProvider == "stripe" {
-		c.OK(map[string]any{"status": "processing"})
+		c.OK(map[string]any{
+			"status":                  "processing",
+			"idempotency_key_present": idempotencyKey != "",
+		})
 		return
 	}
 
@@ -46,10 +64,15 @@ func CompleteCheckoutSession(c *routerx.Context, session *models.CheckoutSession
 	if err := c.Queue().Enqueue(
 		"resolve_checkout_session", payload, "billing_queue",
 	); err != nil {
+		session.Status = "active"
+		_ = c.DB().Save(session)
 		log.Printf("[CompleteCheckout] enqueue failed: %v", err)
 		c.ServerError("failed to complete checkout", err)
 		return
 	}
 
-	c.OK(map[string]any{"status": "processing"})
+	c.OK(map[string]any{
+		"status":                  "processing",
+		"idempotency_key_present": idempotencyKey != "",
+	})
 }

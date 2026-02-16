@@ -1,0 +1,17 @@
+{{- if and .Values.emailWorker.enabled (not (index .Values "smtpRelay" | default dict).enabled) }}
+# Backward-compatible DNS alias: Keycloak realm settings may still reference
+# "smtp-relay.portcall.svc.cluster.local" as the SMTP host. This ExternalName
+# service resolves that DNS name to the email-worker service, which now
+# embeds the SMTP relay.
+apiVersion: v1
+kind: Service
+metadata:
+  name: smtp-relay
+  namespace: {{ .Values.global.namespace }}
+  labels:
+    app: email-worker
+    compat: smtp-relay
+spec:
+  type: ExternalName
+  externalName: email-worker.{{ .Values.global.namespace }}.svc.cluster.local
+{{- end }}

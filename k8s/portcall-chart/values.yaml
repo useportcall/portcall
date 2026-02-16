@@ -280,17 +280,19 @@ emailWorker:
   image:
     repository: "portcall/email-worker"
     tag: "latest"
+  smtp:
+    addr: ":2525"
+  health:
+    port: 9091
   env:
-    appEnv: production
-    # Email provider: "local" for development (mailpit), "postmark" for production
+    appEnv: development
+    # Email provider: "local" for development (mailpit), "postmark"/"resend" for production
     emailProvider: "local"
     # For local development with mailpit
     smtpServer: "mailpit:1025"
     emailFrom: "dev@portcall.local"
-    # For production with Postmark, set:
-    # emailProvider: "postmark"
-    # postmarkApiKey: "" # Set via secret or override
-    # emailFrom: "noreply@yourdomain.com"
+    resendApiUrl: "https://api.resend.com/emails"
+    postmarkApiUrl: "https://api.postmarkapp.com/email"
   resources:
     requests:
       memory: "64Mi"
@@ -315,21 +317,6 @@ billingWorker:
     limits:
       memory: "512Mi"
       cpu: "500m"
-
-# SMTP Relay
-smtpRelay:
-  enabled: false
-  replicas: 1
-  image:
-    repository: "portcall/smtp-relay"
-    tag: "latest"
-  resources:
-    requests:
-      memory: "64Mi"
-      cpu: "50m"
-    limits:
-      memory: "128Mi"
-      cpu: "100m"
 
 # Development Tools
 tools:
@@ -451,6 +438,7 @@ observability:
       enabled: false
       className: nginx
       host: grafana.portcall.local
+      path: /
       tlsSecretName: grafana-tls
       annotations: {}
   promtail:

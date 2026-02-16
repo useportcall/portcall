@@ -9,12 +9,16 @@ import (
 	"github.com/useportcall/portcall/libs/go/dbx/models"
 )
 
-func buildInvoice(sub *models.Subscription, company *models.Company, count int64) *models.Invoice {
+func buildInvoice(sub *models.Subscription, company *models.Company, count int64) (*models.Invoice, error) {
 	invoiceAppURL := os.Getenv("INVOICE_APP_URL")
 	discountPct := 0
 	if sub.DiscountPct > 0 && count+1 <= int64(sub.DiscountQty) {
 		discountPct = sub.DiscountPct
 	}
+	if sub.BillingAddressID == nil {
+		return nil, fmt.Errorf("subscription %d missing billing address", sub.ID)
+	}
+	billingAddressID := *sub.BillingAddressID
 	publicID := dbx.GenPublicID("invoice")
 	return &models.Invoice{
 		AppID: sub.AppID, SubscriptionID: &sub.ID, UserID: sub.UserID,
@@ -25,8 +29,8 @@ func buildInvoice(sub *models.Subscription, company *models.Company, count int64
 		InvoiceNumber:      fmt.Sprintf("INV-%07d", count+1),
 		InvoiceNumberCount: count + 1,
 		CompanyAddressID:   company.BillingAddressID,
-		BillingAddressID:   *sub.BillingAddressID,
+		BillingAddressID:   billingAddressID,
 		ShippingAddressID:  sub.BillingAddressID,
 		DiscountPct:        discountPct,
-	}
+	}, nil
 }

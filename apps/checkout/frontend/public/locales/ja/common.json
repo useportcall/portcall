@@ -25,14 +25,37 @@
     },
     "submit": {
         "pay": "{{total}} を支払う",
+        "authorize_and_continue": "将来のサブスクリプション請求のために支払い方法を保存",
         "processing": "処理中...",
         "payment_successful": "支払いが完了しました！"
+    },
+    "compliance": {
+        "title": "ご確認ください",
+        "merchant_fallback": "販売事業者",
+        "save_payment_method": "続行することで、{{merchant}} がカード情報を保存し、選択したプランに基づくサブスクリプション請求に利用することに同意します。",
+        "one_time_charge": "続行することで、{{merchant}} が今回の購入に対して一回限りの請求を行うことに同意します。",
+        "consent_label": "今後のサブスクリプション請求のために、この支払い方法を保存し、カード再入力なしのオフセッション請求が行われる場合があることに同意します。",
+        "recurring_amount": "継続請求額: {{amount}}",
+        "variable_amount": "従量課金により変動",
+        "billing_cadence": "請求サイクル: {{cadence}}",
+        "renewal_date": "次回更新日: {{date}}",
+        "trial_details": "トライアル: {{days}} 日間。その後は自動で継続請求が開始されます。",
+        "tax_fee_disclosure": "本日時点の税金/手数料表示: {{tax}}。最終的な請求税額は所在地（VAT/GST）により変わる場合があります。",
+        "off_session_notice": "今後のサブスクリプション請求は、カード情報の再入力なしで行われる場合があります。",
+        "strong_authentication": "完了前に、銀行による追加認証（3Dセキュア / 強力な顧客認証）が必要になる場合があります。",
+        "terms_acknowledgement": "料金、更新条件、解約ポリシーを確認し、利用規約およびプライバシー通知に同意したものとみなされます。",
+        "links": {
+            "terms": "利用規約",
+            "privacy": "プライバシー",
+            "cancellation": "返金/解約"
+        }
     },
     "validation": {
         "line1_required": "住所1は必須です",
         "city_required": "市区町村は必須です",
         "postal_code_required": "郵便番号は必須です",
-        "country_required": "国/地域は必須です"
+        "country_required": "国/地域は必須です",
+        "recurring_consent_required": "続行するには継続課金への同意が必要です。"
     },
     "order_summary": {
         "title": "注文概要",

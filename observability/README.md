@@ -11,21 +11,15 @@ This directory is the observability home for Portcall.
   `k8s/portcall-chart/templates/observability/`
 - Kubernetes observability values (defaults):
   `k8s/portcall-chart/values.yaml`
-- Kubernetes observability values (production):
-  `k8s/deploy/digitalocean/values.yaml`
+- Kubernetes observability values (DigitalOcean example):
+  `k8s/deploy/digitalocean/values.example.yaml`
 
-## Production Access
+## Production Access (DigitalOcean)
 
-1. Get the Grafana external IP:
+1. Open Grafana:
+  - `https://admin.useportcall.com/grafana`
 
-```bash
-kubectl -n portcall get svc grafana
-```
-
-2. Open Grafana with the service IP:
-   - `http://<EXTERNAL-IP>:3000`
-
-3. Log in:
+2. Log in:
    - Username: `admin`
    - Password comes from secret key `GRAFANA_ADMIN_PASSWORD` in `portcall-secrets`.
 
@@ -33,13 +27,11 @@ kubectl -n portcall get svc grafana
 kubectl -n portcall get secret portcall-secrets -o jsonpath='{.data.GRAFANA_ADMIN_PASSWORD}' | base64 -d; echo
 ```
 
-4. Open prebuilt dashboards:
+3. Open prebuilt dashboards:
    - `Portcall Logs Overview`
    - `Portcall Error Drilldown`
 
-Optional DNS/subdomain path can be enabled later with ingress.
-
-If the LoadBalancer IP is not ready yet, use port-forward:
+If ingress is unavailable, use port-forward temporarily:
 
 ```bash
 kubectl -n portcall port-forward svc/grafana 33000:3000
@@ -92,5 +84,5 @@ Quick health checks:
 kubectl get deployment -n portcall grafana
 kubectl get statefulset -n portcall loki
 kubectl get daemonset -n portcall promtail
-kubectl get pods -n portcall | grep "grafana\|loki\|promtail"
+kubectl get pods -n portcall | rg "grafana|loki|promtail"
 ```

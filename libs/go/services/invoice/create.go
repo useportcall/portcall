@@ -32,7 +32,10 @@ func (s *service) Create(input *CreateInput) (*CreateResult, error) {
 		return nil, err
 	}
 
-	invoice := buildInvoice(sub, company, count)
+	invoice, err := buildInvoice(sub, company, count)
+	if err != nil {
+		return nil, err
+	}
 
 	subItemIDs, err := listSubscriptionItemIDs(s.db, sub.ID)
 	if err != nil {

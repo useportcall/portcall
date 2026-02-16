@@ -23,6 +23,15 @@ spec:
     - host: {{ .Values.admin.ingress.host }}
       http:
         paths:
+          {{- if and .Values.observability.enabled .Values.observability.grafana.ingress.enabled (eq .Values.observability.grafana.ingress.host .Values.admin.ingress.host) }}
+          - path: {{ .Values.observability.grafana.ingress.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: grafana
+                port:
+                  number: {{ .Values.observability.grafana.port }}
+          {{- end }}
           - path: {{ .Values.admin.ingress.path }}
             pathType: Prefix
             backend:

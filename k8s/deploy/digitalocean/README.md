@@ -12,9 +12,20 @@ go run ./tools/dev-cli deploy --cluster digitalocean --version patch
 
 `--cluster digitalocean` resolves to:
 
-- Kubernetes context: `your-k8s-context`
-- Values file: `k8s/deploy/digitalocean/values.yaml`
+- Kubernetes context: `your-k8s-context` (or an alias-specific context from `.dev-cli.infra.json`)
+- Values template: `k8s/deploy/digitalocean/values.example.yaml` (copy to `values.yaml` locally)
 - Helm chart: `k8s/portcall-chart`
+
+## Bootstrap A New Cluster
+
+For open-source/self-hosted setup, prefer:
+
+```bash
+go run ./tools/dev-cli infra init --cluster digitalocean --mode micro
+go run ./tools/dev-cli infra doctor --cluster digitalocean
+```
+
+This keeps production defaults intact while generating a micro-mode values file for the new cluster.
 
 ## Secrets Management
 

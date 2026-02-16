@@ -1,0 +1,84 @@
+global:
+  namespace: portcall
+  imagePullPolicy: Always
+  imagePullSecrets: ["portcall-registry"]
+  imageRegistry: "__REGISTRY__"
+postgresql:
+  enabled: false
+  host: "__PG_HOST__"
+  port: __PG_PORT__
+  user: "__PG_USER__"
+  database: "__PG_DB__"
+  sslmode: "require"
+redis:
+  enabled: false
+  host: "__REDIS_HOST__"
+  port: __REDIS_PORT__
+  usePassword: true
+  useTLS: true
+minio:
+  enabled: false
+tools:
+  asynqmon: { enabled: false }
+  mailpit: { enabled: false }
+  redisInsight: { enabled: false }
+common:
+  appEnv: production
+  createSecret: false
+  secretName: portcall-secrets
+  s3Region: "__SPACES_REGION__"
+  s3Endpoint: "__SPACES_ENDPOINT__"
+  s3Bucket: "__SPACES_BUCKET__"
+keycloak:
+  hostname: "auth.__DOMAIN__"
+  database:
+    name: "__KC_DB__"
+    createDatabase: false
+    host: "__PG_HOST__"
+    port: __PG_PORT__
+    user: "__PG_USER__"
+    sslmode: "require"
+  adminAccess:
+    enabled: false
+    host: "admin.__DOMAIN__"
+    allowedIPs: []
+api:
+  image: { repository: "__REGISTRY__/portcall-api", tag: latest }
+  env: { checkoutURL: "https://checkout.__DOMAIN__" }
+admin:
+  image: { repository: "__REGISTRY__/portcall-admin", tag: latest }
+  env:
+    keycloakRealm: "admin"
+    keycloakApiUrl: "https://auth.__DOMAIN__"
+    keycloakInternalUrl: "https://auth.__DOMAIN__"
+  ingress:
+    enabled: true
+    host: "admin.__DOMAIN__"
+    path: /
+    allowedIPs:__ALLOWED_IPS__
+dashboard:
+  serviceType: ClusterIP
+  image: { repository: "__REGISTRY__/portcall-dashboard", tag: latest }
+  env:
+    quoteAppUrl: "https://quote.__DOMAIN__"
+    fileApiUrl: "https://file.__DOMAIN__"
+    webhookBaseUrl: "https://webhook.__DOMAIN__"
+    keycloakApiUrl: "https://auth.__DOMAIN__"
+    keycloakInternalUrl: "https://auth.__DOMAIN__"
+    dashboardUrl: "https://dashboard.__DOMAIN__"
+checkout:
+  image: { repository: "__REGISTRY__/portcall-checkout", tag: latest }
+fileApi:
+  image: { repository: "__REGISTRY__/portcall-file", tag: latest }
+quote:
+  image: { repository: "__REGISTRY__/portcall-quote", tag: latest }
+emailWorker:
+  image: { repository: "__REGISTRY__/portcall-email-worker", tag: latest }
+  env:
+    appEnv: production
+    emailProvider: "resend"
+    emailFrom: "hello@__DOMAIN__"
+billingWorker:
+  image: { repository: "__REGISTRY__/portcall-billing-worker", tag: latest }
+migration:
+  enabled: false

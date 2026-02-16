@@ -111,9 +111,9 @@ spec:
         - name: KC_SPI_EMAIL_SMTP_FROM_DISPLAY_NAME
           value: {{ .Values.keycloak.smtp.fromDisplayName | quote }}
         - name: KC_SPI_EMAIL_SMTP_STARTTLS
-          value: {{ .Values.keycloak.smtp.starttls | default false | quote }}
+          value: {{ .Values.keycloak.smtp.starttls | quote }}
         - name: KC_SPI_EMAIL_SMTP_AUTH
-          value: {{ .Values.keycloak.smtp.auth | default true | quote }}
+          value: {{ .Values.keycloak.smtp.auth | quote }}
         # - name: KC_SPI_EMAIL_SMTP_USER
         #   valueFrom:
         #     secretKeyRef:

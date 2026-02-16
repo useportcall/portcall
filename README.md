@@ -62,6 +62,25 @@ cd tools/dev-cli && go build -o ../../dev-cli . && cd ../..
 ./dev-cli stop
 ```
 
+### Kubernetes Micro Cluster (DigitalOcean)
+
+```bash
+# Provision + bootstrap a new cluster/registry
+go run ./tools/dev-cli infra init --cluster digitalocean --mode micro
+go run ./tools/dev-cli infra doctor --cluster digitalocean
+
+# Deploy apps using generated infra settings
+go run ./tools/dev-cli deploy --cluster digitalocean --apps all --version patch
+```
+
+For an existing production cluster, sync local infra state first:
+
+```bash
+go run ./tools/dev-cli infra pull --cluster digitalocean
+```
+
+Infra command reference and safety runbook: `tools/dev-cli/README.md`.
+
 ### Email E2E Checks (Local + Live)
 
 ```bash

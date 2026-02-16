@@ -6,92 +6,113 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <title>Portcall</title>
+    <!--[if mso]>
+    <style type="text/css">
+        table, td { font-family: Segoe UI, Helvetica, Arial, sans-serif; }
+    </style>
+    <![endif]-->
     <style>
         body {
             margin: 0;
             padding: 0;
-            background-color: #f4f4f5;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: #fafafa;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
         .email-wrapper {
             width: 100%;
-            background-color: #f4f4f5;
-            padding: 40px 0;
+            background-color: #fafafa;
+            padding: 48px 0;
         }
         .email-container {
-            max-width: 600px;
+            max-width: 560px;
             margin: 0 auto;
             background-color: #ffffff;
-            border-radius: 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e5e5;
             overflow: hidden;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
         .email-header {
-            background-color: #18181b;
-            padding: 24px 40px;
-            text-align: center;
+            padding: 32px 40px 0 40px;
         }
         .logo {
-            font-size: 24px;
-            font-weight: 700;
-            color: #ffffff;
+            font-size: 20px;
+            font-weight: 600;
+            color: #0a0a0a;
             text-decoration: none;
-            letter-spacing: -0.5px;
+            letter-spacing: -0.4px;
         }
-        .logo-accent {
-            color: #6366f1;
+        .divider {
+            height: 1px;
+            background-color: #e5e5e5;
+            margin: 24px 0 0 0;
+            border: none;
         }
         .email-body {
-            padding: 40px;
+            padding: 32px 40px 40px 40px;
         }
         .email-body h1 {
-            color: #18181b;
-            font-size: 24px;
+            color: #0a0a0a;
+            font-size: 20px;
             font-weight: 600;
-            margin: 0 0 16px 0;
+            margin: 0 0 8px 0;
+            letter-spacing: -0.3px;
         }
         .email-body p {
-            color: #52525b;
-            font-size: 16px;
+            color: #737373;
+            font-size: 14px;
             line-height: 1.6;
             margin: 0 0 16px 0;
         }
         .email-body a {
-            color: #6366f1;
-            text-decoration: none;
-        }
-        .email-body a:hover {
+            color: #0a0a0a;
             text-decoration: underline;
+            text-underline-offset: 2px;
         }
         .button {
             display: inline-block;
-            background-color: #18181b;
-            color: #ffffff !important;
-            padding: 14px 32px;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            text-decoration: none;
-            margin: 16px 0;
+            background-color: #171717;
+            color: #fafafa !important;
+            padding: 10px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            text-decoration: none !important;
+            margin: 8px 0;
+            line-height: 1.5;
         }
-        .button:hover {
-            background-color: #27272a;
+        .link-box {
+            word-break: break-all;
+            background-color: #f5f5f5;
+            padding: 12px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            border: 1px solid #e5e5e5;
+        }
+        .link-box a {
+            color: #737373;
             text-decoration: none;
+        }
+        .hint {
+            color: #a3a3a3 !important;
+            font-size: 13px !important;
+            margin-top: 24px !important;
         }
         .email-footer {
-            background-color: #fafafa;
             padding: 24px 40px;
-            text-align: center;
-            border-top: 1px solid #e4e4e7;
+            border-top: 1px solid #e5e5e5;
         }
         .email-footer p {
-            color: #a1a1aa;
-            font-size: 14px;
-            margin: 0;
+            color: #a3a3a3;
+            font-size: 12px;
+            margin: 0 0 4px 0;
+            line-height: 1.5;
         }
         .email-footer a {
-            color: #71717a;
-            text-decoration: none;
+            color: #a3a3a3;
+            text-decoration: underline;
+            text-underline-offset: 2px;
         }
     </style>
 </head>
@@ -99,14 +120,14 @@
     <div class="email-wrapper">
         <div class="email-container">
             <div class="email-header">
-                <span class="logo">Port<span class="logo-accent">call</span></span>
+                <span class="logo">Portcall</span>
+                <hr class="divider">
             </div>
             <div class="email-body">
                 <#nested>
             </div>
             <div class="email-footer">
-                <p>&copy; ${.now?string('yyyy')} Portcall. All rights reserved.</p>
-                <p><a href="https://useportcall.com">useportcall.com</a></p>
+                <p>&copy; ${.now?string('yyyy')} Portcall &middot; <a href="https://useportcall.com">useportcall.com</a></p>
             </div>
         </div>
     </div>

@@ -8,6 +8,8 @@ metadata:
     app: grafana
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: grafana
@@ -39,10 +41,15 @@ spec:
               value: {{ .Values.observability.grafana.adminPassword | quote }}
             {{- end }}
             {{- if .Values.observability.grafana.ingress.host }}
+            {{- $grafanaPath := default "/" .Values.observability.grafana.ingress.path }}
             - name: GF_SERVER_DOMAIN
               value: {{ .Values.observability.grafana.ingress.host | quote }}
             - name: GF_SERVER_ROOT_URL
-              value: {{ printf "https://%s" .Values.observability.grafana.ingress.host | quote }}
+              value: {{ printf "https://%s%s" .Values.observability.grafana.ingress.host (trimSuffix "/" $grafanaPath) | quote }}
+            {{- if ne $grafanaPath "/" }}
+            - name: GF_SERVER_SERVE_FROM_SUB_PATH
+              value: "true"
+            {{- end }}
             {{- end }}
             - name: DISCORD_ALERT_WEBHOOK_URL
               valueFrom:

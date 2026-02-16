@@ -1,0 +1,32 @@
+ingress:
+  enabled: true
+  className: nginx
+  annotations: {}
+  hosts:
+    - host: "dashboard.__DOMAIN__"
+      paths: [{ path: /, pathType: Prefix, service: dashboard, port: 8082 }]
+    - host: "api.__DOMAIN__"
+      paths: [{ path: /, pathType: Prefix, service: api, port: 8080 }]
+    - host: "auth.__DOMAIN__"
+      paths: [{ path: /, pathType: Prefix, service: keycloak, port: 8080 }]
+    - host: "quote.__DOMAIN__"
+      paths: [{ path: /, pathType: Prefix, service: quote, port: 8010 }]
+    - host: "checkout.__DOMAIN__"
+      paths: [{ path: /, pathType: Prefix, service: checkout, port: 8700 }]
+    - host: "webhook.__DOMAIN__"
+      paths: [{ path: /, pathType: Prefix, service: dashboard, port: 8082 }]
+    - host: "file.__DOMAIN__"
+      paths: [{ path: /, pathType: Prefix, service: file-api, port: 8085 }]
+  tls:
+    - secretName: portcall-tls
+      hosts:
+        - "admin.__DOMAIN__"
+        - "dashboard.__DOMAIN__"
+        - "api.__DOMAIN__"
+        - "auth.__DOMAIN__"
+        - "quote.__DOMAIN__"
+        - "checkout.__DOMAIN__"
+        - "webhook.__DOMAIN__"
+        - "file.__DOMAIN__"
+observability:
+  enabled: false

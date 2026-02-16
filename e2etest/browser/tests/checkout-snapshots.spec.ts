@@ -19,7 +19,7 @@ let checkoutUrl = "";
 let externalSessionId = "";
 
 test.describe.serial("Checkout full-page snapshots", () => {
-  test("setup checkout session via API", async () => {
+  test.beforeAll(async () => {
     const key = await seedSecret(cfg);
     const suffix = Date.now();
     const planId = await seedPlan(cfg, `Snapshot Plan ${suffix}`, 4900);

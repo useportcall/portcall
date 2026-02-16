@@ -63,3 +63,20 @@ e2etest/browser/setup/.harness-pid
 
 # Dev CLI runtime state
 .dev-cli.deploy.json
+.dev-cli.infra.json
+.infra/
+infra/digitalocean/terraform/.terraform/
+infra/digitalocean/terraform/.terraform.lock.hcl
+infra/digitalocean/terraform/*.tfstate
+infra/digitalocean/terraform/*.tfstate.*
+
+# Kubernetes
+*.kubeconfig
+kubeconfig*
+
+# Helm
+charts/*.tgz
+
+# Editor settings
+.vscode/
+.idea/

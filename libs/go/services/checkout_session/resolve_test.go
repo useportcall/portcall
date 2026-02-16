@@ -33,27 +33,30 @@ func (m *resolveDB) Save(dest any) error {
 	return m.saveErr
 }
 
-func TestResolve_ActiveSession(t *testing.T) {
-	db := &resolveDB{
-		session: &models.CheckoutSession{Status: "active", AppID: 1, UserID: 2, PlanID: 10},
-	}
-	svc := cs.NewService(db, nil)
-
-	result, err := svc.Resolve(&cs.ResolvePayload{
-		ExternalSessionID:       "si_123",
-		ExternalPaymentMethodID: "pm_456",
-	})
-	if err != nil {
-		t.Fatalf("unexpected error: %v", err)
-	}
-	if result.Skipped {
-		t.Fatal("expected resolved, got skipped")
-	}
-	if result.ExternalPaymentMethodID != "pm_456" {
-		t.Fatalf("expected pm_456, got %s", result.ExternalPaymentMethodID)
-	}
-	if db.saved != "resolved" {
-		t.Fatalf("expected status resolved, got %s", db.saved)
+func TestResolve_AllowedStatuses(t *testing.T) {
+	for _, status := range []string{"active", "pending"} {
+		t.Run(status, func(t *testing.T) {
+			db := &resolveDB{
+				session: &models.CheckoutSession{Status: status, AppID: 1, UserID: 2, PlanID: 10},
+			}
+			svc := cs.NewService(db, nil)
+			result, err := svc.Resolve(&cs.ResolvePayload{
+				ExternalSessionID:       "si_123",
+				ExternalPaymentMethodID: "pm_456",
+			})
+			if err != nil {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if result.Skipped {
+				t.Fatal("expected resolved, got skipped")
+			}
+			if result.ExternalPaymentMethodID != "pm_456" {
+				t.Fatalf("expected pm_456, got %s", result.ExternalPaymentMethodID)
+			}
+			if db.saved != "resolved" {
+				t.Fatalf("expected status resolved, got %s", db.saved)
+			}
+		})
 	}
 }
 

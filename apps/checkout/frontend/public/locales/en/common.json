@@ -25,14 +25,37 @@
     },
     "submit": {
         "pay": "Pay {{total}}",
+        "authorize_and_continue": "Save payment method for future subscription payments",
         "processing": "Processing...",
         "payment_successful": "Payment successful!"
+    },
+    "compliance": {
+        "title": "Before you continue",
+        "merchant_fallback": "this merchant",
+        "save_payment_method": "By continuing, you authorize {{merchant}} to save your card and use it for subscription charges based on your selected plan.",
+        "one_time_charge": "By continuing, you authorize {{merchant}} to process a one-time charge for this purchase.",
+        "consent_label": "I agree to save this payment method for future subscription payments, including off-session charges where card re-entry is not required.",
+        "recurring_amount": "Recurring amount: {{amount}}",
+        "variable_amount": "Variable usage-based amount",
+        "billing_cadence": "Billing cadence: {{cadence}}",
+        "renewal_date": "Next renewal date: {{date}}",
+        "trial_details": "Trial: {{days}} days, then recurring billing starts automatically.",
+        "tax_fee_disclosure": "Estimated taxes/fees shown today: {{tax}}. Final invoice taxes may vary by location (VAT/GST rules).",
+        "off_session_notice": "Future subscription charges may occur without re-entering card details.",
+        "strong_authentication": "Your bank may require extra verification (such as 3D Secure / Strong Customer Authentication) before completion.",
+        "terms_acknowledgement": "You confirm that you have reviewed the pricing, renewal terms, and cancellation policy, and agree to the Terms of Service and Privacy Notice.",
+        "links": {
+            "terms": "Terms",
+            "privacy": "Privacy",
+            "cancellation": "Refund/Cancellation"
+        }
     },
     "validation": {
         "line1_required": "Address line 1 is required",
         "city_required": "City is required",
         "postal_code_required": "Postal code is required",
-        "country_required": "Country is required"
+        "country_required": "Country is required",
+        "recurring_consent_required": "You must accept recurring payment consent before continuing."
     },
     "order_summary": {
         "title": "Order Summary",

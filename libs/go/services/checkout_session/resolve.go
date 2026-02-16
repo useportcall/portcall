@@ -7,16 +7,16 @@ import (
 )
 
 // Resolve handles checkout session resolution.
-// It finds the session by external ID, checks it is active, and updates
-// the status to "resolved".
+// It finds the session by external ID, checks it is still pending resolution,
+// and updates the status to "resolved".
 func (s *service) Resolve(payload *ResolvePayload) (*ResolveResult, error) {
 	var session models.CheckoutSession
 	if err := s.db.FindFirst(&session, "external_session_id = ?", payload.ExternalSessionID); err != nil {
 		return nil, err
 	}
 
-	if session.Status != "active" {
-		log.Printf("[Resolve] Checkout session %s is not active (current status: %s), skipping",
+	if session.Status != "active" && session.Status != "pending" {
+		log.Printf("[Resolve] Checkout session %s is not active/pending (current status: %s), skipping",
 			payload.ExternalSessionID, session.Status)
 		return &ResolveResult{Skipped: true}, nil
 	}
